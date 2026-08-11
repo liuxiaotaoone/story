@@ -56,18 +56,28 @@ function worldPositionAt(prepared: PreparedRenderPlan, instance: EntityInstance,
   return track.worldPosition ?? projectGround(environment, {u: 0.5, v: 0.5}).worldFootPosition;
 }
 
-function visualCorrectionPx(
+export function calculateGroundLockVisualCorrectionPx(
   correction: Point,
   baselineAnchor: Point,
   lockedAnchor: Point,
   assetSize: Size,
   scale: Point,
+  rotation: number,
 ): number {
-  const topLeftDelta = {
-    x: correction.x - (lockedAnchor.x - baselineAnchor.x) * assetSize.width * scale.x,
-    y: correction.y - (lockedAnchor.y - baselineAnchor.y) * assetSize.height * scale.y,
+  const localAnchorDelta = {
+    x: (baselineAnchor.x - lockedAnchor.x) * assetSize.width * scale.x,
+    y: (baselineAnchor.y - lockedAnchor.y) * assetSize.height * scale.y,
   };
-  return Math.hypot(topLeftDelta.x, topLeftDelta.y);
+  const cosine = Math.cos(rotation);
+  const sine = Math.sin(rotation);
+  const worldAnchorDelta = {
+    x: localAnchorDelta.x * cosine - localAnchorDelta.y * sine,
+    y: localAnchorDelta.x * sine + localAnchorDelta.y * cosine,
+  };
+  return Math.hypot(
+    correction.x + worldAnchorDelta.x,
+    correction.y + worldAnchorDelta.y,
+  );
 }
 
 function assertVisualCorrection(maxCorrectionPx: number, actualPx: number, clipId: string): void {
@@ -83,6 +93,7 @@ export function resolveGroundLock(
   absoluteFrame: number,
   assetSize: Size,
   scale: Point,
+  rotation: number,
 ): GroundLockResult {
   const clip = prepared.poseClipById.get(selection.poseClipId);
   if (clip === undefined) throw new Error(`Missing PoseClip ${selection.poseClipId}`);
@@ -99,12 +110,13 @@ export function resolveGroundLock(
   if (clip.groundLock.mode === 'none') return unlocked();
   if (clip.groundLock.mode === 'contact-only' && contactKey(resolved.frame) === undefined) return unlocked();
   if (clip.groundLock.mode === 'always') {
-    const actualVisualCorrectionPx = visualCorrectionPx(
+    const actualVisualCorrectionPx = calculateGroundLockVisualCorrectionPx(
       {x: 0, y: 0},
       resolved.frame.anchors.foot,
       selected.anchor,
       assetSize,
       scale,
+      rotation,
     );
     assertVisualCorrection(clip.groundLock.maxCorrectionPx, actualVisualCorrectionPx, clip.id);
     return {
@@ -148,12 +160,13 @@ export function resolveGroundLock(
     y: lockedWorldPoint.y - currentWorldPoint.y,
   };
   const correctionPx = Math.hypot(correction.x, correction.y);
-  const actualVisualCorrectionPx = visualCorrectionPx(
+  const actualVisualCorrectionPx = calculateGroundLockVisualCorrectionPx(
     correction,
     resolved.frame.anchors.foot,
     selected.anchor,
     assetSize,
     scale,
+    rotation,
   );
   assertVisualCorrection(clip.groundLock.maxCorrectionPx, actualVisualCorrectionPx, clip.id);
   return {

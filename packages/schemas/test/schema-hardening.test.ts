@@ -3,6 +3,7 @@ import {
   AssetManifestSchema,
   AssetRecordSchema,
   ContentHashSchema,
+  EnvironmentDefinitionSchema,
   OwnershipEventSchema,
   RenderStateSchema,
   ShotTransitionSchema,
@@ -133,6 +134,14 @@ function renderPlan(): Record<string, any> {
 }
 
 describe('timeline hardening', () => {
+  it('uses one unique ID namespace across every Timeline event collection', () => {
+    const result = TimelineSchema.safeParse(timeline({
+      poseEvents: [{id: 'shared-id', frame: 1, entityId: 'farmer', poseClipId: 'idle', clipStartOffset: 0, playbackRate: 1}],
+      visibilityEvents: [{id: 'shared-id', frame: 2, entityId: 'farmer', visible: false}],
+    }));
+    expect(result.success).toBe(false);
+  });
+
   it('requires every keyframe track to be strictly increasing', () => {
     const result = TimelineSchema.safeParse(timeline({
       entityTracks: [{
@@ -177,6 +186,14 @@ describe('timeline hardening', () => {
     expect(TimelineSchema.safeParse(timeline({
       entityTracks: [{entityId: 'farmer', opacity: [{frame: 0, value: 1.1, easing: 'hold'}]}],
     })).success).toBe(false);
+  });
+});
+
+describe('environment hardening', () => {
+  it('rejects duplicate layer IDs before RenderState keys are generated', () => {
+    const environment = structuredClone(renderPlan().environments[0]);
+    environment.layers.push({...structuredClone(environment.layers[0]), assetId: 'farm-far'});
+    expect(EnvironmentDefinitionSchema.safeParse(environment).success).toBe(false);
   });
 });
 

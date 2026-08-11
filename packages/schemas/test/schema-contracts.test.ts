@@ -202,6 +202,23 @@ describe('pose transition contracts', () => {
       }],
     })).success).toBe(false);
   });
+
+  it('allows center only for crossfade transitions in v0.1', () => {
+    const poseEvent = {id: 'pose-next', frame: 10, entityId: 'farmer', poseClipId: 'farmer.next', clipStartOffset: 0, playbackRate: 1};
+    const common = {id: 'transition-next', entityId: 'farmer', fromPoseClipId: 'farmer.idle', toPoseClipId: 'farmer.next', startFrame: 10, anchorPolicy: 'center'};
+    expect(TimelineSchema.safeParse(timelineWith({
+      poseEvents: [poseEvent],
+      poseTransitions: [{...common, durationFrames: 0, mode: 'cut'}],
+    })).success).toBe(false);
+    expect(TimelineSchema.safeParse(timelineWith({
+      poseEvents: [{...poseEvent, frame: 15}],
+      poseTransitions: [{...common, durationFrames: 5, mode: 'hold-then-cut'}],
+    })).success).toBe(false);
+    expect(TimelineSchema.safeParse(timelineWith({
+      poseEvents: [poseEvent],
+      poseTransitions: [{...common, durationFrames: 3, mode: 'crossfade'}],
+    })).success).toBe(true);
+  });
 });
 
 describe('deterministic render-state contracts', () => {
@@ -315,5 +332,8 @@ describe('override and task provenance contracts', () => {
     const changedRole = {...base, dependencies: [{...base.dependencies[0]!, role: 'background'}]};
     expect(taskCacheKeyMaterial(changedRole)).not.toBe(taskCacheKeyMaterial(base));
     expect(taskCacheKeyMaterial(base)).toBe(canonicalizeJson(JSON.parse(taskCacheKeyMaterial(base))));
+    expect(taskCacheKeyMaterial({...base, promptHash: HASH})).not.toBe(
+      taskCacheKeyMaterial({...base, promptHash: '1'.repeat(64)}),
+    );
   });
 });

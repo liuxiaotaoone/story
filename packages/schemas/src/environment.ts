@@ -64,7 +64,19 @@ export const EnvironmentDefinitionSchema = z.object({
   ground: GroundSurfaceSchema,
   occlusionZones: z.array(PolygonSchema),
   safeSubtitleZone: PolygonSchema.optional(),
-}).strict();
+}).strict().superRefine((environment, context) => {
+  const layerIds = new Set<string>();
+  for (const [index, layer] of environment.layers.entries()) {
+    if (layerIds.has(layer.id)) {
+      context.addIssue({
+        code: 'custom',
+        message: `Duplicate environment layer id: ${layer.id}`,
+        path: ['layers', index, 'id'],
+      });
+    }
+    layerIds.add(layer.id);
+  }
+});
 
 export const GroundPointSchema = z.object({
   u: UnitIntervalSchema,

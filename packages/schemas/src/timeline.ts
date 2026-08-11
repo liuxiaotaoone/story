@@ -267,6 +267,34 @@ export const TimelineSchema = z.object({
     poseEventKeys.add(key);
   }
 
+  const eventCollections: Array<readonly [string, readonly {id: string}[]]> = [
+    ['poseEvents', timeline.poseEvents],
+    ['poseTransitions', timeline.poseTransitions],
+    ['ownershipEvents', timeline.ownershipEvents],
+    ['visibilityEvents', timeline.visibilityEvents],
+    ['effectEvents', timeline.effectEvents],
+    ['narration', timeline.narration],
+    ['subtitles', timeline.subtitles],
+    ['sfx', timeline.sfx],
+    ['transitions', timeline.transitions],
+    ['markers', timeline.markers],
+  ];
+  const eventIds = new Map<string, string>();
+  for (const [collectionName, events] of eventCollections) {
+    for (const [index, event] of events.entries()) {
+      const previousPath = eventIds.get(event.id);
+      if (previousPath !== undefined) {
+        context.addIssue({
+          code: 'custom',
+          message: `Timeline event id ${event.id} is already used at ${previousPath}`,
+          path: [collectionName, index, 'id'],
+        });
+      } else {
+        eventIds.set(event.id, `${collectionName}.${index}.id`);
+      }
+    }
+  }
+
   for (const [index, transition] of timeline.poseTransitions.entries()) {
     const switchFrame = effectivePoseSwitchFrame(transition);
     const matchingEvent = timeline.poseEvents.some((event) =>
@@ -279,6 +307,13 @@ export const TimelineSchema = z.object({
         code: 'custom',
         message: `Pose transition requires matching to-pose event at frame ${switchFrame}`,
         path: ['poseTransitions', index],
+      });
+    }
+    if (transition.mode !== 'crossfade' && transition.anchorPolicy !== 'foot') {
+      context.addIssue({
+        code: 'custom',
+        message: `${transition.mode} transitions only support anchorPolicy=foot in v0.1`,
+        path: ['poseTransitions', index, 'anchorPolicy'],
       });
     }
   }

@@ -2,6 +2,8 @@ import {describe, expect, it} from 'vitest';
 import {RenderStateSchema, type Timeline} from '@pose-clip/schemas';
 import {
   applyEasing,
+  calculateGroundLockVisualCorrectionPx,
+  CANONICAL_RENDER_SIZE,
   evaluateFrame,
   evaluateNumberKeyframes,
   prepareRenderPlan,
@@ -92,7 +94,7 @@ describe('true contact-segment GroundLock', () => {
   it('locks the reference foot to one world point for the entire contact segment', () => {
     const instance = prepared.entityInstanceById.get('farmer')!;
     const selection = resolvePoseSelections(prepared.plan.timeline, 'farmer', 'farmer.walk', 2)[0]!;
-    const results = [0, 1, 2, 3].map((frame) => resolveGroundLock(prepared, instance, selection, frame, {width: 200, height: 400}, {x: 1, y: 1}));
+    const results = [0, 1, 2, 3].map((frame) => resolveGroundLock(prepared, instance, selection, frame, {width: 200, height: 400}, {x: 1, y: 1}, 0));
     expect(results.map(({segment}) => segment)).toEqual(Array(4).fill({startFrame: 0, endFrame: 4}));
     expect(new Set(results.map(({lockedWorldPoint}) => JSON.stringify(lockedWorldPoint))).size).toBe(1);
     expect(Math.max(...results.map(({correctionPx}) => correctionPx))).toBeLessThanOrEqual(30);
@@ -107,6 +109,21 @@ describe('true contact-segment GroundLock', () => {
     strict.poseClips.find(({id}) => id === 'farmer.walk')!.groundLock.maxCorrectionPx = 10;
     const strictPrepared = prepareRenderPlan(strict);
     expect(() => evaluateFrame(strictPrepared, 0)).toThrow(/visual correction/iu);
+  });
+
+  it('rotates anchor displacement into world space at 0, 45, and 90 degrees', () => {
+    const args = [
+      {x: 5, y: 0},
+      {x: 0.5, y: 0.5},
+      {x: 0.4, y: 0.5},
+      {width: 100, height: 100},
+      {x: 1, y: 1},
+    ] as const;
+    expect(calculateGroundLockVisualCorrectionPx(...args, 0)).toBeCloseTo(15);
+    expect(calculateGroundLockVisualCorrectionPx(...args, Math.PI / 4)).toBeCloseTo(
+      Math.hypot(5 + 10 / Math.sqrt(2), 10 / Math.sqrt(2)),
+    );
+    expect(calculateGroundLockVisualCorrectionPx(...args, Math.PI / 2)).toBeCloseTo(Math.hypot(5, 10));
   });
 
   it('returns the same result in random and sequential evaluation order', () => {
@@ -223,6 +240,13 @@ describe('event-centric Golden Fixture V2', () => {
     expect(rotated.position.y).toBeCloseTo(260);
     expect(rotated.rotation).toBeCloseTo(0.2 - Math.PI / 2);
     expect(resolveCameraSpaceTransform({transform: base, camera: {position: {x: 1, y: 2}, zoom: 3, rotation: 1}, cameraSpace: {kind: 'screen'}, viewport: {width: 1280, height: 720}})).toEqual(base);
+    expect(CANONICAL_RENDER_SIZE).toEqual({width: 1280, height: 720});
+    expect(() => resolveCameraSpaceTransform({
+      transform: base,
+      camera: {position: {x: 640, y: 360}, zoom: 1, rotation: 0},
+      cameraSpace: {kind: 'world', influence: 1},
+      viewport: {width: 640, height: 360},
+    })).toThrow(/canonical 1280x720/iu);
   });
 });
 

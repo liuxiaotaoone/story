@@ -50,6 +50,7 @@ export function taskCacheKeyMaterial(task: z.infer<typeof TaskNodeSchema>): stri
       || compare(left.outputHash, right.outputHash));
   return canonicalizeJson({
     inputHash: task.inputHash,
+    promptHash: task.promptHash ?? null,
     dependencies,
     producer: task.producer,
     modelId: task.modelId ?? null,

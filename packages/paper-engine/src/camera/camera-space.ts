@@ -1,5 +1,7 @@
 import type {CameraState, Point, Size, SpriteRenderState, Transform2D} from '@pose-clip/schemas';
 
+export const CANONICAL_RENDER_SIZE = Object.freeze({width: 1280, height: 720}) satisfies Size;
+
 export interface CameraSpaceTransformInput {
   transform: Transform2D;
   camera: CameraState;
@@ -17,6 +19,9 @@ export interface CameraSpaceTransformInput {
  */
 export function resolveCameraSpaceTransform(input: CameraSpaceTransformInput): Transform2D {
   const {transform, camera, cameraSpace, viewport} = input;
+  if (viewport.width !== CANONICAL_RENDER_SIZE.width || viewport.height !== CANONICAL_RENDER_SIZE.height) {
+    throw new RangeError('Paper Engine v0.1 only supports canonical 1280x720 pixel space; scale Preview output in the Renderer/UI');
+  }
   if (cameraSpace.kind === 'screen') {
     return {
       position: {...transform.position},
@@ -55,7 +60,7 @@ export function resolveCameraSpacePoint(
   point: Point,
   camera: CameraState,
   cameraSpace: SpriteRenderState['cameraSpace'],
-  viewport: Size = {width: 1280, height: 720},
+  viewport: Size = CANONICAL_RENDER_SIZE,
 ): Point {
   return resolveCameraSpaceTransform({
     transform: {position: point, scale: {x: 1, y: 1}, rotation: 0, opacity: 1},

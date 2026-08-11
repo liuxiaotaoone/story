@@ -190,6 +190,7 @@ export function evaluateFrame(prepared: PreparedRenderPlan, frame: number): Rend
         frame,
         {width: asset.width, height: asset.height},
         baseScale,
+        track.rotation,
       );
       const role = selection.transition?.role ?? 'main';
       const sprite: SpriteRenderState = {
