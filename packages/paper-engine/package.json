@@ -15,7 +15,8 @@
   "scripts": {
     "build": "node ../../node_modules/typescript/bin/tsc -p tsconfig.build.json",
     "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
-    "test": "node ../../node_modules/vitest/vitest.mjs run"
+    "test": "node ../../node_modules/vitest/vitest.mjs run",
+    "golden:update": "node --experimental-strip-types test/update-goldens.mts"
   },
   "dependencies": {
     "@pose-clip/schemas": "workspace:*"

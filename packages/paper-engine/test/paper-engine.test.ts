@@ -7,10 +7,12 @@ import {
   prepareRenderPlan,
   projectGround,
   resolveCameraSpacePoint,
+  resolveCameraSpaceTransform,
   resolveGroundLock,
   resolveOwner,
   resolvePoseClipFrame,
   resolvePoseSelections,
+  worldPointForLocalAnchor,
 } from '../src/index.js';
 import {demoRenderPlan} from './fixture.js';
 
@@ -59,6 +61,21 @@ describe('PreparedRenderPlan boundary', () => {
     invalid.timeline.ownershipEvents[0]!.from = {kind: 'entity', entityId: 'rabbit', slot: 'bad'};
     expect(() => prepareRenderPlan(invalid)).toThrow(/ownership|slot|chain/iu);
   });
+
+  it('rejects transition source mismatches, overlaps, and baked transfers during crossfade', () => {
+    const mismatch = structuredClone(demoRenderPlan);
+    mismatch.timeline.poseTransitions[0]!.fromPoseClipId = 'farmer.hold-rabbit';
+    expect(() => prepareRenderPlan(mismatch)).toThrow(/active before|fromPoseClipId/iu);
+
+    const overlap = structuredClone(demoRenderPlan);
+    overlap.timeline.poseEvents.push({id: 'farmer-walk-again', frame: 31, entityId: 'farmer', poseClipId: 'farmer.walk', clipStartOffset: 0, playbackRate: 1});
+    overlap.timeline.poseTransitions.push({id: 'overlap', entityId: 'farmer', fromPoseClipId: 'farmer.hold-rabbit', toPoseClipId: 'farmer.walk', startFrame: 31, durationFrames: 2, mode: 'crossfade', anchorPolicy: 'foot'});
+    expect(() => prepareRenderPlan(overlap)).toThrow(/overlap/iu);
+
+    const baked = structuredClone(demoRenderPlan);
+    baked.timeline.ownershipEvents.find(({id}) => id === 'rabbit-attach')!.frame = 31;
+    expect(() => prepareRenderPlan(baked)).toThrow(/Baked ownership|BAKED_DURING_CROSSFADE/iu);
+  });
 });
 
 describe('true contact-segment GroundLock', () => {
@@ -92,6 +109,28 @@ describe('event-centric Golden Fixture V2', () => {
     expect(sprites.reduce((sum, {transform}) => sum + transform.opacity, 0)).toBeCloseTo(0.8);
   });
 
+  it('interpolates socket attachment transforms from both owner poses during crossfade', () => {
+    const state = evaluateFrame(prepared, 31);
+    const ownerSprites = state.sprites.filter(({entityId}) => entityId === 'farmer');
+    const lantern = state.sprites.find(({entityId}) => entityId === 'lantern')!;
+    const weightedAnchors = ownerSprites.map((sprite) => {
+      const clip = sprite.poseTransition?.role === 'from'
+        ? prepared.poseClipById.get('farmer.walk')!
+        : prepared.poseClipById.get('farmer.hold-rabbit')!;
+      const poseFrame = clip.frames.find(({assetId}) => assetId === sprite.assetId)!;
+      const asset = prepared.assetById.get(sprite.assetId)!;
+      if (!('width' in asset)) throw new Error('Expected visual owner asset');
+      return {
+        weight: sprite.poseTransition!.weight,
+        point: worldPointForLocalAnchor(sprite.transform.position, sprite.anchor, poseFrame.anchors.rightHand!, {width: asset.width, height: asset.height}, sprite.transform.scale, sprite.transform.rotation),
+      };
+    });
+    expect(lantern.transform.position.x).toBeCloseTo(weightedAnchors.reduce((sum, item) => sum + item.point.x * item.weight, 0));
+    expect(lantern.transform.position.y).toBeCloseTo(weightedAnchors.reduce((sum, item) => sum + item.point.y * item.weight, 0));
+    expect(lantern.transform.scale.x).toBeCloseTo(ownerSprites.reduce((sum, sprite) => sum + sprite.transform.scale.x * sprite.poseTransition!.weight, 0));
+    expect(lantern.transform.rotation).toBeCloseTo(0);
+  });
+
   it('resolves socket, baked composite, detach, effect, subtitle, and visibility events', () => {
     const at20 = evaluateFrame(prepared, 20);
     expect(at20.sprites.find(({entityId}) => entityId === 'lantern')?.owner).toEqual({kind: 'entity', entityId: 'farmer', slot: 'rightHand'});
@@ -113,6 +152,26 @@ describe('event-centric Golden Fixture V2', () => {
     const camera = evaluateFrame(prepared, 60).camera;
     expect(resolveCameraSpacePoint({x: 100, y: 100}, camera, {kind: 'screen'})).toEqual({x: 100, y: 100});
     expect(resolveCameraSpacePoint({x: 100, y: 100}, camera, {kind: 'world', influence: 1}).x).toBeLessThan(100);
+  });
+
+  it('freezes full camera position, scale, and rotation semantics', () => {
+    const base = {position: {x: 640, y: 360}, scale: {x: 1.5, y: 2}, rotation: 0.2, opacity: 0.7};
+    expect(resolveCameraSpaceTransform({
+      transform: base,
+      camera: {position: {x: 650, y: 360}, zoom: 2, rotation: 0},
+      cameraSpace: {kind: 'world', influence: 1},
+      viewport: {width: 1280, height: 720},
+    })).toEqual({position: {x: 620, y: 360}, scale: {x: 3, y: 4}, rotation: 0.2, opacity: 0.7});
+    const rotated = resolveCameraSpaceTransform({
+      transform: {...base, position: {x: 740, y: 360}},
+      camera: {position: {x: 640, y: 360}, zoom: 1, rotation: Math.PI / 2},
+      cameraSpace: {kind: 'world', influence: 1},
+      viewport: {width: 1280, height: 720},
+    });
+    expect(rotated.position.x).toBeCloseTo(640);
+    expect(rotated.position.y).toBeCloseTo(260);
+    expect(rotated.rotation).toBeCloseTo(0.2 - Math.PI / 2);
+    expect(resolveCameraSpaceTransform({transform: base, camera: {position: {x: 1, y: 2}, zoom: 3, rotation: 1}, cameraSpace: {kind: 'screen'}, viewport: {width: 1280, height: 720}})).toEqual(base);
   });
 });
 

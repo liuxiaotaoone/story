@@ -148,14 +148,35 @@ export function validateRenderPlanIntegrity(input: unknown): RenderPlanIntegrity
     else if (definition !== undefined && !definition.poseClipIds.includes(event.poseClipId)) add('POSE_NOT_ALLOWED', `Pose ${event.poseClipId} is not registered for ${event.entityId}`, `timeline.poseEvents.${index}.poseClipId`);
   }
   for (const [index, transition] of plan.timeline.poseTransitions.entries()) {
-    if (!instances.has(transition.entityId)) add('MISSING_ENTITY_INSTANCE', `Pose transition references missing entity ${transition.entityId}`, `timeline.poseTransitions.${index}.entityId`);
+    const instance = instances.get(transition.entityId);
+    const definition = instance === undefined ? undefined : entities.get(instance.definitionId);
+    if (instance === undefined) add('MISSING_ENTITY_INSTANCE', `Pose transition references missing entity ${transition.entityId}`, `timeline.poseTransitions.${index}.entityId`);
     if (!poseClips.has(transition.fromPoseClipId)) add('MISSING_POSE_CLIP', `Missing from pose ${transition.fromPoseClipId}`, `timeline.poseTransitions.${index}.fromPoseClipId`);
     if (!poseClips.has(transition.toPoseClipId)) add('MISSING_POSE_CLIP', `Missing to pose ${transition.toPoseClipId}`, `timeline.poseTransitions.${index}.toPoseClipId`);
+    const previousPoseEvent = plan.timeline.poseEvents
+      .filter((event) => event.entityId === transition.entityId && event.frame < transition.startFrame)
+      .sort((left, right) => right.frame - left.frame || (left.id < right.id ? 1 : left.id > right.id ? -1 : 0))[0];
+    const activePoseClipId = previousPoseEvent?.poseClipId ?? definition?.defaultPoseClipId;
+    if (activePoseClipId !== undefined && activePoseClipId !== transition.fromPoseClipId) {
+      add('POSE_TRANSITION_FROM_MISMATCH', `Transition ${transition.id} expects ${transition.fromPoseClipId}, but ${activePoseClipId} is active before frame ${transition.startFrame}`, `timeline.poseTransitions.${index}.fromPoseClipId`);
+    }
   }
   for (const [index, event] of plan.timeline.ownershipEvents.entries()) {
     if (!instances.has(event.entityId)) add('MISSING_ENTITY_INSTANCE', `Ownership event references missing entity ${event.entityId}`, `timeline.ownershipEvents.${index}.entityId`);
     validateOwner(event.from, `timeline.ownershipEvents.${index}.from`);
     validateOwner(event.to, `timeline.ownershipEvents.${index}.to`);
+    if (event.mode === 'baked') {
+      const activeCrossfade = plan.timeline.poseTransitions.find((transition) =>
+        transition.mode === 'crossfade'
+        && event.frame >= transition.startFrame
+        && event.frame < transition.startFrame + transition.durationFrames
+        && (transition.entityId === event.entityId
+          || (event.from.kind === 'entity' && transition.entityId === event.from.entityId)
+          || (event.to.kind === 'entity' && transition.entityId === event.to.entityId)));
+      if (activeCrossfade !== undefined) {
+        add('BAKED_DURING_CROSSFADE', `Baked ownership event ${event.id} occurs during ${activeCrossfade.id}`, `timeline.ownershipEvents.${index}.frame`);
+      }
+    }
     if (event.type === 'attach' && event.mode === 'socket' && event.socketBinding !== undefined) {
       const socketBinding = event.socketBinding;
       const childInstance = instances.get(event.entityId);

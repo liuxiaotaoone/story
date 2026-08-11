@@ -282,6 +282,29 @@ export const TimelineSchema = z.object({
       });
     }
   }
+  const transitionsByEntity = new Map<string, Array<{index: number; transition: typeof timeline.poseTransitions[number]}>>();
+  for (const [index, transition] of timeline.poseTransitions.entries()) {
+    const entries = transitionsByEntity.get(transition.entityId) ?? [];
+    entries.push({index, transition});
+    transitionsByEntity.set(transition.entityId, entries);
+  }
+  for (const entries of transitionsByEntity.values()) {
+    entries.sort((left, right) => left.transition.startFrame - right.transition.startFrame
+      || (left.transition.id < right.transition.id ? -1 : left.transition.id > right.transition.id ? 1 : 0));
+    for (let index = 1; index < entries.length; index += 1) {
+      const previous = entries[index - 1];
+      const current = entries[index];
+      if (previous === undefined || current === undefined) continue;
+      const previousEnd = previous.transition.startFrame + Math.max(1, previous.transition.durationFrames);
+      if (current.transition.startFrame < previousEnd) {
+        context.addIssue({
+          code: 'custom',
+          message: `Pose transitions ${previous.transition.id} and ${current.transition.id} overlap`,
+          path: ['poseTransitions', current.index],
+        });
+      }
+    }
+  }
   for (const [index, shot] of timeline.shots.entries()) {
     if (shot.range.endFrame > timeline.durationFrames) {
       context.addIssue({code: 'custom', message: 'Shot exceeds timeline duration', path: ['shots', index, 'range']});

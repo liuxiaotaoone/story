@@ -1,0 +1,217 @@
+{
+  "frame": 79,
+  "shotId": "shot-01",
+  "environmentId": "farm",
+  "camera": {
+    "position": {
+      "x": 655.9327731092437,
+      "y": 360
+    },
+    "zoom": 1,
+    "rotation": 0
+  },
+  "sprites": [
+    {
+      "renderId": "environment:farm:far",
+      "assetId": "farm-far",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "renderLayer": "far",
+      "zIndex": 0,
+      "depth": 0,
+      "stableSortKey": "environment:farm:far",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 0.1
+      }
+    },
+    {
+      "renderId": "environment:farm:mid",
+      "assetId": "farm-mid",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "renderLayer": "mid",
+      "zIndex": 0,
+      "depth": 0,
+      "stableSortKey": "environment:farm:mid",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 0.35
+      }
+    },
+    {
+      "renderId": "environment:farm:ground",
+      "assetId": "farm-ground",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "renderLayer": "ground",
+      "zIndex": 0,
+      "depth": 0,
+      "stableSortKey": "environment:farm:ground",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 0.7
+      }
+    },
+    {
+      "renderId": "farmer:main:farmer-hold-rabbit",
+      "entityId": "farmer",
+      "assetId": "farmer-hold-rabbit",
+      "transform": {
+        "position": {
+          "x": 503.4541176470588,
+          "y": 558
+        },
+        "scale": {
+          "x": 0.775,
+          "y": 0.775
+        },
+        "rotation": 0,
+        "opacity": 0.8
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.96
+      },
+      "renderLayer": "characters",
+      "zIndex": 0,
+      "depth": 0.55,
+      "stableSortKey": "entity:farmer:0:main:farmer-hold-rabbit",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 1
+      }
+    },
+    {
+      "renderId": "lantern:main:lantern-idle",
+      "entityId": "lantern",
+      "assetId": "lantern-idle",
+      "transform": {
+        "position": {
+          "x": 540.6541176470588,
+          "y": 384.4
+        },
+        "scale": {
+          "x": 0.775,
+          "y": 0.775
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.05
+      },
+      "renderLayer": "characters",
+      "zIndex": 1,
+      "depth": 0.55,
+      "stableSortKey": "entity:lantern:0:main:lantern-idle",
+      "visible": true,
+      "owner": {
+        "kind": "entity",
+        "entityId": "farmer",
+        "slot": "rightHand"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 1
+      }
+    },
+    {
+      "renderId": "environment:farm:foreground",
+      "assetId": "farm-foreground",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "renderLayer": "foreground",
+      "zIndex": 0,
+      "depth": 0,
+      "stableSortKey": "environment:farm:foreground",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 1.15
+      }
+    }
+  ],
+  "effects": []
+}

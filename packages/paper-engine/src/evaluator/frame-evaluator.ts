@@ -46,11 +46,63 @@ function poseAnchor(anchors: PoseAnchors, name: string): Point | undefined {
   return anchors.auxiliary?.[name];
 }
 
-function primaryContext(contexts: readonly EntitySpriteContext[]): EntitySpriteContext | undefined {
-  return contexts.find((context) => context.sprite.poseTransition?.role === 'to' && context.sprite.visible)
-    ?? contexts.filter((context) => context.sprite.visible)
-      .sort((left, right) => (right.sprite.poseTransition?.weight ?? 1) - (left.sprite.poseTransition?.weight ?? 1))[0]
-    ?? contexts[0];
+interface BlendedOwnerAttachmentPose {
+  anchorWorld: Point;
+  rotation: number;
+  scale: Point;
+  depth: number;
+  zIndex: number;
+}
+
+function shortestAngleDelta(from: number, to: number): number {
+  const fullTurn = Math.PI * 2;
+  return ((to - from + Math.PI) % fullTurn + fullTurn) % fullTurn - Math.PI;
+}
+
+function blendOwnerAttachmentPose(
+  contexts: readonly EntitySpriteContext[],
+  slotId: string,
+): BlendedOwnerAttachmentPose | undefined {
+  const first = contexts[0];
+  if (first === undefined) return undefined;
+  const slot = first.definition.attachmentSlots.find((candidate) => candidate.id === slotId);
+  if (slot === undefined) throw new Error(`Missing attachment slot ${slotId}`);
+  const weighted = contexts.map((context) => {
+    const localAnchor = poseAnchor(context.anchors, slot.ownerAnchor);
+    if (localAnchor === undefined) throw new Error(`Owner pose has no anchor ${slot.ownerAnchor}`);
+    return {
+      context,
+      weight: context.sprite.poseTransition?.weight ?? 1,
+      anchorWorld: worldPointForLocalAnchor(
+        context.sprite.transform.position,
+        context.sprite.anchor,
+        localAnchor,
+        {width: context.asset.width, height: context.asset.height},
+        context.sprite.transform.scale,
+        context.sprite.transform.rotation,
+      ),
+    };
+  });
+  const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0);
+  if (totalWeight <= 0) throw new Error(`Attachment owner slot ${slotId} has zero total transition weight`);
+  const referenceRotation = first.sprite.transform.rotation;
+  const normalized = weighted.map((item) => ({...item, weight: item.weight / totalWeight}));
+  return {
+    anchorWorld: {
+      x: normalized.reduce((sum, item) => sum + item.anchorWorld.x * item.weight, 0),
+      y: normalized.reduce((sum, item) => sum + item.anchorWorld.y * item.weight, 0),
+    },
+    rotation: referenceRotation + normalized.reduce(
+      (sum, item) => sum + shortestAngleDelta(referenceRotation, item.context.sprite.transform.rotation) * item.weight,
+      0,
+    ),
+    scale: {
+      x: normalized.reduce((sum, item) => sum + item.context.sprite.transform.scale.x * item.weight, 0),
+      y: normalized.reduce((sum, item) => sum + item.context.sprite.transform.scale.y * item.weight, 0),
+    },
+    depth: normalized.reduce((sum, item) => sum + item.context.sprite.depth * item.weight, 0),
+    zIndex: Math.max(...normalized.map((item) => item.context.sprite.zIndex)),
+  };
 }
 
 function stableEntityKey(entityId: string, role: 'from' | 'to' | 'main', assetId: string): string {
@@ -176,20 +228,8 @@ export function evaluateFrame(prepared: PreparedRenderPlan, frame: number): Rend
     if (ownership.mode !== 'socket' || ownership.socketBinding === undefined) continue;
     const entityOwner = ownership.owner;
     const ownerContexts = contexts.get(entityOwner.entityId);
-    const ownerContext = ownerContexts === undefined ? undefined : primaryContext(ownerContexts);
-    if (ownerContext === undefined) throw new Error(`Socket owner ${entityOwner.entityId} is not renderable`);
-    const slot = ownerContext.definition.attachmentSlots.find((candidate) => candidate.id === entityOwner.slot);
-    if (slot === undefined) throw new Error(`Missing attachment slot ${entityOwner.slot}`);
-    const ownerLocalAnchor = poseAnchor(ownerContext.anchors, slot.ownerAnchor);
-    if (ownerLocalAnchor === undefined) throw new Error(`Owner pose has no anchor ${slot.ownerAnchor}`);
-    const ownerAnchorWorld = worldPointForLocalAnchor(
-      ownerContext.sprite.transform.position,
-      ownerContext.sprite.anchor,
-      ownerLocalAnchor,
-      {width: ownerContext.asset.width, height: ownerContext.asset.height},
-      ownerContext.sprite.transform.scale,
-      ownerContext.sprite.transform.rotation,
-    );
+    const ownerPose = ownerContexts === undefined ? undefined : blendOwnerAttachmentPose(ownerContexts, entityOwner.slot);
+    if (ownerPose === undefined) throw new Error(`Socket owner ${entityOwner.entityId} is not renderable`);
 
     for (const context of entityContexts) {
       const childAnchor = context.asset.attachmentAnchors?.find(
@@ -197,9 +237,9 @@ export function evaluateFrame(prepared: PreparedRenderPlan, frame: number): Rend
       );
       if (childAnchor === undefined) throw new Error(`Child asset has no attachment anchor ${ownership.socketBinding.attachmentAnchorId}`);
       const attachment = resolveSocketAttachment({
-        ownerAnchorWorld,
-        ownerRotation: ownerContext.sprite.transform.rotation,
-        ownerScale: ownerContext.sprite.transform.scale,
+        ownerAnchorWorld: ownerPose.anchorWorld,
+        ownerRotation: ownerPose.rotation,
+        ownerScale: ownerPose.scale,
         childBaseScale: context.sprite.transform.scale,
         binding: ownership.socketBinding,
       });
@@ -207,8 +247,8 @@ export function evaluateFrame(prepared: PreparedRenderPlan, frame: number): Rend
       context.sprite.transform.rotation = attachment.rotation;
       context.sprite.transform.scale = attachment.scale;
       context.sprite.anchor = childAnchor.point;
-      context.sprite.depth = ownerContext.sprite.depth;
-      context.sprite.zIndex = ownerContext.sprite.zIndex + 1;
+      context.sprite.depth = ownerPose.depth;
+      context.sprite.zIndex = ownerPose.zIndex + 1;
       sprites.push(context.sprite);
     }
   }

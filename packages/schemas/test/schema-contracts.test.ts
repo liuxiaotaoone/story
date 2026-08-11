@@ -10,6 +10,7 @@ import {
   TimelineSchema,
   effectivePoseSwitchFrame,
   taskCacheKeyMaterial,
+  canonicalizeJson,
 } from '../src/index.js';
 
 const point = {x: 0.5, y: 0.9};
@@ -313,5 +314,6 @@ describe('override and task provenance contracts', () => {
     });
     const changedRole = {...base, dependencies: [{...base.dependencies[0]!, role: 'background'}]};
     expect(taskCacheKeyMaterial(changedRole)).not.toBe(taskCacheKeyMaterial(base));
+    expect(taskCacheKeyMaterial(base)).toBe(canonicalizeJson(JSON.parse(taskCacheKeyMaterial(base))));
   });
 });

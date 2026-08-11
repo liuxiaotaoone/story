@@ -6,6 +6,7 @@ import {
   ProducerRefSchema,
   SemverSchema,
 } from './common.js';
+import {canonicalizeJson} from './hash.js';
 
 export const TaskStatusSchema = z.enum([
   'pending',
@@ -47,7 +48,7 @@ export function taskCacheKeyMaterial(task: z.infer<typeof TaskNodeSchema>): stri
     compare(left.role, right.role)
       || compare(left.nodeId, right.nodeId)
       || compare(left.outputHash, right.outputHash));
-  return JSON.stringify({
+  return canonicalizeJson({
     inputHash: task.inputHash,
     dependencies,
     producer: task.producer,

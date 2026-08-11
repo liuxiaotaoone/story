@@ -56,7 +56,7 @@ export const OwnershipEventSchema = z.object({
   from: OwnerRefSchema,
   to: OwnerRefSchema,
   mode: AttachmentModeSchema,
-  preserveWorldTransform: z.boolean(),
+  preserveWorldTransform: z.literal(false),
   socketBinding: SocketBindingSchema.optional(),
   bakedBinding: BakedBindingSchema.optional(),
 }).strict().superRefine((event, context) => {

@@ -16,10 +16,12 @@ Paper Engine v0.1 已实现：
 - 严格递增 Keyframe、四边形 Ground Projection 和确定性插值；
 - Whole-body PoseClip 与 2～4 帧 Crossfade，`transitionWeight` 独立于最终透明度；
 - Contact Segment GroundLock：接触段起点锁定、最大修正量约束、随机帧直接求值；
-- Ownership 状态机：同帧冲突、`from` 链、自挂载、环、深度、Socket/Baked Binding 均在 Prepare 阶段验证；
+- Ownership 状态机：同帧冲突、`from` 链、自挂载、环、深度、Socket/Baked Binding 均在 Prepare 阶段验证；MVP 禁止 `preserveWorldTransform=true`，Detach 连续性必须由 Compiler 写入 World Track；
 - Socket Attachment 与显式 Composite Slot Baked Attachment；
-- `CameraSpace`/parallax 合同：环境层带 influence，实体固定为 world influence 1，screen 元素不受 Camera 影响；
-- 事件型 Golden Fixture V2：农夫、兔子、灯笼、四层环境、动作切换、GroundLock、Socket/Baked Attach、Detach、Visibility、Subtitle、SFX 和 Effect；
+- Socket Attachment 在 Owner Pose Crossfade 中按 `transitionWeight` 混合 Anchor Position、Rotation 和 Scale；Baked Ownership Event 禁止发生在 Crossfade 区间内；
+- PoseTransition 在 Prepare 阶段验证实际 `fromPoseClipId`，同一 Entity 的 Transition 区间不得重叠；
+- `CameraSpace`/parallax 完整合同：环境层带 influence，实体固定为 world influence 1，world position/scale/rotation 统一经过 Camera，screen 元素保持不变；
+- 事件型 Golden Fixture V2：18 份完整 RenderState JSON 覆盖 GroundLock、Socket/Baked Attach、Crossfade 和两类 Detach 的前/中/后边界；
 - 固定种子的随机属性测试，覆盖确定性、排序键、可见主体数量和合法 Crossfade。
 
 ## 开发命令
@@ -37,6 +39,13 @@ pnpm build
 node node_modules/typescript/bin/tsc -p packages/schemas/tsconfig.json --noEmit
 node node_modules/typescript/bin/tsc -p packages/paper-engine/tsconfig.json --noEmit
 node node_modules/vitest/vitest.mjs run packages/schemas packages/paper-engine
+```
+
+有意修改 Renderer Contract 后，先构建 Paper Engine，再显式更新 Golden：
+
+```powershell
+pnpm --filter @pose-clip/paper-engine build
+pnpm --filter @pose-clip/paper-engine golden:update
 ```
 
 ## 依赖方向

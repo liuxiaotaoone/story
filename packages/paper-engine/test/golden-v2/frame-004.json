@@ -1,0 +1,250 @@
+{
+  "frame": 4,
+  "shotId": "shot-01",
+  "environmentId": "farm",
+  "camera": {
+    "position": {
+      "x": 640.8067226890756,
+      "y": 360
+    },
+    "zoom": 1,
+    "rotation": 0
+  },
+  "sprites": [
+    {
+      "renderId": "environment:farm:far",
+      "assetId": "farm-far",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "renderLayer": "far",
+      "zIndex": 0,
+      "depth": 0,
+      "stableSortKey": "environment:farm:far",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 0.1
+      }
+    },
+    {
+      "renderId": "environment:farm:mid",
+      "assetId": "farm-mid",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "renderLayer": "mid",
+      "zIndex": 0,
+      "depth": 0,
+      "stableSortKey": "environment:farm:mid",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 0.35
+      }
+    },
+    {
+      "renderId": "environment:farm:ground",
+      "assetId": "farm-ground",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "renderLayer": "ground",
+      "zIndex": 0,
+      "depth": 0,
+      "stableSortKey": "environment:farm:ground",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 0.7
+      }
+    },
+    {
+      "renderId": "lantern:main:lantern-idle",
+      "entityId": "lantern",
+      "assetId": "lantern-idle",
+      "transform": {
+        "position": {
+          "x": 465.664,
+          "y": 554.4
+        },
+        "scale": {
+          "x": 0.77,
+          "y": 0.77
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "renderLayer": "characters",
+      "zIndex": 0,
+      "depth": 0.54,
+      "stableSortKey": "entity:lantern:0:main:lantern-idle",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 1
+      }
+    },
+    {
+      "renderId": "farmer:main:farmer-walk-right",
+      "entityId": "farmer",
+      "assetId": "farmer-walk-right",
+      "transform": {
+        "position": {
+          "x": 356.63058823529406,
+          "y": 558
+        },
+        "scale": {
+          "x": 0.775,
+          "y": 0.775
+        },
+        "rotation": 0,
+        "opacity": 0.8
+      },
+      "anchor": {
+        "x": 0.6,
+        "y": 0.96
+      },
+      "renderLayer": "characters",
+      "zIndex": 0,
+      "depth": 0.55,
+      "stableSortKey": "entity:farmer:0:main:farmer-walk-right",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 1
+      }
+    },
+    {
+      "renderId": "rabbit:main:rabbit-idle",
+      "entityId": "rabbit",
+      "assetId": "rabbit-idle",
+      "transform": {
+        "position": {
+          "x": 733.3888,
+          "y": 561.6
+        },
+        "scale": {
+          "x": 0.78,
+          "y": 0.78
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "renderLayer": "characters",
+      "zIndex": 0,
+      "depth": 0.56,
+      "stableSortKey": "entity:rabbit:0:main:rabbit-idle",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 1
+      }
+    },
+    {
+      "renderId": "environment:farm:foreground",
+      "assetId": "farm-foreground",
+      "transform": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1
+        },
+        "rotation": 0,
+        "opacity": 1
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "renderLayer": "foreground",
+      "zIndex": 0,
+      "depth": 0,
+      "stableSortKey": "environment:farm:foreground",
+      "visible": true,
+      "owner": {
+        "kind": "world",
+        "environmentId": "farm"
+      },
+      "cameraSpace": {
+        "kind": "world",
+        "influence": 1.15
+      }
+    }
+  ],
+  "effects": []
+}

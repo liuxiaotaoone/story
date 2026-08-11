@@ -185,12 +185,14 @@ describe('version, provenance, transition, and detach hardening', () => {
     }).success).toBe(false);
   });
 
-  it('allows detach from a socket without repeating socketBinding', () => {
-    expect(OwnershipEventSchema.safeParse({
+  it('requires Compiler-authored world tracks instead of runtime preserveWorldTransform offsets', () => {
+    const detach = {
       id: 'detach-1', frame: 20, type: 'detach', entityId: 'lantern',
       from: {kind: 'entity', entityId: 'farmer', slot: 'rightHand'},
-      to: worldOwner, mode: 'socket', preserveWorldTransform: true,
-    }).success).toBe(true);
+      to: worldOwner, mode: 'socket', preserveWorldTransform: false,
+    };
+    expect(OwnershipEventSchema.safeParse(detach).success).toBe(true);
+    expect(OwnershipEventSchema.safeParse({...detach, preserveWorldTransform: true}).success).toBe(false);
   });
 
   it('represents cuts as an instantaneous frame', () => {
