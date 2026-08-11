@@ -69,7 +69,7 @@ export const goldenFixtureV2 = RenderPlanSchema.parse({
         {assetId: 'farmer-walk-left', durationFrames: 4, anchors: {foot, leftFoot: {x: 0.4, y: 0.96}, rightFoot: {x: 0.6, y: 0.94}, center, rightHand: {x: 0.72, y: 0.42}}, contact: {type: 'left-foot'}, referenceFoot: 'auto'},
         {assetId: 'farmer-walk-right', durationFrames: 4, anchors: {foot, leftFoot: {x: 0.4, y: 0.94}, rightFoot: {x: 0.6, y: 0.96}, center, rightHand: {x: 0.73, y: 0.43}}, contact: {type: 'right-foot'}, referenceFoot: 'auto'},
       ],
-      rootMotion: {mode: 'timeline'}, groundLock: {mode: 'contact-only', maxCorrectionPx: 16},
+      rootMotion: {mode: 'timeline'}, groundLock: {mode: 'contact-only', maxCorrectionPx: 30},
     },
     {
       id: 'farmer.hold-rabbit', entityType: 'farmer', action: 'hold', loop: true, direction: 'right',

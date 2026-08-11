@@ -56,6 +56,16 @@ describe('PreparedRenderPlan boundary', () => {
     expect('set' in prepared.poseClipById).toBe(false);
   });
 
+  it('requires every shot to provide an explicit CameraTrack starting at the shot frame', () => {
+    const missing = structuredClone(demoRenderPlan);
+    missing.timeline.cameraTracks = [];
+    expect(() => prepareRenderPlan(missing)).toThrow(/explicit CameraTrack|MISSING_CAMERA_TRACK/iu);
+
+    const late = structuredClone(demoRenderPlan);
+    late.timeline.cameraTracks[0]!.position[0]!.frame = 1;
+    expect(() => prepareRenderPlan(late)).toThrow(/start at frame 0|CAMERA_TRACK_START_MISMATCH/iu);
+  });
+
   it('rejects invalid ownership before any frame is evaluated', () => {
     const invalid = structuredClone(demoRenderPlan);
     invalid.timeline.ownershipEvents[0]!.from = {kind: 'entity', entityId: 'rabbit', slot: 'bad'};
@@ -85,9 +95,18 @@ describe('true contact-segment GroundLock', () => {
     const results = [0, 1, 2, 3].map((frame) => resolveGroundLock(prepared, instance, selection, frame, {width: 200, height: 400}, {x: 1, y: 1}));
     expect(results.map(({segment}) => segment)).toEqual(Array(4).fill({startFrame: 0, endFrame: 4}));
     expect(new Set(results.map(({lockedWorldPoint}) => JSON.stringify(lockedWorldPoint))).size).toBe(1);
-    expect(Math.max(...results.map(({correctionPx}) => correctionPx))).toBeLessThanOrEqual(16);
+    expect(Math.max(...results.map(({correctionPx}) => correctionPx))).toBeLessThanOrEqual(30);
+    expect(Math.max(...results.map(({visualCorrectionPx}) => visualCorrectionPx))).toBeLessThanOrEqual(30);
+    expect(results.some(({correctionPx, visualCorrectionPx}) => visualCorrectionPx > correctionPx)).toBe(true);
     const spritePositions = [0, 1, 2, 3].map((frame) => evaluateFrame(prepared, frame).sprites.find(({entityId}) => entityId === 'farmer')!.transform.position);
     expect(new Set(spritePositions.map((position) => JSON.stringify(position))).size).toBe(1);
+  });
+
+  it('uses full Sprite top-left displacement for the correction limit', () => {
+    const strict = structuredClone(demoRenderPlan);
+    strict.poseClips.find(({id}) => id === 'farmer.walk')!.groundLock.maxCorrectionPx = 10;
+    const strictPrepared = prepareRenderPlan(strict);
+    expect(() => evaluateFrame(strictPrepared, 0)).toThrow(/visual correction/iu);
   });
 
   it('returns the same result in random and sequential evaluation order', () => {
@@ -100,6 +119,24 @@ describe('true contact-segment GroundLock', () => {
 });
 
 describe('event-centric Golden Fixture V2', () => {
+  it('makes foot and center anchorPolicy produce distinct, internally aligned placements', () => {
+    const footState = evaluateFrame(prepared, 31);
+    const footSprites = footState.sprites.filter(({entityId}) => entityId === 'farmer');
+    expect(footSprites).toHaveLength(2);
+    expect(footSprites[0]?.anchor).toEqual({x: 0.5, y: 0.96});
+    expect(footSprites[1]?.anchor).toEqual({x: 0.5, y: 0.96});
+    expect(footSprites[0]?.transform.position).toEqual(footSprites[1]?.transform.position);
+
+    const centerPlan = structuredClone(demoRenderPlan);
+    centerPlan.timeline.poseTransitions[0]!.anchorPolicy = 'center';
+    const centerState = evaluateFrame(prepareRenderPlan(centerPlan), 31);
+    const centerSprites = centerState.sprites.filter(({entityId}) => entityId === 'farmer');
+    expect(centerSprites[0]?.anchor).toEqual({x: 0.5, y: 0.5});
+    expect(centerSprites[1]?.anchor).toEqual({x: 0.5, y: 0.5});
+    expect(centerSprites[0]?.transform.position).toEqual(centerSprites[1]?.transform.position);
+    expect(centerSprites[0]?.transform.position).not.toEqual(footSprites[0]?.transform.position);
+  });
+
   it('uses independent transition weights and multiplies them into entity opacity', () => {
     const sprites = evaluateFrame(prepared, 31).sprites.filter(({entityId}) => entityId === 'farmer');
     expect(sprites).toHaveLength(2);
@@ -141,6 +178,20 @@ describe('event-centric Golden Fixture V2', () => {
     expect(evaluateFrame(prepared, 80).sprites.find(({entityId}) => entityId === 'lantern')?.owner.kind).toBe('world');
     expect(evaluateFrame(prepared, 90).sprites.find(({entityId}) => entityId === 'rabbit')?.owner.kind).toBe('world');
     expect(evaluateFrame(prepared, 100).sprites.some(({entityId}) => entityId === 'lantern')).toBe(false);
+  });
+
+  it('omits socket children when their valid owner is not renderable', () => {
+    const hiddenOwner = structuredClone(demoRenderPlan);
+    hiddenOwner.timeline.visibilityEvents.push({id: 'farmer-hide', frame: 70, entityId: 'farmer', visible: false});
+    const hiddenState = evaluateFrame(prepareRenderPlan(hiddenOwner), 70);
+    expect(hiddenState.sprites.some(({entityId}) => entityId === 'farmer')).toBe(false);
+    expect(hiddenState.sprites.some(({entityId}) => entityId === 'lantern')).toBe(false);
+
+    const expiredOwner = structuredClone(demoRenderPlan);
+    expiredOwner.instances.find(({id}) => id === 'farmer')!.activeRange.endFrame = 70;
+    const expiredState = evaluateFrame(prepareRenderPlan(expiredOwner), 70);
+    expect(expiredState.sprites.some(({entityId}) => entityId === 'farmer')).toBe(false);
+    expect(expiredState.sprites.some(({entityId}) => entityId === 'lantern')).toBe(false);
   });
 
   it('emits renderer-ready parallax contracts for four environment layers', () => {

@@ -19,6 +19,7 @@ export interface GroundLockResult {
   lockedWorldPoint?: Point;
   correction: Point;
   correctionPx: number;
+  visualCorrectionPx: number;
 }
 
 function midpoint(left: Point, right: Point): Point {
@@ -55,13 +56,33 @@ function worldPositionAt(prepared: PreparedRenderPlan, instance: EntityInstance,
   return track.worldPosition ?? projectGround(environment, {u: 0.5, v: 0.5}).worldFootPosition;
 }
 
+function visualCorrectionPx(
+  correction: Point,
+  baselineAnchor: Point,
+  lockedAnchor: Point,
+  assetSize: Size,
+  scale: Point,
+): number {
+  const topLeftDelta = {
+    x: correction.x - (lockedAnchor.x - baselineAnchor.x) * assetSize.width * scale.x,
+    y: correction.y - (lockedAnchor.y - baselineAnchor.y) * assetSize.height * scale.y,
+  };
+  return Math.hypot(topLeftDelta.x, topLeftDelta.y);
+}
+
+function assertVisualCorrection(maxCorrectionPx: number, actualPx: number, clipId: string): void {
+  if (actualPx > maxCorrectionPx + 1e-6) {
+    throw new Error(`Ground lock visual correction ${actualPx.toFixed(3)}px exceeds ${maxCorrectionPx}px for ${clipId}`);
+  }
+}
+
 export function resolveGroundLock(
   prepared: PreparedRenderPlan,
   instance: EntityInstance,
   selection: PoseSelection,
   absoluteFrame: number,
-  _assetSize: Size,
-  _scale: Point,
+  assetSize: Size,
+  scale: Point,
 ): GroundLockResult {
   const clip = prepared.poseClipById.get(selection.poseClipId);
   if (clip === undefined) throw new Error(`Missing PoseClip ${selection.poseClipId}`);
@@ -73,10 +94,19 @@ export function resolveGroundLock(
     referenceFoot: 'foot',
     correction: {x: 0, y: 0},
     correctionPx: 0,
+    visualCorrectionPx: 0,
   });
   if (clip.groundLock.mode === 'none') return unlocked();
   if (clip.groundLock.mode === 'contact-only' && contactKey(resolved.frame) === undefined) return unlocked();
   if (clip.groundLock.mode === 'always') {
+    const actualVisualCorrectionPx = visualCorrectionPx(
+      {x: 0, y: 0},
+      resolved.frame.anchors.foot,
+      selected.anchor,
+      assetSize,
+      scale,
+    );
+    assertVisualCorrection(clip.groundLock.maxCorrectionPx, actualVisualCorrectionPx, clip.id);
     return {
       anchor: selected.anchor,
       locked: true,
@@ -85,6 +115,7 @@ export function resolveGroundLock(
       lockedWorldPoint: worldPositionAt(prepared, instance, absoluteFrame),
       correction: {x: 0, y: 0},
       correctionPx: 0,
+      visualCorrectionPx: actualVisualCorrectionPx,
     };
   }
 
@@ -117,9 +148,14 @@ export function resolveGroundLock(
     y: lockedWorldPoint.y - currentWorldPoint.y,
   };
   const correctionPx = Math.hypot(correction.x, correction.y);
-  if (correctionPx > clip.groundLock.maxCorrectionPx + 1e-6) {
-    throw new Error(`Ground lock correction ${correctionPx.toFixed(3)}px exceeds ${clip.groundLock.maxCorrectionPx}px for ${clip.id}`);
-  }
+  const actualVisualCorrectionPx = visualCorrectionPx(
+    correction,
+    resolved.frame.anchors.foot,
+    selected.anchor,
+    assetSize,
+    scale,
+  );
+  assertVisualCorrection(clip.groundLock.maxCorrectionPx, actualVisualCorrectionPx, clip.id);
   return {
     anchor: selected.anchor,
     locked: true,
@@ -128,5 +164,6 @@ export function resolveGroundLock(
     lockedWorldPoint,
     correction,
     correctionPx,
+    visualCorrectionPx: actualVisualCorrectionPx,
   };
 }

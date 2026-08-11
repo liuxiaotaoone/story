@@ -15,11 +15,14 @@ Paper Engine v0.1 已实现：
 
 - 严格递增 Keyframe、四边形 Ground Projection 和确定性插值；
 - Whole-body PoseClip 与 2～4 帧 Crossfade，`transitionWeight` 独立于最终透明度；
-- Contact Segment GroundLock：接触段起点锁定、最大修正量约束、随机帧直接求值；
+- Contact Segment GroundLock：接触段起点锁定、随机帧直接求值，并以包含 Foot Anchor、Asset Size 和 Scale 的完整 `visualCorrectionPx` 执行修正上限；
 - Ownership 状态机：同帧冲突、`from` 链、自挂载、环、深度、Socket/Baked Binding 均在 Prepare 阶段验证；MVP 禁止 `preserveWorldTransform=true`，Detach 连续性必须由 Compiler 写入 World Track；
 - Socket Attachment 与显式 Composite Slot Baked Attachment；
 - Socket Attachment 在 Owner Pose Crossfade 中按 `transitionWeight` 混合 Anchor Position、Rotation 和 Scale；Baked Ownership Event 禁止发生在 Crossfade 区间内；
+- Socket Child 继承 Owner 的可渲染性；Owner 因 Visibility、Scene 或 activeRange 不渲染时，Child 同样不输出；
 - PoseTransition 在 Prepare 阶段验证实际 `fromPoseClipId`，同一 Entity 的 Transition 区间不得重叠；
+- PoseTransition 的 `anchorPolicy=foot|center` 均已落实，from/to 对齐到同一个加权 World Point；
+- 每个 Shot 必须显式提供从 Shot 起始帧开始的唯一 CameraTrack，不存在 `{0,0}` 隐式默认镜头；
 - `CameraSpace`/parallax 完整合同：环境层带 influence，实体固定为 world influence 1，world position/scale/rotation 统一经过 Camera，screen 元素保持不变；
 - 事件型 Golden Fixture V2：18 份完整 RenderState JSON 覆盖 GroundLock、Socket/Baked Attach、Crossfade 和两类 Detach 的前/中/后边界；
 - 固定种子的随机属性测试，覆盖确定性、排序键、可见主体数量和合法 Crossfade。

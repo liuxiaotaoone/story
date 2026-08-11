@@ -28,9 +28,10 @@ export function resolveCamera(timeline: Timeline, shotId: string, frame: number)
 }
 
 export function resolveCameraTrack(track: Timeline['cameraTracks'][number] | undefined, frame: number): CameraState {
+  if (track === undefined) throw new Error('CameraTrack is required; implicit default cameras are forbidden');
   return {
-    position: track === undefined ? {x: 0, y: 0} : evaluatePointKeyframes(track.position, frame),
-    zoom: track === undefined ? 1 : evaluateNumberKeyframes(track.zoom, frame),
+    position: evaluatePointKeyframes(track.position, frame),
+    zoom: evaluateNumberKeyframes(track.zoom, frame),
     rotation: track?.rotation === undefined ? 0 : evaluateNumberKeyframes(track.rotation, frame),
   };
 }

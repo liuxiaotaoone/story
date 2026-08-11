@@ -14,6 +14,7 @@ import {worldPointForLocalAnchor} from '../pose/anchor-placement.js';
 import {resolveGroundLock} from '../pose/ground-lock.js';
 import {resolvePoseClipFrame} from '../pose/pose-clip-evaluator.js';
 import {resolvePoseSelections} from '../pose/pose-transition.js';
+import {resolveTransitionAnchorPlacement} from '../pose/transition-anchor-placement.js';
 import {projectGround} from '../spatial/ground-projection.js';
 import {containsFrame} from '../timeline/frame-range.js';
 import {resolveShot} from '../timeline/shot-resolver.js';
@@ -216,6 +217,30 @@ export function evaluateFrame(prepared: PreparedRenderPlan, frame: number): Rend
       };
       entityContexts.push({definition, sprite, asset, anchors: resolved.frame.anchors});
     }
+    const transitionId = entityContexts[0]?.sprite.poseTransition?.transitionId;
+    if (transitionId !== undefined && entityContexts.length === 2) {
+      const transition = timeline.poseTransitions.find((candidate) => candidate.id === transitionId);
+      if (transition === undefined) throw new Error(`Missing PoseTransition ${transitionId}`);
+      const placement = resolveTransitionAnchorPlacement(
+        transition.anchorPolicy,
+        entityContexts.map((context) => ({
+          role: context.sprite.poseTransition!.role,
+          weight: context.sprite.poseTransition!.weight,
+          spriteWorldAnchor: context.sprite.transform.position,
+          spriteLocalAnchor: context.sprite.anchor,
+          policyLocalAnchor: transition.anchorPolicy === 'foot' ? context.anchors.foot : context.anchors.center,
+          assetSize: {width: context.asset.width, height: context.asset.height},
+          scale: context.sprite.transform.scale,
+          rotation: context.sprite.transform.rotation,
+        })),
+      );
+      for (const context of entityContexts) {
+        const resolvedPlacement = placement.placements.find(({role: candidateRole}) => candidateRole === context.sprite.poseTransition?.role);
+        if (resolvedPlacement === undefined) throw new Error(`Missing ${context.sprite.poseTransition?.role} transition placement`);
+        context.sprite.transform.position = resolvedPlacement.position;
+        context.sprite.anchor = resolvedPlacement.anchor;
+      }
+    }
     contexts.set(instance.id, entityContexts);
   }
 
@@ -229,7 +254,10 @@ export function evaluateFrame(prepared: PreparedRenderPlan, frame: number): Rend
     const entityOwner = ownership.owner;
     const ownerContexts = contexts.get(entityOwner.entityId);
     const ownerPose = ownerContexts === undefined ? undefined : blendOwnerAttachmentPose(ownerContexts, entityOwner.slot);
-    if (ownerPose === undefined) throw new Error(`Socket owner ${entityOwner.entityId} is not renderable`);
+    // Integrity has already validated the owner reference. A valid owner may still be
+    // non-renderable at this frame because of visibility, scene, or activeRange.
+    // Socket children inherit that renderability and are omitted as well.
+    if (ownerPose === undefined) continue;
 
     for (const context of entityContexts) {
       const childAnchor = context.asset.attachmentAnchors?.find(

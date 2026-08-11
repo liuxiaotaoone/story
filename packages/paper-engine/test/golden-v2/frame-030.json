@@ -116,7 +116,7 @@
       "assetId": "farmer-walk-right",
       "transform": {
         "position": {
-          "x": 403.61411764705883,
+          "x": 388.11411764705883,
           "y": 558
         },
         "scale": {
@@ -127,7 +127,7 @@
         "opacity": 0.8
       },
       "anchor": {
-        "x": 0.6,
+        "x": 0.5,
         "y": 0.96
       },
       "renderLayer": "characters",
@@ -155,7 +155,7 @@
       "assetId": "farmer-hold-rabbit",
       "transform": {
         "position": {
-          "x": 407.52941176470586,
+          "x": 388.11411764705883,
           "y": 558
         },
         "scale": {

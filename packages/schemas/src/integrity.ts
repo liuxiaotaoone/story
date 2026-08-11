@@ -133,6 +133,13 @@ export function validateRenderPlanIntegrity(input: unknown): RenderPlanIntegrity
   for (const [shotIndex, shot] of plan.timeline.shots.entries()) {
     if (!environments.has(shot.environmentId)) add('MISSING_ENVIRONMENT', `Shot references missing environment ${shot.environmentId}`, `timeline.shots.${shotIndex}.environmentId`);
     if (shot.focusEntityId !== undefined && !instances.has(shot.focusEntityId)) add('MISSING_ENTITY_INSTANCE', `Shot focus references missing entity ${shot.focusEntityId}`, `timeline.shots.${shotIndex}.focusEntityId`);
+    const cameraTrack = plan.timeline.cameraTracks.find((track) => track.shotId === shot.id);
+    if (cameraTrack === undefined) {
+      add('MISSING_CAMERA_TRACK', `Shot ${shot.id} requires an explicit CameraTrack`, `timeline.shots.${shotIndex}.id`);
+    } else if (cameraTrack.position[0]?.frame !== shot.range.startFrame || cameraTrack.zoom[0]?.frame !== shot.range.startFrame
+      || (cameraTrack.rotation !== undefined && cameraTrack.rotation[0]?.frame !== shot.range.startFrame)) {
+      add('CAMERA_TRACK_START_MISMATCH', `CameraTrack ${shot.id} must explicitly start at frame ${shot.range.startFrame}`, `timeline.cameraTracks.${plan.timeline.cameraTracks.indexOf(cameraTrack)}`);
+    }
   }
   for (const [index, track] of plan.timeline.entityTracks.entries()) {
     if (!instances.has(track.entityId)) add('MISSING_ENTITY_INSTANCE', `Track references missing entity ${track.entityId}`, `timeline.entityTracks.${index}.entityId`);

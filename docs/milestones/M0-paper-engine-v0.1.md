@@ -11,9 +11,13 @@
 - [x] Baked Attachment 必须绑定活动 Owner PoseClip 中类型匹配的 Composite Slot。
 - [x] Baked Ownership Event 不得位于 Child 或 Owner 的 Pose Crossfade 区间内。
 - [x] GroundLock 以接触段为单位锁定世界点，直接求值任意帧不依赖历史缓存。
+- [x] GroundLock 上限使用包含 Foot Anchor 差异、Asset Size 和 Scale 的完整 `visualCorrectionPx`；World Position Correction 独立保留。
 - [x] Crossfade 权重与实体透明度分离；同一 Entity 最多输出两个有共同 transitionId 的临时 Sprite。
+- [x] `anchorPolicy=foot|center` 均有实际求值语义，from/to 对齐到同一个按 Crossfade Weight 混合的 World Point。
 - [x] Socket Attachment 在 Owner Crossfade 中按权重混合 Anchor Position、Rotation 与 Scale，不选择单一 Pose。
+- [x] Socket Child 继承 Owner 的 Visibility、Scene 和 activeRange 可渲染性，不因合法 Owner 暂时不可见而抛异常。
 - [x] PoseTransition 的 `fromPoseClipId` 必须等于开始前实际 Pose，同一 Entity 的 Transition 区间不得重叠。
+- [x] 每个 Shot 必须且只能有一个显式 CameraTrack，首个 Position/Zoom/Rotation Keyframe 必须位于 Shot 起始帧。
 - [x] Sprite RenderState 显式携带 world/screen CameraSpace；环境层 parallax influence 由 Evaluator 固化。
 - [x] ContentHash 为小写 64 位 SHA-256；语义 RenderPlan Hash 排除 compiledAt/warnings 等审计字段。
 - [x] Task Dependency 的 cache material 保留 role、nodeId、outputHash，不再仅排序裸 Hash。
@@ -35,3 +39,5 @@ screenRotation = worldRotation - camera.rotation
 ## 下一步
 
 进入 M0 Renderer Gate：建立最小 Pixi Adapter，对同一 `PreparedRenderPlan` 的 Preview 与离线 Frame Export 做像素级一致性比较。该工作应创建独立包，不修改 Paper Engine 的领域语义。
+
+P2 延后项：Effect 的 `targetEntityId`、Position、CameraSpace、RenderLayer 和 zIndex 空间解析放在 M1 视觉 Demo 前完成，不阻塞当前 Pixi Renderer Gate。

@@ -113,7 +113,13 @@ function renderPlan(): Record<string, any> {
       rootMotion: {mode: 'timeline'},
       groundLock: {mode: 'always', maxCorrectionPx: 3},
     }],
-    timeline: timeline(),
+    timeline: timeline({
+      cameraTracks: [{
+        shotId: 'shot-1',
+        position: [{frame: 0, value: {x: 640, y: 360}, easing: 'hold'}],
+        zoom: [{frame: 0, value: 1, easing: 'hold'}],
+      }],
+    }),
     provenance: {
       compilerVersion: '1.0.0',
       sourceDirectorPlanHash: HASH,
