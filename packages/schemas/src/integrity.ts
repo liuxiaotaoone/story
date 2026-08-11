@@ -1,6 +1,7 @@
 import type {z} from 'zod';
 import type {OwnerRef} from './attachment.js';
 import {RenderPlanSchema, type RenderPlan} from './render.js';
+import {validateOwnershipTimeline} from './ownership-integrity.js';
 
 export interface RenderPlanIntegrityIssue {
   code: string;
@@ -101,6 +102,28 @@ export function validateRenderPlanIntegrity(input: unknown): RenderPlanIntegrity
     }
   }
 
+  function activeClipIds(entityId: string, startFrame: number, endFrame: number, defaultClipId: string): string[] {
+    const before = plan.timeline.poseEvents
+      .filter((event) => event.entityId === entityId && event.frame <= startFrame)
+      .sort((left, right) => right.frame - left.frame || (left.id < right.id ? 1 : left.id > right.id ? -1 : 0))[0];
+    return [...new Set([
+      before?.poseClipId ?? defaultClipId,
+      ...plan.timeline.poseEvents
+        .filter((event) => event.entityId === entityId && event.frame > startFrame && event.frame < endFrame)
+        .map((event) => event.poseClipId),
+    ])];
+  }
+
+  function poseFrameHasAnchor(frame: RenderPlan['poseClips'][number]['frames'][number], anchor: string): boolean {
+    if (anchor === 'foot' || anchor === 'center') return true;
+    if (anchor === 'leftFoot') return frame.anchors.leftFoot !== undefined;
+    if (anchor === 'rightFoot') return frame.anchors.rightFoot !== undefined;
+    if (anchor === 'leftHand') return frame.anchors.leftHand !== undefined;
+    if (anchor === 'rightHand') return frame.anchors.rightHand !== undefined;
+    if (anchor === 'head') return frame.anchors.head !== undefined;
+    return frame.anchors.auxiliary?.[anchor] !== undefined;
+  }
+
   for (const [instanceIndex, instance] of plan.instances.entries()) {
     if (!entities.has(instance.definitionId)) add('MISSING_ENTITY_DEFINITION', `Missing entity definition ${instance.definitionId}`, `instances.${instanceIndex}.definitionId`);
     if (!plan.timeline.shots.some((shot) => shot.sceneId === instance.sceneId)) add('MISSING_SCENE', `No shot references instance scene ${instance.sceneId}`, `instances.${instanceIndex}.sceneId`);
@@ -134,14 +157,28 @@ export function validateRenderPlanIntegrity(input: unknown): RenderPlanIntegrity
     validateOwner(event.from, `timeline.ownershipEvents.${index}.from`);
     validateOwner(event.to, `timeline.ownershipEvents.${index}.to`);
     if (event.type === 'attach' && event.mode === 'socket' && event.socketBinding !== undefined) {
+      const socketBinding = event.socketBinding;
       const childInstance = instances.get(event.entityId);
       const childDefinition = childInstance === undefined ? undefined : entities.get(childInstance.definitionId);
-      const childClipIds = childDefinition?.poseClipIds ?? [];
+      const detachFrame = plan.timeline.ownershipEvents
+        .filter((candidate) => candidate.entityId === event.entityId && candidate.frame > event.frame)
+        .sort((left, right) => left.frame - right.frame)[0]?.frame ?? plan.timeline.durationFrames;
+      const childClipIds = childDefinition === undefined ? [] : activeClipIds(event.entityId, event.frame, detachFrame, childDefinition.defaultPoseClipId);
       const childAssets = childClipIds.flatMap((clipId) => poseClips.get(clipId)?.frames.map((frame) => assets.get(frame.assetId)) ?? []);
-      const anchorExists = childAssets.some((asset) => asset !== undefined
+      const allChildFramesHaveAnchor = childAssets.length > 0 && childAssets.every((asset) => asset !== undefined
         && 'attachmentAnchors' in asset
-        && asset.attachmentAnchors?.some((anchor) => anchor.id === event.socketBinding?.attachmentAnchorId));
-      if (!anchorExists) add('MISSING_ATTACHMENT_ANCHOR', `Child assets have no anchor ${event.socketBinding.attachmentAnchorId}`, `timeline.ownershipEvents.${index}.socketBinding.attachmentAnchorId`);
+        && asset.attachmentAnchors?.some((anchor) => anchor.id === socketBinding.attachmentAnchorId));
+      if (!allChildFramesHaveAnchor) add('MISSING_ATTACHMENT_ANCHOR', `Every active child pose frame must define anchor ${socketBinding.attachmentAnchorId}`, `timeline.ownershipEvents.${index}.socketBinding.attachmentAnchorId`);
+      if (event.to.kind === 'entity') {
+        const entityOwner = event.to;
+        const ownerInstance = instances.get(entityOwner.entityId);
+        const ownerDefinition = ownerInstance === undefined ? undefined : entities.get(ownerInstance.definitionId);
+        const slot = ownerDefinition?.attachmentSlots.find((candidate) => candidate.id === entityOwner.slot);
+        const ownerClipIds = ownerDefinition === undefined ? [] : activeClipIds(entityOwner.entityId, event.frame, detachFrame, ownerDefinition.defaultPoseClipId);
+        const allOwnerFramesHaveAnchor = slot !== undefined && ownerClipIds.every((clipId) =>
+          poseClips.get(clipId)?.frames.every((frame) => poseFrameHasAnchor(frame, slot.ownerAnchor)) === true);
+        if (!allOwnerFramesHaveAnchor) add('MISSING_OWNER_POSE_ANCHOR', `Every active owner pose frame must define slot anchor ${slot?.ownerAnchor ?? entityOwner.slot}`, `timeline.ownershipEvents.${index}.to.slot`);
+      }
     }
   }
   for (const [index, cue] of plan.timeline.narration.entries()) {
@@ -157,6 +194,8 @@ export function validateRenderPlanIntegrity(input: unknown): RenderPlanIntegrity
     if (!shots.has(transition.fromShotId)) add('MISSING_SHOT', `Transition references missing from shot ${transition.fromShotId}`, `timeline.transitions.${index}.fromShotId`);
     if (!shots.has(transition.toShotId)) add('MISSING_SHOT', `Transition references missing to shot ${transition.toShotId}`, `timeline.transitions.${index}.toShotId`);
   }
+
+  issues.push(...validateOwnershipTimeline(plan));
 
   return issues.length === 0 ? {valid: true, issues, plan} : {valid: false, issues, plan};
 }

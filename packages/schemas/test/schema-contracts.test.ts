@@ -14,6 +14,7 @@ import {
 
 const point = {x: 0.5, y: 0.9};
 const worldOwner = {kind: 'world' as const, environmentId: 'farm'};
+const HASH = '0'.repeat(64);
 
 function timelineWith(options: {
   poseEvents?: unknown[];
@@ -62,6 +63,7 @@ function sprite(overrides: Record<string, unknown> = {}) {
     stableSortKey: 'farmer:main',
     visible: true,
     owner: worldOwner,
+    cameraSpace: {kind: 'world', influence: 1},
     ...overrides,
   };
 }
@@ -83,7 +85,7 @@ describe('asset contracts', () => {
       id: 'farmer-idle',
       kind: 'character-frame',
       uri: 'assets/farmer-idle.png',
-      contentHash: '12345678',
+      contentHash: HASH,
       source: 'manual',
       qaStatus: 'passed',
       alphaMode: 'straight',
@@ -96,7 +98,7 @@ describe('asset contracts', () => {
       id: 'narration-1',
       kind: 'audio',
       uri: 'audio/narration-1.wav',
-      contentHash: '12345678',
+      contentHash: HASH,
       source: 'manual',
       qaStatus: 'passed',
     });
@@ -207,13 +209,13 @@ describe('deterministic render-state contracts', () => {
       renderId: 'farmer:transition:from',
       stableSortKey: 'farmer:transition:0:from',
       transform: {...sprite().transform, opacity: 0.25},
-      poseTransition: {transitionId: 'transition-1', role: 'from'},
+      poseTransition: {transitionId: 'transition-1', role: 'from', weight: 0.25},
     });
     const to = sprite({
       renderId: 'farmer:transition:to',
       stableSortKey: 'farmer:transition:1:to',
       transform: {...sprite().transform, opacity: 0.75},
-      poseTransition: {transitionId: 'transition-1', role: 'to'},
+      poseTransition: {transitionId: 'transition-1', role: 'to', weight: 0.75},
     });
     expect(RenderStateSchema.safeParse(renderState([from, to])).success).toBe(true);
   });
@@ -236,7 +238,7 @@ describe('deterministic render-state contracts', () => {
 describe('two-stage compiler contracts', () => {
   const preflight = {
     schemaVersion: '1.0.0',
-    effectiveDirectorPlanHash: 'effective-plan-hash',
+    effectiveDirectorPlanHash: HASH,
     expandedActions: [],
     ttsRequirements: [{
       id: 'tts-1',
@@ -246,7 +248,7 @@ describe('two-stage compiler contracts', () => {
       voiceId: 'narrator',
       requestedRate: 1,
       language: 'zh-CN',
-      inputHash: 'tts-input-hash',
+      inputHash: HASH,
     }],
     assetRequirements: [],
     warnings: [],
@@ -272,7 +274,7 @@ describe('override and task provenance contracts', () => {
   it('requires values for replace/insert and forbids them for remove', () => {
     const base = {
       id: 'override-1',
-      baseDirectorPlanHash: 'director-plan-hash',
+      baseDirectorPlanHash: HASH,
       targetPath: '/scenes/0/shots/0/cameraIntent',
       reason: 'Composition review',
       createdBy: 'reviewer',
@@ -287,7 +289,7 @@ describe('override and task provenance contracts', () => {
     const task = TaskNodeSchema.parse({
       nodeId: 'anchor-task-1',
       type: 'anchor-estimation',
-      inputHash: 'asset-input-hash',
+      inputHash: HASH,
       workflowVersion: '1.0.0',
       producer: {name: 'anchor-estimator', version: '1.3.0'},
       dependencies: [],
@@ -296,8 +298,20 @@ describe('override and task provenance contracts', () => {
       createdAt: '2026-08-10T00:00:00.000Z',
       updatedAt: '2026-08-10T00:00:00.000Z',
     });
-    const oldKey = taskCacheKeyMaterial(task, []);
-    const newKey = taskCacheKeyMaterial({...task, producer: {...task.producer, version: '1.4.0'}}, []);
+    const oldKey = taskCacheKeyMaterial(task);
+    const newKey = taskCacheKeyMaterial({...task, producer: {...task.producer, version: '1.4.0'}});
     expect(newKey).not.toBe(oldKey);
+  });
+
+  it('preserves dependency role and node identity in cache material', () => {
+    const base = TaskNodeSchema.parse({
+      nodeId: 'compose', type: 'compose', inputHash: HASH, workflowVersion: '1.0.0',
+      producer: {name: 'compiler', version: '1.0.0'},
+      dependencies: [{role: 'character', nodeId: 'asset-a', outputHash: HASH}],
+      status: 'pending', attempts: 0,
+      createdAt: '2026-08-10T00:00:00.000Z', updatedAt: '2026-08-10T00:00:00.000Z',
+    });
+    const changedRole = {...base, dependencies: [{...base.dependencies[0]!, role: 'background'}]};
+    expect(taskCacheKeyMaterial(changedRole)).not.toBe(taskCacheKeyMaterial(base));
   });
 });

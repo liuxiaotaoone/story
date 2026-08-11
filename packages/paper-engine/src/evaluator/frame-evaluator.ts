@@ -1,11 +1,9 @@
 import {
   RenderStateSchema,
-  assertRenderPlanIntegrity,
   compareSpriteRenderOrder,
   type EntityDefinition,
   type Point,
   type PoseAnchors,
-  type RenderPlan,
   type RenderState,
   type SpriteRenderState,
   type VisualAssetRecord,
@@ -13,13 +11,14 @@ import {
 import {resolveSocketAttachment} from '../ownership/attachment-resolver.js';
 import {resolveOwnership, resolveVisibility} from '../ownership/ownership-resolver.js';
 import {worldPointForLocalAnchor} from '../pose/anchor-placement.js';
-import {resolveGroundLockAnchor} from '../pose/ground-lock.js';
+import {resolveGroundLock} from '../pose/ground-lock.js';
 import {resolvePoseClipFrame} from '../pose/pose-clip-evaluator.js';
 import {resolvePoseSelections} from '../pose/pose-transition.js';
 import {projectGround} from '../spatial/ground-projection.js';
 import {containsFrame} from '../timeline/frame-range.js';
 import {resolveShot} from '../timeline/shot-resolver.js';
-import {resolveCamera, resolveEntityTrack} from '../timeline/track-resolver.js';
+import {resolveCameraTrack, resolveEntityTrack} from '../timeline/track-resolver.js';
+import type {PreparedRenderPlan} from '../prepared/prepare-render-plan.js';
 
 interface EntitySpriteContext {
   definition: EntityDefinition;
@@ -28,8 +27,8 @@ interface EntitySpriteContext {
   anchors: PoseAnchors;
 }
 
-function visualAsset(plan: RenderPlan, assetId: string): VisualAssetRecord {
-  const asset = plan.assets.assets.find((candidate) => candidate.id === assetId);
+function visualAsset(prepared: PreparedRenderPlan, assetId: string): VisualAssetRecord {
+  const asset = prepared.assetById.get(assetId);
   if (asset === undefined || !('width' in asset) || !('height' in asset) || !('alphaMode' in asset)) {
     throw new Error(`Missing visual asset ${assetId}`);
   }
@@ -50,7 +49,7 @@ function poseAnchor(anchors: PoseAnchors, name: string): Point | undefined {
 function primaryContext(contexts: readonly EntitySpriteContext[]): EntitySpriteContext | undefined {
   return contexts.find((context) => context.sprite.poseTransition?.role === 'to' && context.sprite.visible)
     ?? contexts.filter((context) => context.sprite.visible)
-      .sort((left, right) => right.sprite.transform.opacity - left.sprite.transform.opacity)[0]
+      .sort((left, right) => (right.sprite.poseTransition?.weight ?? 1) - (left.sprite.poseTransition?.weight ?? 1))[0]
     ?? contexts[0];
 }
 
@@ -59,17 +58,18 @@ function stableEntityKey(entityId: string, role: 'from' | 'to' | 'main', assetId
   return `entity:${entityId}:${order}:${role}:${assetId}`;
 }
 
-export function evaluateFrame(input: unknown, frame: number): RenderState {
-  const plan = assertRenderPlanIntegrity(input);
+export function evaluateFrame(prepared: PreparedRenderPlan, frame: number): RenderState {
+  if (prepared.kind !== 'prepared-render-plan-v1') throw new TypeError('evaluateFrame requires a PreparedRenderPlan');
+  const plan = prepared.plan;
   const timeline = plan.timeline;
   const shot = resolveShot(timeline, frame);
-  const environment = plan.environments.find((candidate) => candidate.id === shot.environmentId);
+  const environment = prepared.environmentById.get(shot.environmentId);
   if (environment === undefined) throw new Error(`Missing environment ${shot.environmentId}`);
-  const camera = resolveCamera(timeline, shot.id, frame);
+  const camera = resolveCameraTrack(prepared.cameraTrackByShotId.get(shot.id), frame);
   const sprites: SpriteRenderState[] = [];
 
   for (const layer of environment.layers) {
-    visualAsset(plan, layer.assetId);
+    visualAsset(prepared, layer.assetId);
     sprites.push({
       renderId: `environment:${environment.id}:${layer.id}`,
       assetId: layer.assetId,
@@ -81,6 +81,7 @@ export function evaluateFrame(input: unknown, frame: number): RenderState {
       stableSortKey: `environment:${environment.id}:${layer.id}`,
       visible: true,
       owner: {kind: 'world', environmentId: environment.id},
+      cameraSpace: {kind: 'world', influence: layer.parallaxFactor},
     });
   }
 
@@ -90,7 +91,7 @@ export function evaluateFrame(input: unknown, frame: number): RenderState {
   for (const instance of plan.instances) {
     if (instance.sceneId !== shot.sceneId || !containsFrame(instance.activeRange, frame)) continue;
     if (!resolveVisibility(timeline, instance.id, frame)) continue;
-    const definition = plan.entities.find((candidate) => candidate.id === instance.definitionId);
+    const definition = prepared.entityDefinitionById.get(instance.definitionId);
     if (definition === undefined) throw new Error(`Missing definition ${instance.definitionId}`);
     const ownership = resolveOwnership(timeline, instance.id, instance.initialOwner, frame);
     ownershipByEntity.set(instance.id, ownership);
@@ -98,7 +99,7 @@ export function evaluateFrame(input: unknown, frame: number): RenderState {
     if (ownership.owner.kind === 'world' && ownership.owner.environmentId !== environment.id) continue;
 
     const track = resolveEntityTrack(
-      timeline.entityTracks.find((candidate) => candidate.entityId === instance.id),
+      prepared.entityTrackByEntityId.get(instance.id),
       frame,
     );
     const groundProjection = track.groundPosition === undefined
@@ -119,7 +120,7 @@ export function evaluateFrame(input: unknown, frame: number): RenderState {
     const entityContexts: EntitySpriteContext[] = [];
 
     for (const selection of selections) {
-      const clip = plan.poseClips.find((candidate) => candidate.id === selection.poseClipId);
+      const clip = prepared.poseClipById.get(selection.poseClipId);
       if (clip === undefined) throw new Error(`Missing PoseClip ${selection.poseClipId}`);
       const resolved = resolvePoseClipFrame(
         clip,
@@ -128,10 +129,12 @@ export function evaluateFrame(input: unknown, frame: number): RenderState {
         selection.playbackRate,
         selection.clipStartOffset,
       );
-      const asset = visualAsset(plan, resolved.frame.assetId);
-      const lock = resolveGroundLockAnchor(
-        clip,
-        resolved.frame,
+      const asset = visualAsset(prepared, resolved.frame.assetId);
+      const lock = resolveGroundLock(
+        prepared,
+        instance,
+        selection,
+        frame,
         {width: asset.width, height: asset.height},
         baseScale,
       );
@@ -141,18 +144,22 @@ export function evaluateFrame(input: unknown, frame: number): RenderState {
         entityId: instance.id,
         assetId: asset.id,
         transform: {
-          position: worldPosition,
+          position: {
+            x: worldPosition.x + lock.correction.x,
+            y: worldPosition.y + lock.correction.y,
+          },
           scale: baseScale,
           rotation: track.rotation,
-          opacity: track.opacity * selection.opacity,
+          opacity: track.opacity * selection.transitionWeight,
         },
         anchor: lock.anchor,
         renderLayer: 'characters',
         zIndex: 0,
         depth,
         stableSortKey: stableEntityKey(instance.id, role, asset.id),
-        visible: selection.opacity > 0,
+        visible: selection.transitionWeight > 0 && track.opacity > 0,
         owner: ownership.owner,
+        cameraSpace: {kind: 'world', influence: 1},
         ...(selection.transition === undefined ? {} : {poseTransition: selection.transition}),
       };
       entityContexts.push({definition, sprite, asset, anchors: resolved.frame.anchors});

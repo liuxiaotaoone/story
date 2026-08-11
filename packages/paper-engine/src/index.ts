@@ -1,3 +1,4 @@
+export * from './camera/camera-space.js';
 export * from './evaluator/frame-evaluator.js';
 export * from './interpolation/easing.js';
 export * from './interpolation/keyframe-evaluator.js';
@@ -8,6 +9,7 @@ export * from './pose/anchor-placement.js';
 export * from './pose/ground-lock.js';
 export * from './pose/pose-clip-evaluator.js';
 export * from './pose/pose-transition.js';
+export * from './prepared/prepare-render-plan.js';
 export * from './spatial/ground-projection.js';
 export * from './timeline/frame-range.js';
 export * from './timeline/shot-resolver.js';

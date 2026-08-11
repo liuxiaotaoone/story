@@ -9,10 +9,11 @@ export interface PoseSelection {
   startFrame: number;
   clipStartOffset: number;
   playbackRate: number;
-  opacity: number;
+  transitionWeight: number;
   transition?: {
     transitionId: string;
     role: 'from' | 'to';
+    weight: number;
   };
 }
 
@@ -56,16 +57,16 @@ export function resolvePoseSelections(
         startFrame: previousEvent?.frame ?? 0,
         clipStartOffset: previousEvent?.clipStartOffset ?? 0,
         playbackRate: previousEvent?.playbackRate ?? 1,
-        opacity: 1 - progress,
-        transition: {transitionId: transition.id, role: 'from'},
+        transitionWeight: 1 - progress,
+        transition: {transitionId: transition.id, role: 'from', weight: 1 - progress},
       },
       {
         poseClipId: transition.toPoseClipId,
         startFrame: toEvent.frame,
         clipStartOffset: toEvent.clipStartOffset,
         playbackRate: toEvent.playbackRate,
-        opacity: progress,
-        transition: {transitionId: transition.id, role: 'to'},
+        transitionWeight: progress,
+        transition: {transitionId: transition.id, role: 'to', weight: progress},
       },
     ];
   }
@@ -76,6 +77,6 @@ export function resolvePoseSelections(
     startFrame: event?.frame ?? 0,
     clipStartOffset: event?.clipStartOffset ?? 0,
     playbackRate: event?.playbackRate ?? 1,
-    opacity: 1,
+    transitionWeight: 1,
   }];
 }

@@ -8,6 +8,7 @@ export * from './entity.js';
 export * from './environment.js';
 export * from './hash.js';
 export * from './integrity.js';
+export * from './ownership-integrity.js';
 export * from './pose-clip.js';
 export * from './render.js';
 export * from './task.js';

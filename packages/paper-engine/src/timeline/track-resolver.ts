@@ -24,6 +24,10 @@ export function resolveEntityTrack(track: EntityTrack | undefined, frame: number
 
 export function resolveCamera(timeline: Timeline, shotId: string, frame: number): CameraState {
   const track = timeline.cameraTracks.find((candidate) => candidate.shotId === shotId);
+  return resolveCameraTrack(track, frame);
+}
+
+export function resolveCameraTrack(track: Timeline['cameraTracks'][number] | undefined, frame: number): CameraState {
   return {
     position: track === undefined ? {x: 0, y: 0} : evaluatePointKeyframes(track.position, frame),
     zoom: track === undefined ? 1 : evaluateNumberKeyframes(track.zoom, frame),

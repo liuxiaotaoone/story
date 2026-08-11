@@ -6,7 +6,10 @@ export const FiniteNumberSchema = z.number().finite();
 export const UnitIntervalSchema = FiniteNumberSchema.min(0).max(1);
 export const SemverSchema = z.string().regex(/^\d+\.\d+\.\d+$/u, 'Expected semantic version');
 export const IsoDateTimeSchema = z.iso.datetime({offset: true});
-export const ContentHashSchema = z.string().trim().min(8);
+export const ContentHashSchema = z.string().regex(
+  /^[0-9a-f]{64}$/u,
+  'Expected a lowercase 64-character SHA-256 hex digest',
+);
 
 export const PointSchema = z.object({
   x: FiniteNumberSchema,

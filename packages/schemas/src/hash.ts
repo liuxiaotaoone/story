@@ -45,3 +45,16 @@ export async function canonicalHash(domain: string, payload: unknown): Promise<s
     payload,
   });
 }
+
+export async function semanticRenderPlanHash(plan: import('./render.js').RenderPlan): Promise<string> {
+  return canonicalHash('render-plan-semantic-v1', {
+    schemaVersion: plan.schemaVersion,
+    project: plan.project,
+    assets: plan.assets,
+    environments: plan.environments,
+    entities: plan.entities,
+    instances: plan.instances,
+    poseClips: plan.poseClips,
+    timeline: plan.timeline,
+  });
+}

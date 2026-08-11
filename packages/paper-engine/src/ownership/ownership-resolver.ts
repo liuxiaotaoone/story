@@ -1,9 +1,10 @@
-import type {OwnerRef, SocketBinding, Timeline} from '@pose-clip/schemas';
+import type {BakedBinding, OwnerRef, SocketBinding, Timeline} from '@pose-clip/schemas';
 
 export interface ResolvedOwnership {
   owner: OwnerRef;
   mode?: 'socket' | 'baked';
   socketBinding?: SocketBinding;
+  bakedBinding?: BakedBinding;
 }
 
 function sameOwner(left: OwnerRef, right: OwnerRef): boolean {
@@ -38,6 +39,7 @@ export function resolveOwnership(
           owner: event.to,
           mode: event.mode,
           ...(event.socketBinding === undefined ? {} : {socketBinding: event.socketBinding}),
+          ...(event.bakedBinding === undefined ? {} : {bakedBinding: event.bakedBinding}),
         }
       : {owner: event.to};
   }

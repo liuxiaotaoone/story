@@ -42,6 +42,12 @@ export const SocketBindingSchema = z.object({
   scaleMultiplier: FiniteNumberSchema.positive().optional(),
 }).strict();
 
+export const BakedBindingSchema = z.object({
+  ownerEntityId: IdSchema,
+  childEntityId: IdSchema,
+  compositeSlotId: IdSchema,
+}).strict();
+
 export const OwnershipEventSchema = z.object({
   id: IdSchema,
   frame: FrameSchema,
@@ -52,6 +58,7 @@ export const OwnershipEventSchema = z.object({
   mode: AttachmentModeSchema,
   preserveWorldTransform: z.boolean(),
   socketBinding: SocketBindingSchema.optional(),
+  bakedBinding: BakedBindingSchema.optional(),
 }).strict().superRefine((event, context) => {
   if (event.type === 'attach' && event.to.kind !== 'entity') {
     context.addIssue({
@@ -81,6 +88,20 @@ export const OwnershipEventSchema = z.object({
       path: ['socketBinding'],
     });
   }
+  if (event.type === 'attach' && event.mode === 'baked' && event.bakedBinding === undefined) {
+    context.addIssue({code: 'custom', message: 'baked attachment requires bakedBinding', path: ['bakedBinding']});
+  }
+  if ((event.type === 'detach' || event.mode === 'socket') && event.bakedBinding !== undefined) {
+    context.addIssue({code: 'custom', message: 'detach and socket events must not define bakedBinding', path: ['bakedBinding']});
+  }
+  if (event.bakedBinding !== undefined) {
+    if (event.bakedBinding.childEntityId !== event.entityId) {
+      context.addIssue({code: 'custom', message: 'bakedBinding.childEntityId must equal entityId', path: ['bakedBinding', 'childEntityId']});
+    }
+    if (event.to.kind === 'entity' && event.bakedBinding.ownerEntityId !== event.to.entityId) {
+      context.addIssue({code: 'custom', message: 'bakedBinding.ownerEntityId must equal to.entityId', path: ['bakedBinding', 'ownerEntityId']});
+    }
+  }
 });
 
 export type AttachmentMode = z.infer<typeof AttachmentModeSchema>;
@@ -88,4 +109,5 @@ export type AttachmentAnchor = z.infer<typeof AttachmentAnchorSchema>;
 export type AttachmentSlotDefinition = z.infer<typeof AttachmentSlotDefinitionSchema>;
 export type OwnerRef = z.infer<typeof OwnerRefSchema>;
 export type SocketBinding = z.infer<typeof SocketBindingSchema>;
+export type BakedBinding = z.infer<typeof BakedBindingSchema>;
 export type OwnershipEvent = z.infer<typeof OwnershipEventSchema>;

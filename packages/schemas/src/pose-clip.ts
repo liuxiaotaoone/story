@@ -34,6 +34,11 @@ export const GroundLockSchema = z.object({
   maxCorrectionPx: FiniteNumberSchema.nonnegative(),
 }).strict();
 
+export const CompositeSlotSchema = z.object({
+  id: IdSchema,
+  entityType: IdSchema,
+}).strict();
+
 export const PoseClipSchema = z.object({
   id: IdSchema,
   entityType: IdSchema,
@@ -44,8 +49,15 @@ export const PoseClipSchema = z.object({
   rootMotion: z.object({mode: z.literal('timeline')}).strict(),
   groundLock: GroundLockSchema,
   tags: z.array(IdSchema).optional(),
-  compositeMembers: z.array(IdSchema).optional(),
+  compositeSlots: z.array(CompositeSlotSchema).optional(),
 }).strict().superRefine((clip, context) => {
+  const compositeSlotIds = new Set<string>();
+  for (const [index, slot] of (clip.compositeSlots ?? []).entries()) {
+    if (compositeSlotIds.has(slot.id)) {
+      context.addIssue({code: 'custom', message: `Duplicate composite slot: ${slot.id}`, path: ['compositeSlots', index, 'id']});
+    }
+    compositeSlotIds.add(slot.id);
+  }
   for (const [index, frame] of clip.frames.entries()) {
     const contact = frame.contact?.type ?? 'none';
     if (clip.groundLock.mode === 'contact-only') {
@@ -76,3 +88,4 @@ export type FootContact = z.infer<typeof FootContactSchema>;
 export type PoseAnchors = z.infer<typeof PoseAnchorsSchema>;
 export type PoseClipFrame = z.infer<typeof PoseClipFrameSchema>;
 export type PoseClip = z.infer<typeof PoseClipSchema>;
+export type CompositeSlot = z.infer<typeof CompositeSlotSchema>;

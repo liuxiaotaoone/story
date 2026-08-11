@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {
   AssetManifestSchema,
   AssetRecordSchema,
+  ContentHashSchema,
   OwnershipEventSchema,
   RenderStateSchema,
   ShotTransitionSchema,
@@ -10,10 +11,12 @@ import {
   canonicalizeJson,
   canonicalHash,
   sha256Canonical,
+  semanticRenderPlanHash,
   validateRenderPlanIntegrity,
 } from '../src/index.js';
 
 const worldOwner = {kind: 'world' as const, environmentId: 'farm'};
+const HASH = '0'.repeat(64);
 
 function timeline(overrides: Record<string, unknown> = {}) {
   return {
@@ -37,7 +40,7 @@ function timeline(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function renderPlan() {
+function renderPlan(): Record<string, any> {
   const identity = {
     position: {x: 0, y: 0},
     scale: {x: 1, y: 1},
@@ -59,8 +62,8 @@ function renderPlan() {
     assets: {
       schemaVersion: '1.0.0',
       assets: [
-        {id: 'farm-far', kind: 'environment-layer', uri: 'farm-far.png', contentHash: 'farm-far-hash', source: 'manual', qaStatus: 'passed', width: 1280, height: 720, alphaMode: 'opaque'},
-        {id: 'farmer-idle-frame', kind: 'character-frame', uri: 'farmer.png', contentHash: 'farmer-frame-hash', source: 'manual', qaStatus: 'passed', width: 400, height: 600, alphaMode: 'straight'},
+        {id: 'farm-far', kind: 'environment-layer', uri: 'farm-far.png', contentHash: HASH, source: 'manual', qaStatus: 'passed', width: 1280, height: 720, alphaMode: 'opaque'},
+        {id: 'farmer-idle-frame', kind: 'character-frame', uri: 'farmer.png', contentHash: HASH, source: 'manual', qaStatus: 'passed', width: 400, height: 600, alphaMode: 'straight'},
       ],
     },
     environments: [{
@@ -113,8 +116,8 @@ function renderPlan() {
     timeline: timeline(),
     provenance: {
       compilerVersion: '1.0.0',
-      sourceDirectorPlanHash: 'source-plan-hash',
-      effectiveDirectorPlanHash: 'effective-plan-hash',
+      sourceDirectorPlanHash: HASH,
+      effectiveDirectorPlanHash: HASH,
       directorOverrideIds: [],
       capabilityCatalogVersion: '1.0.0',
       compiledAt: '2026-08-11T00:00:00.000Z',
@@ -178,7 +181,7 @@ describe('version, provenance, transition, and detach hardening', () => {
 
   it('requires provenance for generated assets', () => {
     expect(AssetRecordSchema.safeParse({
-      id: 'generated-audio', kind: 'audio', uri: 'audio.wav', contentHash: 'audio-hash', source: 'generated', qaStatus: 'passed',
+      id: 'generated-audio', kind: 'audio', uri: 'audio.wav', contentHash: HASH, source: 'generated', qaStatus: 'passed',
     }).success).toBe(false);
   });
 
@@ -197,6 +200,12 @@ describe('version, provenance, transition, and detach hardening', () => {
 });
 
 describe('canonical hashing and render-plan integrity', () => {
+  it('accepts only lowercase 64-character SHA-256 content hashes', () => {
+    expect(ContentHashSchema.safeParse(HASH).success).toBe(true);
+    expect(ContentHashSchema.safeParse('0'.repeat(63)).success).toBe(false);
+    expect(ContentHashSchema.safeParse('A'.repeat(64)).success).toBe(false);
+  });
+
   it('uses canonical key ordering and SHA-256 over UTF-8', async () => {
     expect(canonicalizeJson({b: 1, a: 2})).toBe('{"a":2,"b":1}');
     await expect(sha256Canonical({b: 1, a: 2})).resolves.toBe('d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772');
@@ -212,6 +221,60 @@ describe('canonical hashing and render-plan integrity', () => {
     expect(result.valid).toBe(false);
     expect(result.issues.some(({code}) => code === 'MISSING_ASSET')).toBe(true);
   });
+
+  it('keeps semantic RenderPlan identity stable across audit-only changes', async () => {
+    const first = renderPlan();
+    const second = structuredClone(first);
+    second.provenance.compiledAt = '2026-08-12T00:00:00.000Z';
+    second.provenance.warnings = [{code: 'AUDIT_NOTE', message: 'Review only'}];
+    await expect(semanticRenderPlanHash(first as never)).resolves.toBe(await semanticRenderPlanHash(second as never));
+    second.timeline.durationFrames = 61;
+    await expect(semanticRenderPlanHash(first as never)).resolves.not.toBe(await semanticRenderPlanHash(second as never));
+  });
+});
+
+describe('ownership timeline integrity', () => {
+  function planWithSecondEntity() {
+    const plan = renderPlan();
+    plan.entities[0]!.attachmentSlots = [{id: 'hand', ownerAnchor: 'center'}];
+    plan.entities.push({...structuredClone(plan.entities[0]!), id: 'rabbit-def', displayName: 'Rabbit'});
+    plan.instances.push({...structuredClone(plan.instances[0]!), id: 'rabbit', definitionId: 'rabbit-def'});
+    return plan;
+  }
+
+  const binding = {attachmentAnchorId: 'grip', inheritRotation: false, inheritScale: false};
+
+  it('rejects duplicate same-frame events and stale from chains', () => {
+    const plan = planWithSecondEntity();
+    const attach = {id: 'a1', frame: 10, type: 'attach', entityId: 'rabbit', from: worldOwner, to: {kind: 'entity', entityId: 'farmer', slot: 'hand'}, mode: 'socket', preserveWorldTransform: false, socketBinding: binding};
+    plan.timeline.ownershipEvents = [attach, {...attach, id: 'a2'}];
+    const result = validateRenderPlanIntegrity(plan);
+    expect(result.issues.some(({code}) => code === 'DUPLICATE_OWNERSHIP_EVENT')).toBe(true);
+    plan.timeline.ownershipEvents = [{...attach, from: {kind: 'world', environmentId: 'wrong'}}];
+    expect(validateRenderPlanIntegrity(plan).issues.some(({code}) => code === 'STALE_OWNERSHIP_FROM')).toBe(true);
+  });
+
+  it('rejects self attachment, cycles, and ownership depth greater than one', () => {
+    const self = planWithSecondEntity();
+    self.timeline.ownershipEvents = [{id: 'self', frame: 1, type: 'attach', entityId: 'farmer', from: worldOwner, to: {kind: 'entity', entityId: 'farmer', slot: 'hand'}, mode: 'socket', preserveWorldTransform: false, socketBinding: binding}];
+    expect(validateRenderPlanIntegrity(self).issues.some(({code}) => code === 'SELF_ATTACHMENT')).toBe(true);
+
+    const cycle = planWithSecondEntity();
+    cycle.timeline.ownershipEvents = [
+      {id: 'c1', frame: 1, type: 'attach', entityId: 'farmer', from: worldOwner, to: {kind: 'entity', entityId: 'rabbit', slot: 'hand'}, mode: 'socket', preserveWorldTransform: false, socketBinding: binding},
+      {id: 'c2', frame: 1, type: 'attach', entityId: 'rabbit', from: worldOwner, to: {kind: 'entity', entityId: 'farmer', slot: 'hand'}, mode: 'socket', preserveWorldTransform: false, socketBinding: binding},
+    ];
+    expect(validateRenderPlanIntegrity(cycle).issues.some(({code}) => code === 'OWNERSHIP_CYCLE')).toBe(true);
+
+    const deep = planWithSecondEntity();
+    deep.entities.push({...structuredClone(deep.entities[0]!), id: 'lantern-def', displayName: 'Lantern'});
+    deep.instances.push({...structuredClone(deep.instances[0]!), id: 'lantern', definitionId: 'lantern-def'});
+    deep.timeline.ownershipEvents = [
+      {id: 'd1', frame: 1, type: 'attach', entityId: 'rabbit', from: worldOwner, to: {kind: 'entity', entityId: 'farmer', slot: 'hand'}, mode: 'socket', preserveWorldTransform: false, socketBinding: binding},
+      {id: 'd2', frame: 2, type: 'attach', entityId: 'lantern', from: worldOwner, to: {kind: 'entity', entityId: 'rabbit', slot: 'hand'}, mode: 'socket', preserveWorldTransform: false, socketBinding: binding},
+    ];
+    expect(validateRenderPlanIntegrity(deep).issues.some(({code}) => code === 'OWNERSHIP_DEPTH_EXCEEDED')).toBe(true);
+  });
 });
 
 describe('canonical RenderState ordering', () => {
@@ -219,7 +282,7 @@ describe('canonical RenderState ordering', () => {
     renderId: `${entityId}-render`, entityId, assetId: `${entityId}-asset`,
     transform: {position: {x: 0, y: 0}, scale: {x: 1, y: 1}, rotation: 0, opacity: 1},
     anchor: {x: 0.5, y: 1}, renderLayer: layer, zIndex: 0, depth: 0.5,
-    stableSortKey, visible: true, owner: worldOwner,
+    stableSortKey, visible: true, owner: worldOwner, cameraSpace: {kind: 'world', influence: 1},
   });
 
   it('requires sprites to arrive already sorted', () => {

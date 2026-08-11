@@ -62,7 +62,13 @@ export const RenderPlanSchema = z.object({
 export const PoseTransitionRenderRefSchema = z.object({
   transitionId: IdSchema,
   role: z.enum(['from', 'to']),
+  weight: UnitIntervalSchema,
 }).strict();
+
+export const CameraSpaceSchema = z.discriminatedUnion('kind', [
+  z.object({kind: z.literal('world'), influence: z.number().finite().nonnegative()}).strict(),
+  z.object({kind: z.literal('screen')}).strict(),
+]);
 
 export const SpriteRenderStateSchema = z.object({
   renderId: IdSchema,
@@ -76,6 +82,7 @@ export const SpriteRenderStateSchema = z.object({
   stableSortKey: z.string().min(1),
   visible: z.boolean(),
   owner: OwnerRefSchema,
+  cameraSpace: CameraSpaceSchema,
   poseTransition: PoseTransitionRenderRefSchema.optional(),
 }).strict();
 
@@ -164,7 +171,7 @@ export const RenderStateSchema = z.object({
       && secondTransition !== undefined
       && firstTransition.transitionId === secondTransition.transitionId
       && new Set([firstTransition.role, secondTransition.role]).size === 2
-      && Math.abs(first.sprite.transform.opacity + second.sprite.transform.opacity - 1) <= 1e-6;
+      && Math.abs(firstTransition.weight + secondTransition.weight - 1) <= 1e-6;
     if (!legalCrossfade) {
       context.addIssue({
         code: 'custom',

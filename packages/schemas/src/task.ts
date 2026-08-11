@@ -16,6 +16,12 @@ export const TaskStatusSchema = z.enum([
   'cancelled',
 ]);
 
+export const TaskDependencySchema = z.object({
+  role: IdSchema,
+  nodeId: IdSchema,
+  outputHash: ContentHashSchema,
+}).strict();
+
 export const TaskNodeSchema = z.object({
   nodeId: IdSchema,
   type: IdSchema,
@@ -27,7 +33,7 @@ export const TaskNodeSchema = z.object({
   producer: ProducerRefSchema,
   seed: z.number().int().optional(),
   outputHash: ContentHashSchema.optional(),
-  dependencies: z.array(IdSchema),
+  dependencies: z.array(TaskDependencySchema),
   status: TaskStatusSchema,
   attempts: z.number().int().nonnegative(),
   error: z.string().optional(),
@@ -35,10 +41,15 @@ export const TaskNodeSchema = z.object({
   updatedAt: IsoDateTimeSchema,
 }).strict();
 
-export function taskCacheKeyMaterial(task: z.infer<typeof TaskNodeSchema>, dependencyOutputHashes: readonly string[]): string {
+export function taskCacheKeyMaterial(task: z.infer<typeof TaskNodeSchema>): string {
+  const compare = (left: string, right: string) => left < right ? -1 : left > right ? 1 : 0;
+  const dependencies = [...task.dependencies].sort((left, right) =>
+    compare(left.role, right.role)
+      || compare(left.nodeId, right.nodeId)
+      || compare(left.outputHash, right.outputHash));
   return JSON.stringify({
     inputHash: task.inputHash,
-    dependencyOutputHashes: [...dependencyOutputHashes].sort(),
+    dependencies,
     producer: task.producer,
     modelId: task.modelId ?? null,
     modelVersion: task.modelVersion ?? null,
@@ -48,3 +59,4 @@ export function taskCacheKeyMaterial(task: z.infer<typeof TaskNodeSchema>, depen
 }
 
 export type TaskNode = z.infer<typeof TaskNodeSchema>;
+export type TaskDependency = z.infer<typeof TaskDependencySchema>;
