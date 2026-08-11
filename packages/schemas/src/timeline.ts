@@ -23,6 +23,44 @@ function keyframeSchema<T extends z.ZodType>(value: T) {
 export const PointKeyframeSchema = keyframeSchema(PointSchema);
 export const GroundPointKeyframeSchema = keyframeSchema(GroundPointSchema);
 export const NumberKeyframeSchema = keyframeSchema(FiniteNumberSchema);
+export const PositivePointKeyframeSchema = keyframeSchema(z.object({
+  x: FiniteNumberSchema.positive(),
+  y: FiniteNumberSchema.positive(),
+}).strict());
+export const PositiveNumberKeyframeSchema = keyframeSchema(FiniteNumberSchema.positive());
+export const OpacityKeyframeSchema = keyframeSchema(FiniteNumberSchema.min(0).max(1));
+
+type Framed = {frame: number};
+
+export function assertStrictFrames<T extends Framed>(keyframes: readonly T[]): void {
+  for (let index = 1; index < keyframes.length; index += 1) {
+    const current = keyframes[index];
+    const previous = keyframes[index - 1];
+    if (current === undefined || previous === undefined) continue;
+    if (current.frame <= previous.frame) {
+      throw new Error('Keyframes must be strictly increasing');
+    }
+  }
+}
+
+function addStrictFrameIssue(
+  keyframes: readonly Framed[] | undefined,
+  context: z.RefinementCtx,
+  path: Array<string | number>,
+): void {
+  if (keyframes === undefined) return;
+  for (let index = 1; index < keyframes.length; index += 1) {
+    const current = keyframes[index];
+    const previous = keyframes[index - 1];
+    if (current !== undefined && previous !== undefined && current.frame <= previous.frame) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Keyframes must be strictly increasing with no duplicate frames',
+        path: [...path, index, 'frame'],
+      });
+    }
+  }
+}
 
 export const ShotSchema = z.object({
   id: IdSchema,
@@ -36,20 +74,30 @@ export const EntityTrackSchema = z.object({
   entityId: IdSchema,
   groundPosition: z.array(GroundPointKeyframeSchema).min(1).optional(),
   worldPosition: z.array(PointKeyframeSchema).min(1).optional(),
-  scale: z.array(PointKeyframeSchema).min(1).optional(),
+  scale: z.array(PositivePointKeyframeSchema).min(1).optional(),
   rotation: z.array(NumberKeyframeSchema).min(1).optional(),
-  opacity: z.array(NumberKeyframeSchema).min(1).optional(),
-}).strict().refine(
-  ({groundPosition, worldPosition}) => !(groundPosition !== undefined && worldPosition !== undefined),
-  {message: 'Entity track cannot define both groundPosition and worldPosition'},
-);
+  opacity: z.array(OpacityKeyframeSchema).min(1).optional(),
+}).strict().superRefine((track, context) => {
+  if (track.groundPosition !== undefined && track.worldPosition !== undefined) {
+    context.addIssue({code: 'custom', message: 'Entity track cannot define both groundPosition and worldPosition'});
+  }
+  addStrictFrameIssue(track.groundPosition, context, ['groundPosition']);
+  addStrictFrameIssue(track.worldPosition, context, ['worldPosition']);
+  addStrictFrameIssue(track.scale, context, ['scale']);
+  addStrictFrameIssue(track.rotation, context, ['rotation']);
+  addStrictFrameIssue(track.opacity, context, ['opacity']);
+});
 
 export const CameraTrackSchema = z.object({
   shotId: IdSchema,
   position: z.array(PointKeyframeSchema).min(1),
-  zoom: z.array(NumberKeyframeSchema).min(1),
+  zoom: z.array(PositiveNumberKeyframeSchema).min(1),
   rotation: z.array(NumberKeyframeSchema).min(1).optional(),
-}).strict();
+}).strict().superRefine((track, context) => {
+  addStrictFrameIssue(track.position, context, ['position']);
+  addStrictFrameIssue(track.zoom, context, ['zoom']);
+  addStrictFrameIssue(track.rotation, context, ['rotation']);
+});
 
 export const PoseEventSchema = z.object({
   id: IdSchema,
@@ -131,13 +179,26 @@ export const SfxCueSchema = z.object({
   gainDb: FiniteNumberSchema,
 }).strict();
 
-export const ShotTransitionSchema = z.object({
+export const CutShotTransitionSchema = z.object({
   id: IdSchema,
   fromShotId: IdSchema,
   toShotId: IdSchema,
-  range: FrameRangeSchema,
-  type: z.enum(['cut', 'crossfade', 'paper-wipe']),
+  type: z.literal('cut'),
+  frame: FrameSchema,
 }).strict();
+
+export const TimedShotTransitionSchema = z.object({
+  id: IdSchema,
+  fromShotId: IdSchema,
+  toShotId: IdSchema,
+  type: z.enum(['crossfade', 'paper-wipe']),
+  range: FrameRangeSchema,
+}).strict();
+
+export const ShotTransitionSchema = z.discriminatedUnion('type', [
+  CutShotTransitionSchema,
+  TimedShotTransitionSchema,
+]);
 
 export const TimelineMarkerSchema = z.object({
   id: IdSchema,
@@ -164,6 +225,48 @@ export const TimelineSchema = z.object({
   transitions: z.array(ShotTransitionSchema),
   markers: z.array(TimelineMarkerSchema),
 }).strict().superRefine((timeline, context) => {
+  if (timeline.shots[0]?.range.startFrame !== 0) {
+    context.addIssue({code: 'custom', message: 'First shot must start at frame 0', path: ['shots', 0, 'range', 'startFrame']});
+  }
+  for (let index = 1; index < timeline.shots.length; index += 1) {
+    const previous = timeline.shots[index - 1];
+    const current = timeline.shots[index];
+    if (previous !== undefined && current !== undefined && previous.range.endFrame !== current.range.startFrame) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Shots must continuously cover the timeline with no gaps or overlaps',
+        path: ['shots', index, 'range', 'startFrame'],
+      });
+    }
+  }
+  const lastShot = timeline.shots.at(-1);
+  if (lastShot !== undefined && lastShot.range.endFrame !== timeline.durationFrames) {
+    context.addIssue({code: 'custom', message: 'Last shot must end at durationFrames', path: ['shots', timeline.shots.length - 1, 'range', 'endFrame']});
+  }
+
+  const entityTrackIds = new Set<string>();
+  for (const [index, track] of timeline.entityTracks.entries()) {
+    if (entityTrackIds.has(track.entityId)) {
+      context.addIssue({code: 'custom', message: `Duplicate EntityTrack for ${track.entityId}`, path: ['entityTracks', index, 'entityId']});
+    }
+    entityTrackIds.add(track.entityId);
+  }
+  const cameraTrackIds = new Set<string>();
+  for (const [index, track] of timeline.cameraTracks.entries()) {
+    if (cameraTrackIds.has(track.shotId)) {
+      context.addIssue({code: 'custom', message: `Duplicate CameraTrack for ${track.shotId}`, path: ['cameraTracks', index, 'shotId']});
+    }
+    cameraTrackIds.add(track.shotId);
+  }
+  const poseEventKeys = new Set<string>();
+  for (const [index, event] of timeline.poseEvents.entries()) {
+    const key = `${event.entityId}\u0000${event.frame}`;
+    if (poseEventKeys.has(key)) {
+      context.addIssue({code: 'custom', message: `Duplicate PoseEvent for ${event.entityId} at frame ${event.frame}`, path: ['poseEvents', index]});
+    }
+    poseEventKeys.add(key);
+  }
+
   for (const [index, transition] of timeline.poseTransitions.entries()) {
     const switchFrame = effectivePoseSwitchFrame(transition);
     const matchingEvent = timeline.poseEvents.some((event) =>
@@ -187,5 +290,6 @@ export const TimelineSchema = z.object({
 });
 
 export type Timeline = z.infer<typeof TimelineSchema>;
+export type Easing = z.infer<typeof EasingSchema>;
 export type PoseEvent = z.infer<typeof PoseEventSchema>;
 export type PoseTransition = z.infer<typeof PoseTransitionSchema>;

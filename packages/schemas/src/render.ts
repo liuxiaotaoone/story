@@ -17,6 +17,7 @@ import {EntityDefinitionSchema, EntityInstanceSchema} from './entity.js';
 import {
   CameraStateSchema,
   EnvironmentDefinitionSchema,
+  RENDER_LAYER_ORDER,
   RenderLayerNameSchema,
 } from './environment.js';
 import {PoseClipSchema} from './pose-clip.js';
@@ -47,7 +48,7 @@ export const CompileProvenanceSchema = z.object({
 }).strict();
 
 export const RenderPlanSchema = z.object({
-  schemaVersion: SemverSchema,
+  schemaVersion: z.literal('1.0.0'),
   project: ProjectSpecSchema,
   assets: AssetManifestSchema,
   environments: z.array(EnvironmentDefinitionSchema),
@@ -77,6 +78,23 @@ export const SpriteRenderStateSchema = z.object({
   owner: OwnerRefSchema,
   poseTransition: PoseTransitionRenderRefSchema.optional(),
 }).strict();
+
+export function compareSpriteRenderOrder(
+  left: z.infer<typeof SpriteRenderStateSchema>,
+  right: z.infer<typeof SpriteRenderStateSchema>,
+): number {
+  const layerDelta = RENDER_LAYER_ORDER[left.renderLayer] - RENDER_LAYER_ORDER[right.renderLayer];
+  if (layerDelta !== 0) return layerDelta;
+  const zIndexDelta = left.zIndex - right.zIndex;
+  if (zIndexDelta !== 0) return zIndexDelta;
+  const depthDelta = left.depth - right.depth;
+  if (depthDelta !== 0) return depthDelta;
+  return left.stableSortKey < right.stableSortKey
+    ? -1
+    : left.stableSortKey > right.stableSortKey
+      ? 1
+      : 0;
+}
 
 export const EffectRenderStateSchema = z.object({
   effectId: IdSchema,
@@ -114,6 +132,14 @@ export const RenderStateSchema = z.object({
       });
     }
     sortKeys.set(sprite.stableSortKey, index);
+    const previousSprite = state.sprites[index - 1];
+    if (previousSprite !== undefined && compareSpriteRenderOrder(previousSprite, sprite) > 0) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Sprites must already be in canonical render order',
+        path: ['sprites', index],
+      });
+    }
   }
 
   const visibleByEntity = new Map<string, Array<{index: number; sprite: z.infer<typeof SpriteRenderStateSchema>}>>();

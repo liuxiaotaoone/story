@@ -48,6 +48,9 @@ export const VisualAssetRecordSchema = z.object({
   alphaMode: AlphaModeSchema,
   attachmentAnchors: z.array(AttachmentAnchorSchema).optional(),
 }).strict().superRefine((asset, context) => {
+  if (asset.source === 'generated' && asset.provenance === undefined) {
+    context.addIssue({code: 'custom', message: 'Generated assets require provenance', path: ['provenance']});
+  }
   const ids = new Set<string>();
   for (const [index, anchor] of (asset.attachmentAnchors ?? []).entries()) {
     if (ids.has(anchor.id)) {
@@ -64,7 +67,11 @@ export const VisualAssetRecordSchema = z.object({
 export const NonVisualAssetRecordSchema = z.object({
   ...AssetRecordBaseShape,
   kind: NonVisualAssetKindSchema,
-}).strict();
+}).strict().superRefine((asset, context) => {
+  if (asset.source === 'generated' && asset.provenance === undefined) {
+    context.addIssue({code: 'custom', message: 'Generated assets require provenance', path: ['provenance']});
+  }
+});
 
 export const AssetRecordSchema = z.union([
   VisualAssetRecordSchema,
@@ -72,7 +79,7 @@ export const AssetRecordSchema = z.union([
 ]);
 
 export const AssetManifestSchema = z.object({
-  schemaVersion: SemverSchema,
+  schemaVersion: z.literal('1.0.0'),
   assets: z.array(AssetRecordSchema),
 }).strict().superRefine((manifest, context) => {
   const ids = new Set<string>();

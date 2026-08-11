@@ -390,6 +390,7 @@ interface Transform2D {
 
 - Schema 使用语义化版本字符串，如 `1.0.0`；
 - 数据文件必须带 `schemaVersion`；
+- V1 Reader 的 `schemaVersion` 必须使用 literal `"1.0.0"`，不得用任意 SemVer 接受未来 V2 数据；
 - 修改已有字段语义必须提升 Major；
 - 新增可选字段提升 Minor；
 - 修正文档或约束但不改变数据提升 Patch；
@@ -492,6 +493,8 @@ interface AssetManifest {
   assets: AssetRecord[];
 }
 ```
+
+视觉资产必须提供正整数 `width/height`，因为 Frame Evaluator 不允许异步加载图片后再补尺寸。`source = "generated"` 的任何 AI/TTS 资产必须携带完整 `provenance`；人工资产可以省略。
 
 ### 7.3 PoseClip
 
@@ -664,8 +667,8 @@ Evaluator 通过完整道具的平移，以及配置允许的整体旋转/整体
 禁止 Entity → Entity → Entity 多层链
 from 必须与事件前 Ownership 一致
 baked 模式必须存在对应 compositeMembers 声明
-socket 模式必须具有 socketBinding，且 Owner Slot 和 Child Attachment Anchor 都存在
-baked 模式不得携带 socketBinding
+attach + socket 模式必须具有 socketBinding，且 Owner Slot 和 Child Attachment Anchor 都存在
+detach 和 baked 模式不得携带 socketBinding
 Attachment 跳变超过阈值时 QA 失败
 ```
 
@@ -1015,6 +1018,8 @@ interface RenderPlan {
 
 RenderPlan 生成后不可被 Renderer 修改。任何修改必须回到 DirectorPlan、资产或人工 override，再重新编译。
 
+进入 Paper Engine 前必须调用 `validateRenderPlanIntegrity()`，检查跨对象的 Asset、PoseClip、EntityDefinition/Instance、Environment、Shot、Track、Ownership、Attachment Slot/Anchor 和 Audio 引用；单文件 Zod Schema 通过不代表跨引用完整。
+
 ### 10.2 Timeline
 
 Timeline Schema v1 从 M0 定义完整时间合同；暂未实现的轨道可以为空，避免 M2 音频闭环时再引入竞争时间源。
@@ -1077,6 +1082,21 @@ interface CameraTrack {
 ```
 
 地面角色优先使用 `groundPosition`；飞行特效或固定 UI 才使用 `worldPosition`。同一 Entity 同一 Frame 不得同时解析出两种位置来源。
+
+Timeline V1 强制不变量：
+
+```text
+所有 Keyframe 数组按 frame 严格递增，禁止同帧重复
+EntityTrack 按 entityId 唯一
+CameraTrack 按 shotId 唯一
+PoseEvent 按 entityId + frame 唯一
+scale.x / scale.y > 0
+camera.zoom > 0
+opacity 位于 0..1
+shots[0].startFrame = 0
+shots[i].endFrame = shots[i + 1].startFrame
+lastShot.endFrame = durationFrames
+```
 
 ### 10.4 Pose 与 Visibility Event
 
@@ -1173,13 +1193,23 @@ interface SfxCue {
   gainDb: number;
 }
 
-interface Transition {
+interface CutTransition {
   id: Id;
   fromShotId: Id;
   toShotId: Id;
-  range: FrameRange;
-  type: "cut" | "crossfade" | "paper-wipe";
+  type: "cut";
+  frame: Frame;
 }
+
+interface TimedTransition {
+  id: Id;
+  fromShotId: Id;
+  toShotId: Id;
+  type: "crossfade" | "paper-wipe";
+  range: FrameRange;
+}
+
+type Transition = CutTransition | TimedTransition;
 
 interface TimelineMarker {
   id: Id;
@@ -1455,6 +1485,8 @@ renderLayerOrder
 
 只要排序元组完全相同，`stableSortKey` 仍必须唯一。Renderer 不得依赖数组插入顺序、对象枚举顺序或底层排序稳定性决定遮挡关系。
 
+RenderState Schema 还必须验证 `sprites` 已按上述元组处于 Canonical Sort；Renderer 只消费顺序，不得再次排序或决定遮挡语义。
+
 ### 13.2 确定性约束
 
 ```text
@@ -1715,6 +1747,19 @@ Narration（文本未改变时）
 ```
 
 所有 Task 必须幂等。相同输入 Hash、模型版本、Workflow 和 Seed 应命中缓存或得到可追踪的新版本。
+
+### 15.4 Canonical Hash V1
+
+持久化 Hash 统一使用：
+
+```text
+Canonical JSON V1
+→ UTF-8
+→ SHA-256
+→ lowercase hexadecimal
+```
+
+对象键按 Unicode code unit 升序；数组保持原顺序；禁止 `undefined`、NaN 和 Infinity；`-0` 规范为 `0`。持久化 Hash 必须增加 `canonicalVersion` 和 `domain` 包装，避免 Asset、Task、Plan 相同 JSON 产生跨域碰撞。完整决策见 `docs/adr/ADR-002-canonical-json-sha256.md`。
 
 ---
 

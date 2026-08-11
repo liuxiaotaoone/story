@@ -72,7 +72,7 @@ export const AssetRequirementSchema = z.object({
 }).strict();
 
 export const DirectorPlanSchema = z.object({
-  schemaVersion: SemverSchema,
+  schemaVersion: z.literal('1.0.0'),
   projectId: IdSchema,
   storyBible: StoryBibleSchema,
   scenes: z.array(DirectorSceneSchema).min(1),

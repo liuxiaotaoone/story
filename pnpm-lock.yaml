@@ -21,6 +21,12 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
+  packages/paper-engine:
+    dependencies:
+      '@pose-clip/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+
 packages:
 
   '@jridgewell/sourcemap-codec@1.5.5':

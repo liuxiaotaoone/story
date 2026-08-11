@@ -25,7 +25,7 @@ export const TtsRequirementSchema = z.object({
 }).strict();
 
 export const PreflightCompileResultSchema = z.object({
-  schemaVersion: SemverSchema,
+  schemaVersion: z.literal('1.0.0'),
   effectiveDirectorPlanHash: ContentHashSchema,
   expandedActions: z.array(DirectorActionSchema),
   ttsRequirements: z.array(TtsRequirementSchema),

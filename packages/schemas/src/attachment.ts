@@ -67,17 +67,17 @@ export const OwnershipEventSchema = z.object({
       path: ['to'],
     });
   }
-  if (event.mode === 'socket' && event.socketBinding === undefined) {
+  if (event.type === 'attach' && event.mode === 'socket' && event.socketBinding === undefined) {
     context.addIssue({
       code: 'custom',
       message: 'socket attachment requires socketBinding',
       path: ['socketBinding'],
     });
   }
-  if (event.mode === 'baked' && event.socketBinding !== undefined) {
+  if ((event.type === 'detach' || event.mode === 'baked') && event.socketBinding !== undefined) {
     context.addIssue({
       code: 'custom',
-      message: 'baked attachment must not define socketBinding',
+      message: 'detach and baked events must not define socketBinding',
       path: ['socketBinding'],
     });
   }

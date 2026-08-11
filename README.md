@@ -22,6 +22,17 @@
 
 所有外部 JSON 和持久化数据必须使用这里的 Zod Schema 做运行时验证。其他包不得重新定义同名领域模型。
 
+`packages/paper-engine` 已实现第一版纯函数动画内核：
+
+- Keyframe/Easing 插值与 Shot/Track 求值；
+- 四边形 Ground Projection；
+- PoseClip 任意帧解析、Transition 与 Ground Lock；
+- Ownership、Visibility 和 Socket Attachment；
+- `evaluate(renderPlan, frame) → RenderState`；
+- 0/30/60/90 帧 Golden JSON 与 100 次重复求值测试。
+
+Paper Engine 不依赖 React、PixiJS、Gemini、ComfyUI 或 FFmpeg。
+
 ## 开发命令
 
 ```powershell

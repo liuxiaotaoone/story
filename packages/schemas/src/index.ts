@@ -6,6 +6,8 @@ export * from './compiler.js';
 export * from './director.js';
 export * from './entity.js';
 export * from './environment.js';
+export * from './hash.js';
+export * from './integrity.js';
 export * from './pose-clip.js';
 export * from './render.js';
 export * from './task.js';

@@ -33,7 +33,10 @@ export const FrameRangeSchema = z.object({
 
 export const Transform2DSchema = z.object({
   position: PointSchema,
-  scale: PointSchema,
+  scale: z.object({
+    x: FiniteNumberSchema.positive(),
+    y: FiniteNumberSchema.positive(),
+  }).strict(),
   rotation: FiniteNumberSchema,
   opacity: UnitIntervalSchema,
 }).strict();

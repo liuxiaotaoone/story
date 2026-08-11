@@ -97,7 +97,7 @@ describe('asset contracts', () => {
       kind: 'audio',
       uri: 'audio/narration-1.wav',
       contentHash: '12345678',
-      source: 'generated',
+      source: 'manual',
       qaStatus: 'passed',
     });
     expect(result.success).toBe(true);

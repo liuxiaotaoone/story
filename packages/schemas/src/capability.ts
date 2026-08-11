@@ -39,7 +39,7 @@ export const FallbackRuleSchema = z.object({
 }).strict();
 
 export const CapabilityCatalogSchema = z.object({
-  schemaVersion: SemverSchema,
+  schemaVersion: z.literal('1.0.0'),
   catalogVersion: SemverSchema,
   entityCapabilities: z.array(EntityCapabilitySchema),
   cameraCapabilities: z.array(CameraCapabilitySchema),
