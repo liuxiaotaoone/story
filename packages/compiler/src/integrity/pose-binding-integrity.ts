@@ -5,7 +5,7 @@ import type {
 } from '@pose-clip/schemas';
 import {CompileIntegrityError} from './hash-integrity.js';
 
-export function assertRequiredPoseClipsResolved(
+export function assertRequiredActionPoseClipsResolved(
   effective: EffectiveDirectorPlan,
   preflight: PreflightCompileResult,
   catalog: ResolvedAssetCatalog,
@@ -31,18 +31,18 @@ export function assertRequiredPoseClipsResolved(
     }
   }
 
-  for (const action of preflight.expandedActions) {
+  for (const action of preflight.expandedActions.filter(candidate => candidate.priority === 'required')) {
     const character = characters.get(action.actorId);
     if (character === undefined) throw new CompileIntegrityError(`ExpandedAction ${action.id} references unknown actor ${action.actorId}`);
     const definitionId = bindings.get(character.characterId)!;
     const definition = definitions.get(definitionId)!;
-    for (const poseClipId of action.requiredPoseClipIds) {
-      const clip = poseClips.get(poseClipId);
-      if (clip === undefined) throw new CompileIntegrityError(`Required PoseClip ${poseClipId} does not exist`);
-      if (clip.entityType !== character.entityType) throw new CompileIntegrityError(`Required PoseClip ${poseClipId} has wrong entityType for ${character.characterId}`);
-      if (!definition.poseClipIds.includes(poseClipId)) {
-        throw new CompileIntegrityError(`EntityDefinition ${definition.id} does not declare required PoseClip ${poseClipId}`);
-      }
+    const clip = poseClips.get(action.poseClipId);
+    if (clip === undefined) throw new CompileIntegrityError(`Required PoseClip ${action.poseClipId} does not exist`);
+    if (clip.entityType !== character.entityType) throw new CompileIntegrityError(`Required PoseClip ${action.poseClipId} has wrong entityType for ${character.characterId}`);
+    if (!definition.poseClipIds.includes(action.poseClipId)) {
+      throw new CompileIntegrityError(`EntityDefinition ${definition.id} does not declare required PoseClip ${action.poseClipId}`);
     }
   }
 }
+
+export const assertRequiredPoseClipsResolved = assertRequiredActionPoseClipsResolved;

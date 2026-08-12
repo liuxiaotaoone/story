@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M2 Final Compiler**。M2 Contracts、Fake TTS/WAV Measurement 与 Duration Solver 均已 PASS / Frozen；当前进入 Final Compiler Input/Asset Binding 与唯一 Canonical RenderPlan 编译阶段。
+当前里程碑：**M2 Vertical Slice**。M2 Contracts、Fake TTS/WAV Measurement、Duration Solver 与 Final Binding Semantics 均已 PASS / Frozen；Final Compiler v0.1 已能从语义输入生成唯一 Canonical RenderPlan，下一步进入 20–30 秒自动渲染与音频/字幕合成。
 
 ## 已冻结的实现边界
 

@@ -68,11 +68,19 @@ export const capabilityCatalog: CapabilityCatalog = {
   entityCapabilities: [
     {
       entityType: 'rabbit', visualAssetKind: 'animal-frame', poseClips: ['rabbit.run-left'], attachmentSlots: [],
-      actions: [{action: 'run', requiredPoseClips: ['rabbit.run-left'], minDurationFrames: 12, supportsDirections: ['left']}],
+      actions: [{
+        action: 'run', requiredPoseClips: ['rabbit.run-left'],
+        poseBindings: [{direction: 'left', poseClipId: 'rabbit.run-left'}],
+        minDurationFrames: 12, supportsDirections: ['left'],
+      }],
     },
     {
       entityType: 'farmer', visualAssetKind: 'character-frame', poseClips: ['farmer.notice-right'], attachmentSlots: [],
-      actions: [{action: 'notice', requiredPoseClips: ['farmer.notice-right'], minDurationFrames: 15, supportsDirections: ['right']}],
+      actions: [{
+        action: 'notice', requiredPoseClips: ['farmer.notice-right'],
+        poseBindings: [{direction: 'right', poseClipId: 'farmer.notice-right'}],
+        minDurationFrames: 15, supportsDirections: ['right'],
+      }],
     },
   ],
   cameraCapabilities: [

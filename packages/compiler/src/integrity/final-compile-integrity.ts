@@ -6,7 +6,7 @@ import {
 import {assertEffectiveDirectorPlanIntegrity, CompileIntegrityError, hashCapabilityCatalog} from './hash-integrity.js';
 import {assertPreflightCompileResultIntegrity} from './preflight-integrity.js';
 import {assertAssetRequirementsResolved, assertResolvedAssetCatalogIntegrity} from './asset-catalog-integrity.js';
-import {assertRequiredPoseClipsResolved} from './pose-binding-integrity.js';
+import {assertRequiredActionPoseClipsResolved} from './pose-binding-integrity.js';
 
 export async function assertFinalCompileInputIntegrity(input: FinalCompileInput): Promise<FinalCompileInput> {
   const parsed = FinalCompileInputSchema.parse(input);
@@ -48,6 +48,6 @@ export async function assertFinalCompileInputIntegrity(input: FinalCompileInput)
     }
   }
   assertAssetRequirementsResolved(parsed.preflight, parsed.assetCatalog);
-  assertRequiredPoseClipsResolved(parsed.effectiveDirectorPlan, parsed.preflight, parsed.assetCatalog);
+  assertRequiredActionPoseClipsResolved(parsed.effectiveDirectorPlan, parsed.preflight, parsed.assetCatalog);
   return parsed;
 }

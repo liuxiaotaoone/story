@@ -35,12 +35,17 @@ export const ExpandedActionSchema = z.object({
   priority: z.enum(['required', 'optional']),
   durationPreference: DurationPreferenceSchema.optional(),
   minDurationFrames: z.number().int().positive(),
-  requiredPoseClipIds: z.array(IdSchema),
+  poseClipId: IdSchema,
+  requiredPoseClipIds: z.array(IdSchema).min(1),
   rewrite: z.object({
     fromAction: IdSchema,
     ruleReason: z.string().trim().min(1),
   }).strict().optional(),
-}).strict();
+}).strict().superRefine((action, context) => {
+  if (!action.requiredPoseClipIds.includes(action.poseClipId)) context.addIssue({
+    code: 'custom', message: 'poseClipId must be declared in requiredPoseClipIds', path: ['poseClipId'],
+  });
+});
 
 export const PreflightCompileResultSchema = z.object({
   schemaVersion: z.literal('1.0.0'),

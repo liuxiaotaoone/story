@@ -1,14 +1,14 @@
 # M2 Final Compiler Input / Asset Binding
 
-状态：Commit 6A implemented
+状态：Commit 6A.1 PASS / Frozen
 
-Final Compiler 开工前冻结四项输入语义：
+Final Compiler 输入绑定已冻结：
 
-- `ExpandedAction.requiredPoseClipIds` 必须按精确 ID 存在，PoseClip entityType 必须与 Actor 一致，绑定的 EntityDefinition 必须声明对应 Clip。
-- `ResolvedAssetCatalog.characterBindings` 显式建立 `characterId -> entityDefinitionId`，禁止按 entityType 数组顺序猜测。
-- `FinalCompileContext` 显式提供稳定 seed、compilerVersion 与 compiledAt；Compiler 不从随机数、墙钟或环境中推断这些值。
-- M2 不编译 Optional Action，并为每个被省略动作产生 `OPTIONAL_ACTION_DROPPED` Info Diagnostic。
+- `Capability.Action.poseBindings` 为每个支持方向声明唯一 `poseClipId`。
+- Preflight 负责将导演的动作与方向解析为 `ExpandedAction.poseClipId`；Final Compiler 不再选择或猜测 PoseClip。
+- Required Action 的执行 `poseClipId` 必须按精确 ID 存在、entityType 必须与 Actor 一致，且绑定的 EntityDefinition 必须声明该 Clip。
+- Optional Action 不参与精确 PoseClip Asset Gate；M2 直接省略并产生 `OPTIONAL_ACTION_DROPPED` Info Diagnostic。
+- `ResolvedAssetCatalog.characterBindings` 显式建立 `characterId -> entityDefinitionId`，禁止按 entityType 或数组顺序猜资产。
+- `FinalCompileContext` 显式提供 seed、compilerVersion 与 compiledAt；Compiler 不读取随机数、墙钟或环境变量生成这些值。
 
-Capability Catalog 同时提前验证每个 Action requiredPoseClips 都被所属 EntityCapability.poseClips 声明。
-
-下一步 Commit 6B 才开始 Timeline/RenderPlan Builder，并且只产生一个 Canonical Timeline。
+复杂动作以后必须在 Preflight 展开为多个 ExpandedAction，每个 ExpandedAction 仍只执行一个确定 PoseClip。

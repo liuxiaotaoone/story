@@ -32,12 +32,12 @@ const minimalDirectorPlan = {
 describe('M2 semantic boundary contracts', () => {
   it('rejects zero-duration required action capability and expansion', () => {
     expect(ActionCapabilitySchema.safeParse({
-      action: 'impact', requiredPoseClips: [], minDurationFrames: 0, supportsDirections: ['front'],
+      action: 'impact', requiredPoseClips: [], poseBindings: [], minDurationFrames: 0, supportsDirections: ['front'],
     }).success).toBe(false);
     expect(ExpandedActionSchema.safeParse({
       id: 'expanded-impact', sourceActionId: 'impact', sceneId: 'scene-1', shotId: 'shot-1',
       actorId: 'farmer', action: 'impact', sequence: 0, direction: 'front', priority: 'required',
-      minDurationFrames: 0, requiredPoseClipIds: [],
+      minDurationFrames: 0, poseClipId: 'farmer.impact', requiredPoseClipIds: [],
     }).success).toBe(false);
   });
   it('keeps Story references valid and rejects unknown beat participants', () => {

@@ -90,13 +90,23 @@ export function resolveActions(
       });
       continue;
     }
+    const poseBinding = capability.poseBindings.find(binding => binding.direction === direction);
+    if (poseBinding === undefined) {
+      diagnostics.push({
+        id: `diagnostic.${action.id}.pose-binding`, severity: 'error', code: 'MISSING_POSE_CLIP',
+        message: `${actionName} has no PoseClip binding for direction ${direction}`,
+        sourceId: action.id, path: `/actions/${action.id}/direction`, recoverable: false,
+      });
+      continue;
+    }
     expandedActions.push({
       id: `expanded.${action.id}`, sourceActionId: action.id, sceneId: action.sceneId, shotId: action.shotId,
       actorId: action.actorId, action: actionName, sequence: action.sequence,
       ...(action.targetId === undefined ? {} : {targetId: action.targetId}),
       ...(action.durationPreference === undefined ? {} : {durationPreference: action.durationPreference}),
       direction, priority: action.priority, minDurationFrames: capability.minDurationFrames,
-      requiredPoseClipIds: capability.requiredPoseClips, ...(rewrite === undefined ? {} : {rewrite}),
+      poseClipId: poseBinding.poseClipId, requiredPoseClipIds: capability.requiredPoseClips,
+      ...(rewrite === undefined ? {} : {rewrite}),
     });
   }
   const shotOrder = new Map((shotIdsInOrder ?? [...new Set(actions.map(action => action.shotId))].sort()).map((shotId, index) => [shotId, index]));

@@ -18,7 +18,11 @@ function addDuplicateIssues(
 
 export const ActionCapabilitySchema = z.object({
   action: IdSchema,
-  requiredPoseClips: z.array(IdSchema),
+  requiredPoseClips: z.array(IdSchema).min(1),
+  poseBindings: z.array(z.object({
+    direction: DirectionSchema,
+    poseClipId: IdSchema,
+  }).strict()).min(1),
   targetTypes: z.array(IdSchema).optional(),
   minDurationFrames: z.number().int().positive(),
   supportsDirections: z.array(DirectionSchema).min(1),
@@ -26,7 +30,24 @@ export const ActionCapabilitySchema = z.object({
 }).strict().superRefine((action, context) => {
   addDuplicateIssues(action.requiredPoseClips, context, 'requiredPoseClips');
   addDuplicateIssues(action.supportsDirections, context, 'supportsDirections');
+  addDuplicateIssues(action.poseBindings.map(binding => binding.direction), context, 'poseBindings');
   if (action.targetTypes !== undefined) addDuplicateIssues(action.targetTypes, context, 'targetTypes');
+  for (const [index, binding] of action.poseBindings.entries()) {
+    if (!action.supportsDirections.includes(binding.direction)) context.addIssue({
+      code: 'custom', message: `Pose binding direction ${binding.direction} is not supported by the action`,
+      path: ['poseBindings', index, 'direction'],
+    });
+    if (!action.requiredPoseClips.includes(binding.poseClipId)) context.addIssue({
+      code: 'custom', message: `Pose binding ${binding.poseClipId} is not declared in requiredPoseClips`,
+      path: ['poseBindings', index, 'poseClipId'],
+    });
+  }
+  for (const [index, direction] of action.supportsDirections.entries()) {
+    if (!action.poseBindings.some(binding => binding.direction === direction)) context.addIssue({
+      code: 'custom', message: `Supported direction ${direction} requires exactly one Pose binding`,
+      path: ['supportsDirections', index],
+    });
+  }
 });
 
 export const EntityCapabilitySchema = z.object({
@@ -47,6 +68,12 @@ export const EntityCapabilitySchema = z.object({
         code: 'custom',
         message: `Action ${action.action} requires undeclared PoseClip ${clipId}`,
         path: ['actions', index, 'requiredPoseClips', clipIndex],
+      });
+    }
+    for (const [bindingIndex, binding] of action.poseBindings.entries()) {
+      if (!entity.poseClips.includes(binding.poseClipId)) context.addIssue({
+        code: 'custom', message: `Action ${action.action} binds undeclared PoseClip ${binding.poseClipId}`,
+        path: ['actions', index, 'poseBindings', bindingIndex, 'poseClipId'],
       });
     }
   }
