@@ -54,10 +54,32 @@ export const PreflightCompileResultSchema = z.object({
   diagnostics: z.array(CompileDiagnosticSchema),
   preflightHash: ContentHashSchema,
 }).strict().superRefine((result, context) => {
+  const assertUniqueIds = (values: readonly {id: string}[], path: string): void => {
+    const seen = new Set<string>();
+    for (const [index, value] of values.entries()) {
+      if (seen.has(value.id)) context.addIssue({code: 'custom', message: `Duplicate ${path} id: ${value.id}`, path: [path, index, 'id']});
+      seen.add(value.id);
+    }
+  };
+  assertUniqueIds(result.narrationSegments, 'narrationSegments');
+  assertUniqueIds(result.ttsRequests, 'ttsRequests');
+  assertUniqueIds(result.assetRequirements, 'assetRequirements');
+  assertUniqueIds(result.expandedActions, 'expandedActions');
+  assertUniqueIds(result.diagnostics, 'diagnostics');
   const segmentIds = new Set(result.narrationSegments.map(segment => segment.id));
+  const requestedSegmentIds = new Set<string>();
   for (const [index, request] of result.ttsRequests.entries()) {
     if (!segmentIds.has(request.segmentId)) {
       context.addIssue({code: 'custom', message: `TTS request references unknown segment: ${request.segmentId}`, path: ['ttsRequests', index, 'segmentId']});
+    }
+    if (requestedSegmentIds.has(request.segmentId)) {
+      context.addIssue({code: 'custom', message: `Multiple TTS requests target segment: ${request.segmentId}`, path: ['ttsRequests', index, 'segmentId']});
+    }
+    requestedSegmentIds.add(request.segmentId);
+  }
+  for (const [index, segment] of result.narrationSegments.entries()) {
+    if (!requestedSegmentIds.has(segment.id)) {
+      context.addIssue({code: 'custom', message: `Narration segment has no TTS request: ${segment.id}`, path: ['narrationSegments', index, 'id']});
     }
   }
 });

@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest';
+import {PreflightCompileResultSchema} from '@pose-clip/schemas';
 import {compilePreflight, createEffectiveDirectorPlan} from '../src/index.js';
 import {capabilityCatalog, sourceStory, storyDirectorPlan} from './fixture.js';
 import golden from './golden/preflight-waiting-rabbit.json' with {type: 'json'};
@@ -54,5 +55,29 @@ describe('Preflight Compiler', () => {
       expect.objectContaining({code: 'CAMERA_UNRESOLVABLE', severity: 'error'}),
       expect.objectContaining({code: 'BLOCKING_UNRESOLVABLE', severity: 'error'}),
     ]));
+  });
+
+  it('rejects duplicate persisted IDs and enforces Segment to TTS one-to-one mapping', async () => {
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: storyDirectorPlan, overrides: []});
+    const preflight = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
+    const duplicateCases = [
+      {...preflight, narrationSegments: [...preflight.narrationSegments, preflight.narrationSegments[0]!]},
+      {...preflight, ttsRequests: [...preflight.ttsRequests, preflight.ttsRequests[0]!]},
+      {...preflight, expandedActions: [...preflight.expandedActions, preflight.expandedActions[0]!]},
+      {...preflight, assetRequirements: [...preflight.assetRequirements, preflight.assetRequirements[0]!]},
+      {...preflight, diagnostics: [...preflight.diagnostics, preflight.diagnostics[0]!]},
+    ];
+    for (const candidate of duplicateCases) expect(PreflightCompileResultSchema.safeParse(candidate).success).toBe(false);
+    expect(PreflightCompileResultSchema.safeParse({
+      ...preflight,
+      ttsRequests: preflight.ttsRequests.slice(1),
+    }).success).toBe(false);
+    expect(PreflightCompileResultSchema.safeParse({
+      ...preflight,
+      ttsRequests: [
+        ...preflight.ttsRequests,
+        {...preflight.ttsRequests[0]!, id: 'tts.duplicate-segment'},
+      ],
+    }).success).toBe(false);
   });
 });

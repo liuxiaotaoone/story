@@ -53,13 +53,19 @@ importers:
         specifier: 8.2.1
         version: 8.2.1
 
-  packages/paper-engine:
+  packages/audio:
     dependencies:
       '@pose-clip/schemas':
         specifier: workspace:*
         version: link:../schemas
 
   packages/compiler:
+    dependencies:
+      '@pose-clip/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+
+  packages/paper-engine:
     dependencies:
       '@pose-clip/schemas':
         specifier: workspace:*

@@ -37,6 +37,12 @@ export async function sha256Canonical(value: unknown): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+export async function sha256Bytes(bytes: Uint8Array): Promise<string> {
+  const copy = Uint8Array.from(bytes);
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', copy.buffer);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 export async function canonicalHash(domain: string, payload: unknown): Promise<string> {
   if (domain.trim().length === 0) throw new TypeError('Canonical hash domain must not be empty');
   return sha256Canonical({

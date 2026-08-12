@@ -12,6 +12,10 @@ export async function assertFinalCompileInputIntegrity(input: FinalCompileInput)
   await assertEffectiveDirectorPlanIntegrity(parsed.effectiveDirectorPlan);
   await assertPreflightCompileResultIntegrity(parsed.preflight);
   await assertResolvedAssetCatalogIntegrity(parsed.assetCatalog);
+  const catalogHash = await hashCapabilityCatalog(parsed.capabilityCatalog);
+  if (catalogHash !== parsed.preflight.capabilityCatalogHash) {
+    throw new CompileIntegrityError('Preflight was compiled from a different Capability Catalog');
+  }
   const recomputedTtsRequests = await Promise.all(parsed.preflight.ttsRequests.map(async request => ({
     id: request.id,
     inputHash: await canonicalHash('tts-request-input-v1', {
@@ -31,10 +35,16 @@ export async function assertFinalCompileInputIntegrity(input: FinalCompileInput)
     if (audio.sourceTtsRequestHash !== request.inputHash) {
       throw new CompileIntegrityError(`MeasuredAudio ${audio.assetId} was produced from a different TTS request`);
     }
-  }
-  const catalogHash = await hashCapabilityCatalog(parsed.capabilityCatalog);
-  if (catalogHash !== parsed.preflight.capabilityCatalogHash) {
-    throw new CompileIntegrityError('Preflight was compiled from a different Capability Catalog');
+    const asset = parsed.assetCatalog.assets.assets.find(candidate => candidate.id === audio.assetId);
+    if (asset === undefined) {
+      throw new CompileIntegrityError(`MeasuredAudio asset ${audio.assetId} does not exist in ResolvedAssetCatalog`);
+    }
+    if (asset.kind !== 'audio') {
+      throw new CompileIntegrityError(`MeasuredAudio asset ${audio.assetId} is not an audio asset`);
+    }
+    if (asset.contentHash !== audio.contentHash) {
+      throw new CompileIntegrityError(`MeasuredAudio ${audio.assetId} contentHash does not match its AssetRecord`);
+    }
   }
   assertAssetRequirementsResolved(parsed.preflight, parsed.assetCatalog);
   return parsed;

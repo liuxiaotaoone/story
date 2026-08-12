@@ -21,4 +21,5 @@ export * from './resolved-asset-catalog.js';
 export * from './task.js';
 export * from './timeline.js';
 export * from './tts-request.js';
+export * from './tts-artifact.js';
 export * from './story.js';
