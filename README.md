@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-项目处于 M0：Architecture + Renderer/Asset Feasibility。Paper Engine v0.1 已冻结为 Renderer-ready；独立的 PixiJS Renderer Adapter 与 10 秒 Renderer Feasibility Gate 已完成，下一条并行风险线是 AI Asset Gate。
+当前里程碑：**M1 High-quality Visual Demo v0.2 / PASS / Frozen**。M0 Architecture、Paper Engine v0.1、Renderer Gate 与 AI Asset Feasibility Gate 均已通过；10 秒真实 AI 素材 Demo 已完成视觉封口。下一阶段是 M2 的 20～30 秒 Story → DirectorPlan → Preflight/TTS → Final Compile → Subtitle → Pixi/FFmpeg 纵向闭环。
 
 ## 已冻结的实现边界
 

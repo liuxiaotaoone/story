@@ -1,4 +1,4 @@
-# M0 AI Asset Gate / Asset Feasibility v0.1
+# M0 AI Asset Gate / M1 Visual Demo
 
 This experiment answers one question: can reference-conditioned AI production create consistent Whole-body PoseClip assets that pass deterministic QA and enter the frozen Paper Engine/Pixi Renderer without core changes?
 
@@ -39,4 +39,6 @@ The Gate is PASS only after Farmer 8+ states, Walk/Run clips, Rabbit package, fo
 
 Current decision: **Feasibility PASS / not Production-ready**. Automated Structural QA is separate from Human Visual Review. The compiled asset package reports `productionReady=false` until anchor review and continuity warnings are closed.
 
-M1 adds policy-driven whole-sprite normalization (translate + uniform scale only), character-scoped anchor namespaces, a persistent Anchor Approve API, Human Visual Review files, real SHA-256 package import, whole-sprite micro motion, improved staging, and an ordinary prop-based collision burst without modifying the frozen Engine or Renderer.
+M1 v0.2 adds policy-driven whole-sprite normalization (translate + uniform scale only), character-scoped anchor namespaces, a persistent Anchor Approve API, explicit Anchor Review Sheets, truthful SHA-256 provenance, experiment/production import modes, whole-sprite anticipation, clearer collision staging, and `farmer.notice-right` without modifying the frozen Engine or Renderer.
+
+Current decision: **M1 High-quality Visual Demo PASS / Frozen**. This freezes the visual feasibility demo, not the asset package for production: unresolved Walk/Run continuity and non-key anchor reviews intentionally keep `productionReady=false`.

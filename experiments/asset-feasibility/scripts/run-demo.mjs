@@ -39,7 +39,7 @@ try {
   page.on('console', message => { if (message.type() === 'error') process.stderr.write(`[browser] ${message.text()}\n`); });
   await page.goto('http://127.0.0.1:4174/demo.html?automation=1', {waitUntil: 'networkidle'});
   await page.waitForFunction(() => window.assetGateDemo?.ready === true);
-  const stillFrames = new Set([0, 60, 89, 90, 91, 92, 149, 150, 151, 180, 209, 210, 211, 212, 299]);
+  const stillFrames = new Set([0, 3, 10, 15, 30, 60, 89, 90, 91, 92, 94, 97, 98, 149, 150, 151, 180, 206, 209, 210, 211, 212, 299]);
   for (let frame = 0; frame < 300; frame += 1) {
     const dataUrl = await page.evaluate(value => window.assetGateDemo.exportFrameDataUrl(value), frame);
     const name = `frame-${String(frame).padStart(3, '0')}.png`;

@@ -32,7 +32,9 @@
       "y": 0.2966
     }
   },
-  "reviewStatus": "auto-estimate",
+  "reviewStatus": "approved",
+  "reviewedAt": "2026-08-12T00:00:00.000Z",
+  "reviewNotes": "M1 key pose: foot, center and head anchors manually checked on normalized overlay; hand anchors are non-binding metadata.",
   "sourceAnchors": {
     "foot": {
       "x": 0.5,

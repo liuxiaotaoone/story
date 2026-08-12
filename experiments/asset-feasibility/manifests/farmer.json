@@ -17,6 +17,7 @@
     {"id": "farmer.bend", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "crouched", "frames": ["normalized/farmer/bend.png"]},
     {"id": "farmer.pickup", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "crouched", "frames": ["normalized/farmer/pickup.png"]},
     {"id": "farmer.hold-rabbit", "kind": "static", "fps": 1, "loop": true, "normalizationPolicy": "composite", "frames": ["normalized/farmer/hold-rabbit.png"]},
-    {"id": "farmer.reaction", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "standing", "frames": ["normalized/farmer/reaction.png"]}
+    {"id": "farmer.reaction", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "standing", "frames": ["normalized/farmer/reaction.png"]},
+    {"id": "farmer.notice-right", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "standing", "frames": ["normalized/farmer/notice-right.png"]}
   ]
 }

@@ -1,5 +1,7 @@
-import type {VisualAssetRecord} from '@pose-clip/schemas';
+import type {AssetProvenance, VisualAssetRecord} from '@pose-clip/schemas';
 import assetPackage from '../manifests/compiled-asset-package.json' with {type: 'json'};
+
+export type AssetPackageMode = 'experiment' | 'production';
 
 type ImportedAsset = {
   id: string;
@@ -11,9 +13,21 @@ type ImportedAsset = {
   height: number;
   reviewStatus?: string;
   visualReview?: unknown;
+  provenance: AssetProvenance;
 };
 
-const byFile = new Map((assetPackage.assets as ImportedAsset[]).map(asset => [asset.file, asset]));
+type ImportedAssetPackage = Omit<typeof assetPackage, 'assets'> & {assets: ImportedAsset[]};
+
+export function loadAssetPackage(options: {mode: AssetPackageMode}): ImportedAssetPackage {
+  const imported = assetPackage as ImportedAssetPackage;
+  if (options.mode === 'production' && !imported.productionReady) {
+    throw new Error('Asset package is not production-ready; complete human visual and anchor review first');
+  }
+  return imported;
+}
+
+const importedPackage = loadAssetPackage({mode: 'experiment'});
+const byFile = new Map(importedPackage.assets.map(asset => [asset.file, asset]));
 
 export function importedVisualAsset(
   id: string,
@@ -29,15 +43,7 @@ export function importedVisualAsset(
     uri: new URL(`/${file}`, location.href).href,
     contentHash: imported.contentHash,
     source: 'generated',
-    provenance: {
-      inputHash: imported.contentHash,
-      promptHash: imported.contentHash,
-      modelId: kind === 'prop' && file.endsWith('shadow.png') ? 'deterministic-pillow' : 'imagegen',
-      modelVersion: '2026-08-12',
-      workflowVersion: '1.0.0',
-      producer: {name: 'asset-package-importer', version: '0.1.0'},
-      createdAt: '2026-08-12T00:00:00.000Z',
-    },
+    provenance: imported.provenance,
     qaStatus: imported.qaStatus === 'passed' ? 'passed' : imported.qaStatus === 'warning' ? 'warning' : 'failed',
     width: imported.width,
     height: imported.height,
@@ -46,8 +52,9 @@ export function importedVisualAsset(
 }
 
 export const importedPackageDecision = {
-  automatedStructuralQa: assetPackage.automatedStructuralQa,
-  humanVisualReview: assetPackage.humanVisualReview,
-  productionReady: assetPackage.productionReady,
-  packageHash: assetPackage.packageHash,
+  mode: 'experiment' as const,
+  automatedStructuralQa: importedPackage.automatedStructuralQa,
+  humanVisualReview: importedPackage.humanVisualReview,
+  productionReady: importedPackage.productionReady,
+  packageHash: importedPackage.packageHash,
 };

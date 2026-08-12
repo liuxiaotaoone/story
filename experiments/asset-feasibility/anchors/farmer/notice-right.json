@@ -1,31 +1,31 @@
 {
   "schemaVersion": "1.0.0",
-  "assetId": "idle",
-  "file": "normalized/farmer/idle.png",
+  "assetId": "notice-right",
+  "file": "normalized/farmer/notice-right.png",
   "anchors": {
     "foot": {
       "x": 0.5,
       "y": 0.96
     },
     "leftFoot": {
-      "x": 0.4494,
+      "x": 0.4431,
       "y": 0.96
     },
     "rightFoot": {
-      "x": 0.5505,
+      "x": 0.5569,
       "y": 0.96
     },
     "leftHand": {
-      "x": 0.3735,
-      "y": 0.4953
+      "x": 0.3577,
+      "y": 0.4952
     },
     "rightHand": {
-      "x": 0.6264,
-      "y": 0.4953
+      "x": 0.6424,
+      "y": 0.4952
     },
     "center": {
       "x": 0.5,
-      "y": 0.4953
+      "y": 0.4952
     },
     "head": {
       "x": 0.5,
@@ -37,40 +37,40 @@
   "reviewNotes": "M1 key pose: foot, center, head and visible hand anchors manually checked on normalized overlay.",
   "sourceAnchors": {
     "foot": {
-      "x": 0.502,
-      "y": 0.9635
+      "x": 0.4658,
+      "y": 0.9694
     },
     "leftFoot": {
-      "x": 0.451,
-      "y": 0.9635
+      "x": 0.4082,
+      "y": 0.9694
     },
     "rightFoot": {
-      "x": 0.5529,
-      "y": 0.9635
+      "x": 0.5234,
+      "y": 0.9694
     },
     "leftHand": {
-      "x": 0.3745,
-      "y": 0.4951
+      "x": 0.3218,
+      "y": 0.499
     },
     "rightHand": {
-      "x": 0.6294,
-      "y": 0.4951
+      "x": 0.6099,
+      "y": 0.499
     },
     "center": {
-      "x": 0.502,
-      "y": 0.4951
+      "x": 0.4658,
+      "y": 0.499
     },
     "head": {
-      "x": 0.502,
-      "y": 0.1672
+      "x": 0.4658,
+      "y": 0.1698
     }
   },
   "normalization": {
     "policy": "standing",
-    "scale": 0.992088,
+    "scale": 0.987994,
     "translate": {
-      "x": 0.001972,
-      "y": 0.004123
+      "x": 0.039792,
+      "y": 0.002239
     },
     "operations": [
       "whole-sprite-scale",

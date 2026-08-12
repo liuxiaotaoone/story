@@ -11,6 +11,32 @@ def load(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def prompt_hash(workspace: Path, filename: str) -> str:
+    return sha256_file(workspace / "prompts" / filename)
+
+
+def generated_provenance(
+    *,
+    input_hash: str,
+    prompt_hash_value: str,
+    workflow_version: str = "1.1.0",
+) -> dict[str, Any]:
+    return {
+        "inputHash": input_hash,
+        "promptHash": prompt_hash_value,
+        "modelId": "openai-built-in-imagegen",
+        # The built-in tool does not expose a deploy/model revision or seed.
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": workflow_version,
+        "producer": {"name": "asset-feasibility-pipeline", "version": "0.2.0"},
+        "createdAt": "2026-08-12T00:00:00.000Z",
+    }
+
+
 def anchor_path(workspace: Path, file: str) -> Path:
     relative = Path(file)
     for root in ("processed", "normalized"):
@@ -36,7 +62,13 @@ def main() -> int:
     for character in ("farmer", "rabbit"):
         manifest = load(workspace / "manifests" / f"{character}.json")
         review = reviews[character]
+        reference_hash = qa_by_file[manifest["referenceAsset"]]["contentHash"]
         for pose in manifest["poses"]:
+            prompt_file = (
+                "farmer-notice-right.md"
+                if pose["id"] == "farmer.notice-right"
+                else f"{character}-pose-template.md"
+            )
             frames = []
             for index, file in enumerate(pose["frames"]):
                 qa_item = qa_by_file[file]
@@ -54,6 +86,10 @@ def main() -> int:
                     "height": qa_item["dimensions"]["height"],
                     "anchors": anchor["anchors"],
                     "normalization": anchor.get("normalization"),
+                    "provenance": generated_provenance(
+                        input_hash=reference_hash,
+                        prompt_hash_value=prompt_hash(workspace, prompt_file),
+                    ),
                 })
                 frames.append({"assetId": asset_id, "anchors": anchor["anchors"]})
             pose_clips.append({
@@ -73,6 +109,21 @@ def main() -> int:
             records = [(f"effects.{item['id']}", item["file"], item["kind"]) for item in manifest["assets"]]
         for asset_id, file, kind in records:
             qa_item = qa_by_file[file]
+            if file.endswith("shadow.png"):
+                provenance = {
+                    "inputHash": sha256_file(workspace / "scripts" / "prepare_environment.py"),
+                    "modelId": "deterministic-pillow",
+                    "modelVersion": "Pillow",
+                    "workflowVersion": "1.0.0",
+                    "producer": {"name": "prepare-environment", "version": "1.0.0"},
+                    "createdAt": "2026-08-12T00:00:00.000Z",
+                }
+            else:
+                prompt_file = "environment-layers.md" if manifest_name == "environment" else "impact-effect.md"
+                provenance = generated_provenance(
+                    input_hash=hashlib.sha256(b"").hexdigest(),
+                    prompt_hash_value=prompt_hash(workspace, prompt_file),
+                )
             assets.append({
                 "id": asset_id,
                 "kind": kind,
@@ -82,6 +133,7 @@ def main() -> int:
                 "width": qa_item["dimensions"]["width"],
                 "height": qa_item["dimensions"]["height"],
                 "visualReview": reviews.get("environment") if manifest_name == "environment" else {"productionStatus": "passed"},
+                "provenance": provenance,
             })
 
     production_ready = all(item.get("reviewStatus", "approved") == "approved" for item in assets) and all(

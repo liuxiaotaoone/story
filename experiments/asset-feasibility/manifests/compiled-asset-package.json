@@ -10,12 +10,12 @@
       "file": "normalized/farmer/idle.png",
       "contentHash": "d9475d1be6f9037c4aceaf74bdcedcc3925d26bd031f1e35a7828c0c50562d47",
       "qaStatus": "passed",
-      "reviewStatus": "auto-estimate",
+      "reviewStatus": "approved",
       "visualReview": {
         "identity": "passed",
         "continuity": "passed",
         "scaleConsistency": "passed",
-        "anchors": "needs-review"
+        "anchors": "approved"
       },
       "width": 1024,
       "height": 1536,
@@ -60,6 +60,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -72,6 +84,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: identity holds, but stride silhouette and torso width still vary enough to require production review.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -118,6 +131,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -130,6 +155,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: identity holds, but stride silhouette and torso width still vary enough to require production review.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -176,6 +202,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -188,6 +226,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: identity holds, but stride silhouette and torso width still vary enough to require production review.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -234,6 +273,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -246,6 +297,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: identity holds, but stride silhouette and torso width still vary enough to require production review.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -292,6 +344,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -304,6 +368,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: identity and scale hold, but limb cadence is not yet a clean production loop.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -350,6 +415,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -362,6 +439,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: identity and scale hold, but limb cadence is not yet a clean production loop.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -408,6 +486,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -420,6 +510,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: identity and scale hold, but limb cadence is not yet a clean production loop.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -466,6 +557,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -478,6 +581,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: identity and scale hold, but limb cadence is not yet a clean production loop.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -524,6 +628,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -582,6 +698,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -640,6 +768,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -698,6 +838,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -756,6 +908,89 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "5f6598b6fd81919936d590e705ae414a222c13b69ffded6d265c1c95fe0181c4",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
+      }
+    },
+    {
+      "id": "farmer.notice-right.01",
+      "kind": "character-frame",
+      "file": "normalized/farmer/notice-right.png",
+      "contentHash": "086ba305773c8615c63faf63f3c2c20a3a52d708da60b4fadf6ab46b04cb2580",
+      "qaStatus": "passed",
+      "reviewStatus": "approved",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "expressionReadability": "passed",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "approved"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4431,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5569,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3577,
+          "y": 0.4952
+        },
+        "rightHand": {
+          "x": 0.6424,
+          "y": 0.4952
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4952
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 0.987994,
+        "translate": {
+          "x": 0.039792,
+          "y": 0.002239
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      },
+      "provenance": {
+        "inputHash": "4db9379e6cd57e731965c3720c7c9bb4dc09410cce9c4a4eaa8dcd5015f134b2",
+        "promptHash": "f2a801e63c28dcb8a1168526bf0a13acda2476e39cdd39808542d2aecc4340c7",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -814,6 +1049,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -872,6 +1119,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -884,6 +1143,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: the stretch/crouch cadence reads as running, but ear angle and head scale still vary slightly.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -930,6 +1190,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -942,6 +1214,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: the stretch/crouch cadence reads as running, but ear angle and head scale still vary slightly.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -988,6 +1261,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1000,6 +1285,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: the stretch/crouch cadence reads as running, but ear angle and head scale still vary slightly.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -1046,6 +1332,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1058,6 +1356,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Second manual contact-sheet pass: the stretch/crouch cadence reads as running, but ear angle and head scale still vary slightly.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -1104,6 +1403,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1116,6 +1427,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Deterministic mirror of run-left; inherits the same production continuity warning.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -1162,6 +1474,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1174,6 +1498,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Deterministic mirror of run-left; inherits the same production continuity warning.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -1220,6 +1545,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1232,6 +1569,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Deterministic mirror of run-left; inherits the same production continuity warning.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -1278,6 +1616,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1290,6 +1640,7 @@
       "visualReview": {
         "identity": "passed",
         "continuity": "warning",
+        "continuityNotes": "Deterministic mirror of run-left; inherits the same production continuity warning.",
         "scaleConsistency": "passed-after-normalization",
         "anchors": "needs-review"
       },
@@ -1336,6 +1687,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1344,12 +1707,12 @@
       "file": "normalized/rabbit/collision.png",
       "contentHash": "beab8711121630d34d12ab57c2219ee71cc4efe395703bc9622380f0fee648c1",
       "qaStatus": "passed",
-      "reviewStatus": "auto-estimate",
+      "reviewStatus": "approved",
       "visualReview": {
         "identity": "passed",
         "continuity": "passed",
         "scaleConsistency": "passed-after-normalization",
-        "anchors": "needs-review"
+        "anchors": "approved"
       },
       "width": 1402,
       "height": 1122,
@@ -1394,6 +1757,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1402,12 +1777,12 @@
       "file": "normalized/rabbit/lying.png",
       "contentHash": "26d83697b47f4a4436a4bb7bcb383c668864a4be7bc574b10b9961705e9aa459",
       "qaStatus": "passed",
-      "reviewStatus": "auto-estimate",
+      "reviewStatus": "approved",
       "visualReview": {
         "identity": "passed",
         "continuity": "passed",
         "scaleConsistency": "policy-exempt-lying",
-        "anchors": "needs-review"
+        "anchors": "approved"
       },
       "width": 1402,
       "height": 1122,
@@ -1452,6 +1827,18 @@
           "whole-sprite-scale",
           "whole-sprite-translate"
         ]
+      },
+      "provenance": {
+        "inputHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+        "promptHash": "4941cd529ea00cbba8e9b8e89d892c518887393124ac673ef558441d6b6bdbff",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1470,6 +1857,18 @@
         "layerSeparation": "passed",
         "collisionTreeReadability": "warning",
         "productionStatus": "warning"
+      },
+      "provenance": {
+        "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1488,6 +1887,18 @@
         "layerSeparation": "passed",
         "collisionTreeReadability": "warning",
         "productionStatus": "warning"
+      },
+      "provenance": {
+        "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1506,6 +1917,18 @@
         "layerSeparation": "passed",
         "collisionTreeReadability": "warning",
         "productionStatus": "warning"
+      },
+      "provenance": {
+        "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1524,6 +1947,18 @@
         "layerSeparation": "passed",
         "collisionTreeReadability": "warning",
         "productionStatus": "warning"
+      },
+      "provenance": {
+        "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1536,6 +1971,18 @@
       "height": 1254,
       "visualReview": {
         "productionStatus": "passed"
+      },
+      "provenance": {
+        "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "promptHash": "9d2dc042808c224a9ef2e2468f8d67a128bf50e5626b5cbe257f6d1a7ebaba82",
+        "modelId": "openai-built-in-imagegen",
+        "modelVersion": "unreported-by-tool",
+        "workflowVersion": "1.1.0",
+        "producer": {
+          "name": "asset-feasibility-pipeline",
+          "version": "0.2.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     },
     {
@@ -1548,6 +1995,17 @@
       "height": 192,
       "visualReview": {
         "productionStatus": "passed"
+      },
+      "provenance": {
+        "inputHash": "1f3237e28801ebf5ca82b43e1ccf281012c3dac13f1d690afe4e94bf4343741f",
+        "modelId": "deterministic-pillow",
+        "modelVersion": "Pillow",
+        "workflowVersion": "1.0.0",
+        "producer": {
+          "name": "prepare-environment",
+          "version": "1.0.0"
+        },
+        "createdAt": "2026-08-12T00:00:00.000Z"
       }
     }
   ],
@@ -2045,6 +2503,48 @@
       ]
     },
     {
+      "id": "farmer.notice-right",
+      "entityType": "farmer",
+      "fps": 1,
+      "loop": false,
+      "normalizationPolicy": "standing",
+      "frames": [
+        {
+          "assetId": "farmer.notice-right.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4431,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5569,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3577,
+              "y": 0.4952
+            },
+            "rightHand": {
+              "x": 0.6424,
+              "y": 0.4952
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4952
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "rabbit.idle-left",
       "entityType": "rabbit",
       "fps": 1,
@@ -2495,5 +2995,5 @@
       ]
     }
   ],
-  "packageHash": "146733ed80be1bdd36f1addde9d73b4d01ecf96af1109b717726cdfb3840ad17"
+  "packageHash": "4b2009ab9af13ffa91f6be3268328f767d1006bf205e9c0200407388a2748b43"
 }

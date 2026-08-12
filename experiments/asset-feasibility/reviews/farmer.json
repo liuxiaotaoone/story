@@ -1,16 +1,17 @@
 {
   "schemaVersion": "1.0.0",
   "characterId": "farmer-001",
-  "reviewedAt": "2026-08-12T00:00:00.000Z",
+  "reviewedAt": "2026-08-12T05:35:00.000Z",
   "identity": {"status": "passed", "notes": "Hat, face, indigo jacket, three toggles, red sash and proportions remain recognizable."},
   "clips": {
-    "farmer.idle": {"identity": "passed", "continuity": "passed", "scaleConsistency": "passed", "anchors": "needs-review"},
-    "farmer.walk": {"identity": "passed", "continuity": "warning", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"},
-    "farmer.run": {"identity": "passed", "continuity": "warning", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"},
+    "farmer.idle": {"identity": "passed", "continuity": "passed", "scaleConsistency": "passed", "anchors": "approved"},
+    "farmer.walk": {"identity": "passed", "continuity": "warning", "continuityNotes": "Second manual contact-sheet pass: identity holds, but stride silhouette and torso width still vary enough to require production review.", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"},
+    "farmer.run": {"identity": "passed", "continuity": "warning", "continuityNotes": "Second manual contact-sheet pass: identity and scale hold, but limb cadence is not yet a clean production loop.", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"},
     "farmer.bend": {"identity": "passed", "continuity": "passed", "scaleConsistency": "policy-exempt-crouched", "anchors": "needs-review"},
     "farmer.pickup": {"identity": "passed", "continuity": "passed", "scaleConsistency": "policy-exempt-crouched", "anchors": "needs-review"},
     "farmer.hold-rabbit": {"identity": "passed", "continuity": "passed", "scaleConsistency": "policy-exempt-composite", "anchors": "needs-review"},
-    "farmer.reaction": {"identity": "passed", "continuity": "passed", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"}
+    "farmer.reaction": {"identity": "passed", "continuity": "passed", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"},
+    "farmer.notice-right": {"identity": "passed", "continuity": "passed", "expressionReadability": "passed", "scaleConsistency": "passed-after-normalization", "anchors": "approved"}
   },
   "productionStatus": "warning"
 }
