@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paper Pixi Renderer Feasibility</title>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">M0 RENDERER GATE</p>
+          <h1>Paper Pixi · Canonical 1280×720</h1>
+        </div>
+        <output id="status">初始化中…</output>
+      </header>
+      <section id="canvas-shell"><div id="canvas-host"></div></section>
+      <section class="controls">
+        <label for="frame">Frame <strong id="frame-value">0</strong></label>
+        <input id="frame" type="range" min="0" max="299" value="0" step="1" />
+        <button id="export" type="button">导出当前 PNG</button>
+      </section>
+      <p class="note">内部 Canvas 始终为 1280×720；本页只通过 CSS 等比例缩放预览。</p>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

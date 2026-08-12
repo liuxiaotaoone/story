@@ -137,7 +137,7 @@ describe('timeline hardening', () => {
   it('uses one unique ID namespace across every Timeline event collection', () => {
     const result = TimelineSchema.safeParse(timeline({
       poseEvents: [{id: 'shared-id', frame: 1, entityId: 'farmer', poseClipId: 'idle', clipStartOffset: 0, playbackRate: 1}],
-      visibilityEvents: [{id: 'shared-id', frame: 2, entityId: 'farmer', visible: false}],
+      sfx: [{id: 'shared-id', frame: 2, assetId: 'step-sfx', eventType: 'step', gainDb: 0}],
     }));
     expect(result.success).toBe(false);
   });

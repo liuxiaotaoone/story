@@ -1,0 +1,25 @@
+{
+  "name": "@pose-clip/paper-pixi",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "node ../../node_modules/typescript/bin/tsc -p tsconfig.build.json",
+    "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
+    "test": "node ../../node_modules/vitest/vitest.mjs run"
+  },
+  "dependencies": {
+    "@pose-clip/paper-engine": "workspace:*",
+    "@pose-clip/schemas": "workspace:*",
+    "pixi.js": "8.19.0"
+  }
+}

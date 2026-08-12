@@ -3,6 +3,7 @@ node_modules/
 dist/
 coverage/
 .vite/
+experiments/**/output/
 *.log
 .DS_Store
 Thumbs.db
