@@ -1,6 +1,6 @@
 # M2 Duration Solver
 
-状态：Commit 5 implemented
+状态：PASS / Frozen
 
 ## 边界
 
@@ -26,6 +26,15 @@ Director 的 `minSeconds` 向上量化，`preferredSeconds` 四舍五入，硬 `
 - preferred 大于等于 minimum：使用 preferred。
 - preferred 小于 minimum：扩展到 minimum，并产生 `SHOT_EXPANDED_FOR_CONTENT` Warning。
 - minimum 超过 hard max：返回 `DURATION_UNSATISFIABLE` Error，不生成部分 Timing Plan。
+
+Action 与 Shot 共享同一套 DurationPreference 量化规则。每个 Required Action 先独立求解：
+
+- hard minimum = `max(capability minDurationFrames, ceil(action.minSeconds * fps), 1)`。
+- soft preferred 会影响 Action 实际区间，但量化后不得超过 floored hard max。
+- hard minimum 超过 Action max 时，整个求解失败。
+- 多个 Required Action 使用各自求解后的帧数按 sequence 串行累加。
+
+所有 Shot 至少占用一个视频帧；Required Action 的 `minDurationFrames` 在 Capability 与 ExpandedAction Schema 中必须为正数。零时长瞬时表达应使用 Effect/Event，而不是 Action。
 
 不同 Shot 严格首尾相接；所有输出都是整数 Frame。实现不读取 wall clock、不使用随机数，也不保留前次运行状态。
 

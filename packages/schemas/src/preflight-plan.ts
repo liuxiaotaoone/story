@@ -34,7 +34,7 @@ export const ExpandedActionSchema = z.object({
   direction: DirectionSchema,
   priority: z.enum(['required', 'optional']),
   durationPreference: DurationPreferenceSchema.optional(),
-  minDurationFrames: z.number().int().nonnegative(),
+  minDurationFrames: z.number().int().positive(),
   requiredPoseClipIds: z.array(IdSchema),
   rewrite: z.object({
     fromAction: IdSchema,

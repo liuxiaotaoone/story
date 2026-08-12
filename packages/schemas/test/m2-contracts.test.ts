@@ -1,10 +1,12 @@
 import {describe, expect, it} from 'vitest';
 import {
+  ActionCapabilitySchema,
   DirectorPlanSchema,
   MeasuredAudioSchema,
   PreflightCompileResultSchema,
   StorySchema,
   measuredAudioDurationSeconds,
+  ExpandedActionSchema,
 } from '../src/index.js';
 
 const HASH = '0'.repeat(64);
@@ -28,6 +30,16 @@ const minimalDirectorPlan = {
 };
 
 describe('M2 semantic boundary contracts', () => {
+  it('rejects zero-duration required action capability and expansion', () => {
+    expect(ActionCapabilitySchema.safeParse({
+      action: 'impact', requiredPoseClips: [], minDurationFrames: 0, supportsDirections: ['front'],
+    }).success).toBe(false);
+    expect(ExpandedActionSchema.safeParse({
+      id: 'expanded-impact', sourceActionId: 'impact', sceneId: 'scene-1', shotId: 'shot-1',
+      actorId: 'farmer', action: 'impact', sequence: 0, direction: 'front', priority: 'required',
+      minDurationFrames: 0, requiredPoseClipIds: [],
+    }).success).toBe(false);
+  });
   it('keeps Story references valid and rejects unknown beat participants', () => {
     const story = {
       schemaVersion: '1.0.0', id: 'story-1', title: 'A Story', language: 'en-US', domain: 'fable',

@@ -20,7 +20,7 @@ export const ActionCapabilitySchema = z.object({
   action: IdSchema,
   requiredPoseClips: z.array(IdSchema),
   targetTypes: z.array(IdSchema).optional(),
-  minDurationFrames: z.number().int().nonnegative(),
+  minDurationFrames: z.number().int().positive(),
   supportsDirections: z.array(DirectionSchema).min(1),
   attachmentMode: AttachmentModeSchema.optional(),
 }).strict().superRefine((action, context) => {

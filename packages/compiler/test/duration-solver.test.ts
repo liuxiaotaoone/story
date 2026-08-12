@@ -26,7 +26,13 @@ function audio(preflight: PreflightCompileResult, sampleFrameCounts: readonly nu
 function oneShot(
   effective: EffectiveDirectorPlan,
   preflight: PreflightCompileResult,
-  options: {preferredSeconds?: number; maxSeconds?: number; actionMinimums?: number[]; noActions?: boolean} = {},
+  options: {
+    preferredSeconds?: number;
+    maxSeconds?: number;
+    actionMinimums?: number[];
+    actionPreferences?: Array<{minSeconds?: number; preferredSeconds?: number; maxSeconds?: number}>;
+    noActions?: boolean;
+  } = {},
 ) {
   const shot = {
     ...effective.plan.shots[0]!,
@@ -46,6 +52,7 @@ function oneShot(
   };
   const expanded = options.noActions ? [] : (options.actionMinimums ?? [preflight.expandedActions[0]!.minDurationFrames]).map((minimum, index) => ({
     ...preflight.expandedActions[0]!, id: `expanded.duration-${index}`, sourceActionId: `duration-${index}`, sequence: index, minDurationFrames: minimum,
+    ...(options.actionPreferences?.[index] === undefined ? {durationPreference: undefined} : {durationPreference: options.actionPreferences[index]}),
   }));
   return {
     effectiveDirectorPlan: {...effective, plan} as EffectiveDirectorPlan,
@@ -87,6 +94,64 @@ describe('Duration Solver', () => {
     const impossible = oneShot(base.effectiveDirectorPlan, base.preflight, {maxSeconds: 2, actionMinimums: [90]});
     const impossibleResult = solveDurations({...impossible, measuredAudio: audio(impossible.preflight, [24_000, 24_000]), capabilityCatalog, fps: 30});
     expect(impossibleResult).toEqual(expect.objectContaining({ok: false, diagnostics: [expect.objectContaining({code: 'DURATION_UNSATISFIABLE'})]}));
+  });
+
+  it('applies each Action duration preference before sequential allocation', async () => {
+    const base = await fixture();
+    const preferred = oneShot(base.effectiveDirectorPlan, base.preflight, {
+      actionMinimums: [30], actionPreferences: [{preferredSeconds: 3, maxSeconds: 4}],
+    });
+    const preferredResult = solveDurations({...preferred, measuredAudio: audio(preferred.preflight, [24_000, 24_000]), capabilityCatalog, fps: 30});
+    expect(preferredResult.ok && preferredResult.timing.shots[0]?.actions[0]).toEqual(expect.objectContaining({startFrame: 0, endFrame: 90}));
+
+    const capabilityWins = oneShot(base.effectiveDirectorPlan, base.preflight, {
+      actionMinimums: [60], actionPreferences: [{preferredSeconds: 1}],
+    });
+    const capabilityResult = solveDurations({...capabilityWins, measuredAudio: audio(capabilityWins.preflight, [24_000, 24_000]), capabilityCatalog, fps: 30});
+    expect(capabilityResult.ok && capabilityResult.timing.shots[0]?.actions[0]?.endFrame).toBe(60);
+
+    const actionMinimumWins = oneShot(base.effectiveDirectorPlan, base.preflight, {
+      actionMinimums: [30], actionPreferences: [{minSeconds: 2}],
+    });
+    const actionMinimumResult = solveDurations({...actionMinimumWins, measuredAudio: audio(actionMinimumWins.preflight, [24_000, 24_000]), capabilityCatalog, fps: 30});
+    expect(actionMinimumResult.ok && actionMinimumResult.timing.shots[0]?.actions[0]?.endFrame).toBe(60);
+
+    const impossible = oneShot(base.effectiveDirectorPlan, base.preflight, {
+      actionMinimums: [90], actionPreferences: [{maxSeconds: 2}],
+    });
+    const impossibleResult = solveDurations({...impossible, measuredAudio: audio(impossible.preflight, [24_000, 24_000]), capabilityCatalog, fps: 30});
+    expect(impossibleResult).toEqual(expect.objectContaining({ok: false, diagnostics: [expect.objectContaining({code: 'DURATION_UNSATISFIABLE'})]}));
+
+    const sequential = oneShot(base.effectiveDirectorPlan, base.preflight, {
+      actionMinimums: [30, 15], actionPreferences: [{preferredSeconds: 2}, {preferredSeconds: 1}],
+    });
+    const sequentialResult = solveDurations({...sequential, measuredAudio: audio(sequential.preflight, [24_000, 24_000]), capabilityCatalog, fps: 30});
+    expect(sequentialResult.ok && sequentialResult.timing.shots[0]?.actions).toEqual([
+      expect.objectContaining({startFrame: 0, endFrame: 60}),
+      expect.objectContaining({startFrame: 60, endFrame: 90}),
+    ]);
+  });
+
+  it('never lets rounded preferred frames exceed a floored hard max', async () => {
+    const base = await fixture();
+    const input = oneShot(base.effectiveDirectorPlan, base.preflight, {preferredSeconds: 1.02, maxSeconds: 1.02, noActions: true});
+    const result = solveDurations({...input, measuredAudio: audio(input.preflight, [1, 1]), capabilityCatalog, fps: 30});
+    expect(result.ok && result.timing.shots[0]?.endFrame).toBe(30);
+  });
+
+  it('gives an otherwise empty static shot exactly one frame', async () => {
+    const base = await fixture();
+    const plan = {
+      ...base.effectiveDirectorPlan.plan,
+      shots: [{id: 'shot-empty', sceneId: 'scene-field', shotType: 'wide' as const}],
+      narration: [], actions: [], blockingIntents: [],
+      cameraIntents: [{id: 'camera-empty', sceneId: 'scene-field', shotId: 'shot-empty', type: 'static' as const}],
+    };
+    const effectiveDirectorPlan = {...base.effectiveDirectorPlan, plan};
+    const preflight = {...base.preflight, narrationSegments: [], ttsRequests: [], expandedActions: []};
+    const catalog = {...capabilityCatalog, cameraCapabilities: [{intent: 'static' as const, minDurationFrames: 0, allowedShotTypes: ['wide' as const]}]};
+    const result = solveDurations({effectiveDirectorPlan, preflight, measuredAudio: [], capabilityCatalog: catalog, fps: 30});
+    expect(result.ok && result.timing.shots[0]).toEqual(expect.objectContaining({startFrame: 0, endFrame: 1}));
   });
 
   it('places consecutive shots without gaps and is identical across 100 runs', async () => {

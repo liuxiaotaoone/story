@@ -40,7 +40,12 @@ export function solveDurations(input: {
     const actions = allocateRequiredActions(
       preflight.expandedActions.filter(action => action.shotId === shot.id),
       shotStartFrame,
+      input.fps,
     );
+    if (!actions.ok) {
+      diagnostics.push(...actions.diagnostics);
+      continue;
+    }
     const cameraIntent = plan.cameraIntents.find(intent => intent.shotId === shot.id)!;
     const duration = resolveShotDuration({
       narrationFrames: narration.durationFrames,

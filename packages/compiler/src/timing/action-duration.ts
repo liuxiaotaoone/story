@@ -1,17 +1,13 @@
 import type {DurationPreference} from '@pose-clip/schemas';
 import {resolveDurationPreference, type DurationPreferenceResolution} from './duration-preference.js';
 
-export type ShotDurationResolution = DurationPreferenceResolution;
-
-export function resolveShotDuration(input: {
-  narrationFrames: number;
-  actionFrames: number;
-  cameraFrames: number;
+export function resolveActionDuration(input: {
+  capabilityMinimumFrames: number;
   preference?: DurationPreference;
   fps: number;
-}): ShotDurationResolution {
+}): DurationPreferenceResolution {
   return resolveDurationPreference({
-    contentMinimumFrames: Math.max(input.narrationFrames, input.actionFrames, input.cameraFrames),
+    contentMinimumFrames: input.capabilityMinimumFrames,
     absoluteMinimumFrames: 1,
     ...(input.preference === undefined ? {} : {preference: input.preference}),
     fps: input.fps,
