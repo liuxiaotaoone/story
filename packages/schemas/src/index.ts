@@ -17,6 +17,7 @@ export * from './ownership-integrity.js';
 export * from './pose-clip.js';
 export * from './preflight-plan.js';
 export * from './render.js';
+export * from './resolved-asset-catalog.js';
 export * from './task.js';
 export * from './timeline.js';
 export * from './tts-request.js';

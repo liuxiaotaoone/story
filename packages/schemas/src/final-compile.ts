@@ -3,12 +3,14 @@ import {CapabilityCatalogSchema} from './capability.js';
 import {EffectiveDirectorPlanSchema} from './effective-director-plan.js';
 import {MeasuredAudioSchema} from './measured-audio.js';
 import {PreflightCompileResultSchema} from './preflight-plan.js';
+import {ResolvedAssetCatalogSchema} from './resolved-asset-catalog.js';
 
 export const FinalCompileInputSchema = z.object({
   effectiveDirectorPlan: EffectiveDirectorPlanSchema,
   preflight: PreflightCompileResultSchema,
   measuredAudio: z.array(MeasuredAudioSchema),
   capabilityCatalog: CapabilityCatalogSchema,
+  assetCatalog: ResolvedAssetCatalogSchema,
 }).strict().superRefine((input, context) => {
   if (input.preflight.effectiveDirectorPlanHash !== input.effectiveDirectorPlan.effectivePlanHash) {
     context.addIssue({code: 'custom', message: 'Preflight was compiled from a different EffectiveDirectorPlan', path: ['preflight', 'effectiveDirectorPlanHash']});
@@ -20,6 +22,7 @@ export const FinalCompileInputSchema = z.object({
     context.addIssue({code: 'custom', message: 'Preflight errors must be resolved before Final Compile', path: ['preflight', 'diagnostics']});
   }
   const requestIds = new Set(input.preflight.ttsRequests.map(({id}) => id));
+  const requestHashes = new Map(input.preflight.ttsRequests.map(({id, inputHash}) => [id, inputHash]));
   const measuredIds = new Set<string>();
   for (const [index, audio] of input.measuredAudio.entries()) {
     if (!requestIds.has(audio.requestId)) {
@@ -27,6 +30,9 @@ export const FinalCompileInputSchema = z.object({
     }
     if (measuredIds.has(audio.requestId)) {
       context.addIssue({code: 'custom', message: 'Duplicate measured audio for TTS request', path: ['measuredAudio', index, 'requestId']});
+    }
+    if (requestHashes.get(audio.requestId) !== audio.sourceTtsRequestHash) {
+      context.addIssue({code: 'custom', message: 'Measured audio was produced from a different TTS request', path: ['measuredAudio', index, 'sourceTtsRequestHash']});
     }
     measuredIds.add(audio.requestId);
   }

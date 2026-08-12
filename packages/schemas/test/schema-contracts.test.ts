@@ -275,6 +275,7 @@ describe('two-stage compiler contracts', () => {
     }],
     assetRequirements: [],
     diagnostics: [],
+    preflightHash: HASH,
   };
 
   it('requires measured audio for every TTS requirement before final compile', () => {
@@ -297,16 +298,22 @@ describe('two-stage compiler contracts', () => {
       schemaVersion: '1.0.0', catalogVersion: '1.0.0', entityCapabilities: [],
       cameraCapabilities: [], environmentCapabilities: [], fallbackRules: [],
     };
-    expect(FinalCompileInputSchema.safeParse({effectiveDirectorPlan, preflight, measuredAudio: [], capabilityCatalog}).success).toBe(false);
+    const assetCatalog = {
+      schemaVersion: '1.0.0', mode: 'experiment', productionReady: false, catalogHash: HASH,
+      assets: {schemaVersion: '1.0.0', assets: []}, poseClips: [], environments: [], entityDefinitions: [],
+    };
+    expect(FinalCompileInputSchema.safeParse({effectiveDirectorPlan, preflight, measuredAudio: [], capabilityCatalog, assetCatalog}).success).toBe(false);
     expect(FinalCompileInputSchema.safeParse({
       effectiveDirectorPlan,
       preflight,
       capabilityCatalog,
+      assetCatalog,
       measuredAudio: [{
         requestId: 'tts-1',
+        sourceTtsRequestHash: HASH,
         assetId: 'audio-1',
         sampleRate: 48_000,
-        sampleLength: 48_000,
+        sampleFrameCount: 48_000,
         channels: 1,
         contentHash: HASH,
         measurementProducer: {name: 'ffprobe-wrapper', version: '1.0.0'},

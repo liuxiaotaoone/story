@@ -52,6 +52,7 @@ export const PreflightCompileResultSchema = z.object({
   assetRequirements: z.array(AssetRequirementSchema),
   expandedActions: z.array(ExpandedActionSchema),
   diagnostics: z.array(CompileDiagnosticSchema),
+  preflightHash: ContentHashSchema,
 }).strict().superRefine((result, context) => {
   const segmentIds = new Set(result.narrationSegments.map(segment => segment.id));
   for (const [index, request] of result.ttsRequests.entries()) {

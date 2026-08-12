@@ -1,7 +1,8 @@
-export * from './override/apply-director-overrides.js';
-export * from './override/json-pointer.js';
+export {DirectorOverrideError, hashDirectorPlan} from './override/apply-director-overrides.js';
 export * from './integrity/final-compile-integrity.js';
+export * from './integrity/asset-catalog-integrity.js';
 export * from './integrity/hash-integrity.js';
+export * from './integrity/preflight-integrity.js';
 export * from './integrity/story-director-integrity.js';
 export * from './preflight/asset-requirements.js';
 export * from './preflight/capability-resolution.js';

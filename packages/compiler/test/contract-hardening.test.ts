@@ -8,9 +8,11 @@ import {
 import {
   CompileIntegrityError,
   StoryDirectorIntegrityError,
-  applyDirectorOverrides,
   assertFinalCompileInputIntegrity,
+  assertPreflightCompileResultIntegrity,
   compilePreflight,
+  createEffectiveDirectorPlan,
+  hashResolvedAssetCatalogPayload,
   validateDirectorPlanAgainstStory,
 } from '../src/index.js';
 import {capabilityCatalog, sourceStory, storyDirectorPlan} from './fixture.js';
@@ -41,27 +43,53 @@ describe('M2 contract hardening', () => {
     })).rejects.toThrow(/unknown Story character/u);
   });
 
+  it('makes Story validation mandatory through the canonical EffectivePlan entry', async () => {
+    await expect(createEffectiveDirectorPlan({
+      story: {...sourceStory, synopsis: 'Changed without changing the Story id.'},
+      directorPlan: storyDirectorPlan,
+      overrides: [],
+    })).rejects.toBeInstanceOf(StoryDirectorIntegrityError);
+  });
+
   it('rejects forged EffectiveDirectorPlan hashes at Preflight entry', async () => {
-    const effective = await applyDirectorOverrides(storyDirectorPlan, []);
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: storyDirectorPlan, overrides: []});
     await expect(compilePreflight({
       effectiveDirectorPlan: {...effective, effectivePlanHash: 'a'.repeat(64)},
       capabilityCatalog,
     })).rejects.toBeInstanceOf(CompileIntegrityError);
   });
 
+  it('rejects any mutation of a persisted Preflight result', async () => {
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: storyDirectorPlan, overrides: []});
+    const preflight = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
+    await expect(assertPreflightCompileResultIntegrity({
+      ...preflight,
+      expandedActions: preflight.expandedActions.map((action, index) => index === 0 ? {...action, action: 'notice'} : action),
+    })).rejects.toThrow(/does not match preflightHash/u);
+  });
+
   it('rejects Final Compile on plan mismatch, catalog mismatch or Preflight errors', async () => {
-    const effective = await applyDirectorOverrides(storyDirectorPlan, []);
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: storyDirectorPlan, overrides: []});
     const preflight = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
     const measuredAudio = preflight.ttsRequests.map(request => ({
       requestId: request.id,
       assetId: `audio.${request.id}`,
       sampleRate: 48_000,
-      sampleLength: 48_000,
+      sourceTtsRequestHash: request.inputHash,
+      sampleFrameCount: 48_000,
       channels: 1,
       contentHash: '0'.repeat(64),
       measurementProducer: {name: 'test-wav-parser', version: '1.0.0'},
     }));
-    const base = {effectiveDirectorPlan: effective, preflight, measuredAudio, capabilityCatalog};
+    const assetCatalogPayload = {
+      schemaVersion: '1.0.0' as const,
+      mode: 'experiment' as const,
+      productionReady: false,
+      assets: {schemaVersion: '1.0.0' as const, assets: []},
+      poseClips: [], environments: [], entityDefinitions: [],
+    };
+    const assetCatalog = {...assetCatalogPayload, catalogHash: await hashResolvedAssetCatalogPayload(assetCatalogPayload)};
+    const base = {effectiveDirectorPlan: effective, preflight, measuredAudio, capabilityCatalog, assetCatalog};
     expect(FinalCompileInputSchema.safeParse({
       ...base,
       preflight: {...preflight, effectiveDirectorPlanHash: 'a'.repeat(64)},
@@ -91,7 +119,13 @@ describe('M2 contract hardening', () => {
           ? {...request, text: `${request.text} changed`}
           : request),
       },
-    })).rejects.toThrow(/does not match inputHash/u);
+    })).rejects.toThrow(/does not match preflightHash/u);
+    expect(FinalCompileInputSchema.safeParse({
+      ...base,
+      measuredAudio: measuredAudio.map((audio, index) => index === 0
+        ? {...audio, sourceTtsRequestHash: 'a'.repeat(64)}
+        : audio),
+    }).success).toBe(false);
   });
 
   it('rejects every Capability Catalog ambiguity used by find()', () => {
@@ -128,7 +162,7 @@ describe('M2 contract hardening', () => {
         storyDirectorPlan.actions[1]!,
       ],
     });
-    const effective = await applyDirectorOverrides(plan, []);
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: plan, overrides: []});
     const preflight = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
     const rabbitRun = preflight.assetRequirements.filter(requirement => requirement.entityType === 'rabbit' && requirement.action === 'run');
     expect(rabbitRun).toHaveLength(1);
@@ -144,7 +178,7 @@ describe('M2 contract hardening', () => {
         storyDirectorPlan.actions[1]!,
       ],
     });
-    const effective = await applyDirectorOverrides(plan, []);
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: plan, overrides: []});
     const preflight = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
     expect(preflight.expandedActions.filter(action => action.shotId === 'shot-run').map(action => action.sequence)).toEqual([0, 1]);
   });

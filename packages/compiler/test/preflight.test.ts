@@ -1,11 +1,11 @@
 import {describe, expect, it} from 'vitest';
-import {applyDirectorOverrides, compilePreflight} from '../src/index.js';
-import {capabilityCatalog, storyDirectorPlan} from './fixture.js';
+import {compilePreflight, createEffectiveDirectorPlan} from '../src/index.js';
+import {capabilityCatalog, sourceStory, storyDirectorPlan} from './fixture.js';
 import golden from './golden/preflight-waiting-rabbit.json' with {type: 'json'};
 
 describe('Preflight Compiler', () => {
   it('expands actions, rewrites supported fallbacks and generates deterministic TTS requests', async () => {
-    const effective = await applyDirectorOverrides(storyDirectorPlan, []);
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: storyDirectorPlan, overrides: []});
     const first = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
     const second = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
     expect(second).toEqual(first);
@@ -18,14 +18,20 @@ describe('Preflight Compiler', () => {
       ...first,
       effectiveDirectorPlanHash: undefined,
       capabilityCatalogHash: undefined,
+      preflightHash: undefined,
       ttsRequests: first.ttsRequests.map(({inputHash: _inputHash, ...request}) => request),
     };
-    const {effectiveDirectorPlanHash: _effectiveHash, capabilityCatalogHash: _catalogHash, ...projection} = withoutHashes;
+    const {
+      effectiveDirectorPlanHash: _effectiveHash,
+      capabilityCatalogHash: _catalogHash,
+      preflightHash: _preflightHash,
+      ...projection
+    } = withoutHashes;
     expect(projection).toEqual(golden);
   });
 
   it('has no Timeline, frame keyframes, or pixel-space fields', async () => {
-    const effective = await applyDirectorOverrides(storyDirectorPlan, []);
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: storyDirectorPlan, overrides: []});
     const preflight = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
     const serialized = JSON.stringify(preflight);
     expect(serialized).not.toMatch(/timeline|startFrame|endFrame|worldPosition|groundPosition|pixel|pixi/i);
@@ -33,7 +39,7 @@ describe('Preflight Compiler', () => {
   });
 
   it('reports camera, environment and blocking capability failures before final compile', async () => {
-    const effective = await applyDirectorOverrides(storyDirectorPlan, []);
+    const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: storyDirectorPlan, overrides: []});
     const restrictedCatalog = {
       ...capabilityCatalog,
       cameraCapabilities: [],

@@ -1,10 +1,12 @@
 import {
+  type DirectorOverride,
   DirectorPlanSchema,
   StorySchema,
   canonicalHash,
   type DirectorPlan,
   type Story,
 } from '@pose-clip/schemas';
+import {applyDirectorOverrides} from '../override/apply-director-overrides.js';
 
 export class StoryDirectorIntegrityError extends Error {
   constructor(message: string) {
@@ -45,4 +47,15 @@ export async function validateDirectorPlanAgainstStory(storyInput: Story, planIn
       }
     }
   }
+}
+
+export async function createEffectiveDirectorPlan(input: {
+  story: Story;
+  directorPlan: DirectorPlan;
+  overrides: readonly DirectorOverride[];
+}) {
+  const story = StorySchema.parse(input.story);
+  const directorPlan = DirectorPlanSchema.parse(input.directorPlan);
+  await validateDirectorPlanAgainstStory(story, directorPlan);
+  return applyDirectorOverrides(directorPlan, input.overrides);
 }

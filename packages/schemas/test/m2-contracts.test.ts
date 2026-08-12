@@ -56,6 +56,7 @@ describe('M2 semantic boundary contracts', () => {
       schemaVersion: '1.0.0', effectiveDirectorPlanHash: HASH,
       capabilityCatalogVersion: '1.0.0', capabilityCatalogHash: HASH,
       narrationSegments: [], ttsRequests: [], assetRequirements: [], expandedActions: [], diagnostics: [],
+      preflightHash: HASH,
     };
     expect(PreflightCompileResultSchema.safeParse(preflight).success).toBe(true);
     expect(PreflightCompileResultSchema.safeParse({...preflight, timeline: {}}).success).toBe(false);
@@ -80,12 +81,28 @@ describe('M2 semantic boundary contracts', () => {
     }).success).toBe(false);
   });
 
-  it('derives audio duration from integer sampleLength/sampleRate only', () => {
+  it('requires valid Camera focus and unique Narration sequence per shot', () => {
+    const narration = {
+      id: 'narration-1', sceneId: 'scene-1', shotId: 'shot-1', sequence: 0,
+      text: 'The farmer waits.', voiceId: 'narrator', language: 'en-US', speed: 1,
+    };
+    expect(DirectorPlanSchema.safeParse({
+      ...minimalDirectorPlan,
+      cameraIntents: [{...minimalDirectorPlan.cameraIntents[0], focusEntityId: 'ghost'}],
+    }).success).toBe(false);
+    expect(DirectorPlanSchema.safeParse({
+      ...minimalDirectorPlan,
+      narration: [narration, {...narration, id: 'narration-2'}],
+    }).success).toBe(false);
+  });
+
+  it('derives audio duration from integer sampleFrameCount/sampleRate only', () => {
     const audio = {
-      requestId: 'tts-1', assetId: 'audio-1', sampleRate: 48_000, sampleLength: 72_000,
+      requestId: 'tts-1', sourceTtsRequestHash: HASH, assetId: 'audio-1', sampleRate: 48_000, sampleFrameCount: 72_000,
       channels: 1, contentHash: HASH, measurementProducer: {name: 'wav-parser', version: '1.0.0'},
     };
     expect(MeasuredAudioSchema.safeParse({...audio, durationSeconds: 1.5}).success).toBe(false);
+    expect(MeasuredAudioSchema.safeParse({...audio, sampleFrameCount: undefined, sampleLength: 72_000}).success).toBe(false);
     expect(measuredAudioDurationSeconds(MeasuredAudioSchema.parse(audio))).toBe(1.5);
   });
 });

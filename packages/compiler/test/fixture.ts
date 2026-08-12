@@ -45,7 +45,7 @@ export const storyDirectorPlan: DirectorPlan = DirectorPlanSchema.parse({
     {id: 'shot-notice', sceneId: 'scene-field', shotType: 'medium', focusEntityId: 'farmer', durationPreference: {preferredSeconds: 6}},
   ],
   narration: [{
-    id: 'narration-run', sceneId: 'scene-field', shotId: 'shot-run',
+    id: 'narration-run', sceneId: 'scene-field', shotId: 'shot-run', sequence: 0,
     text: 'A rabbit ran quickly. It hit the old tree!', voiceId: 'narrator', language: 'en-US', speed: 1,
   }],
   actions: [

@@ -78,6 +78,7 @@ export const NarrationIntentSchema = z.object({
   id: IdSchema,
   sceneId: IdSchema,
   shotId: IdSchema,
+  sequence: z.number().int().nonnegative(),
   text: z.string().trim().min(1),
   voiceId: IdSchema,
   language: z.string().trim().min(1),
@@ -152,7 +153,12 @@ export const DirectorPlanSchema = z.object({
     if (!characterIds.has(action.actorId)) context.addIssue({code: 'custom', message: `Unknown action actor: ${action.actorId}`, path: ['actions', index, 'actorId']});
     if (action.targetId !== undefined && !characterIds.has(action.targetId)) context.addIssue({code: 'custom', message: `Unknown action target: ${action.targetId}`, path: ['actions', index, 'targetId']});
   }
-  for (const [index, camera] of plan.cameraIntents.entries()) checkShot(camera, 'cameraIntents', index);
+  for (const [index, camera] of plan.cameraIntents.entries()) {
+    checkShot(camera, 'cameraIntents', index);
+    if (camera.focusEntityId !== undefined && !characterIds.has(camera.focusEntityId)) {
+      context.addIssue({code: 'custom', message: `Unknown camera focus character: ${camera.focusEntityId}`, path: ['cameraIntents', index, 'focusEntityId']});
+    }
+  }
   for (const [index, blocking] of plan.blockingIntents.entries()) {
     checkShot(blocking, 'blockingIntents', index);
     if (!characterIds.has(blocking.characterId)) context.addIssue({code: 'custom', message: `Unknown blocking character: ${blocking.characterId}`, path: ['blockingIntents', index, 'characterId']});
@@ -180,6 +186,18 @@ export const DirectorPlanSchema = z.object({
       });
     }
     actionSequenceKeys.add(key);
+  }
+  const narrationSequenceKeys = new Set<string>();
+  for (const [index, narration] of plan.narration.entries()) {
+    const key = `${narration.shotId}\u0000${narration.sequence}`;
+    if (narrationSequenceKeys.has(key)) {
+      context.addIssue({
+        code: 'custom',
+        message: `Shot ${narration.shotId} has duplicate narration sequence ${narration.sequence}`,
+        path: ['narration', index, 'sequence'],
+      });
+    }
+    narrationSequenceKeys.add(key);
   }
   for (const shotId of shotIds) {
     if (plan.cameraIntents.filter(intent => intent.shotId === shotId).length !== 1) {
