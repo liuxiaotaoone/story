@@ -8,7 +8,13 @@ The internal pixel space is always 1280 x 720. Preview sizing is CSS-only. Final
 
 Renderer determinism uses two fresh Pixi Applications for every critical frame. One renders the target directly; the other renders an arbitrary history first and then seeks back to the target. Both PNGs are decoded and compared as RGBA, so stale Sprite visibility, opacity, texture, display-list order, and crossfade state are covered.
 
-The report separately measures steady-state FrameEvaluator, Pixi apply/render, PNG encode/write, FFmpeg encode, determinism-test elapsed time, and the 300-frame pipeline elapsed time.
+The report separately measures steady-state FrameEvaluator, Pixi CPU command submission, browser PNG export, frame-file writes, FFmpeg encoding, determinism-test elapsed time, and the 300-frame pipeline elapsed time. `browserPngExport` intentionally includes pending GPU completion, framebuffer readback, PNG encoding, and Base64 encoding; it is not presented as pure PNG codec time.
+
+Timing totals have explicit boundaries:
+
+- `framePipelineElapsedMs`: renderer page creation, 300 frame evaluation/render/export/write, and browser/server cleanup; stops before FFmpeg.
+- `ffmpeg.encodeMs`: video encoding only.
+- `total.elapsedMs`: `framePipelineElapsedMs + ffmpeg.encodeMs` when FFmpeg was measured.
 
 Run from the repository root:
 

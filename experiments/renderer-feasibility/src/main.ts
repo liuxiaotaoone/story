@@ -14,8 +14,8 @@ interface PixelComparison {
 interface FrameProfile {
   frame: number;
   evaluationMs: number;
-  pixiRenderMs: number;
-  pngEncodeMs: number;
+  pixiSubmitMs: number;
+  browserPngExportMs: number;
   dataUrl: string;
 }
 
@@ -72,8 +72,10 @@ function profileFrame(frame: number): FrameProfile {
   return {
     frame: bounded,
     evaluationMs: evaluationEnd - evaluationStart,
-    pixiRenderMs: renderEnd - evaluationEnd,
-    pngEncodeMs: exportEnd - renderEnd,
+    pixiSubmitMs: renderEnd - evaluationEnd,
+    // toDataURL synchronizes pending GPU work, reads the framebuffer, encodes
+    // PNG bytes, and Base64-encodes the result into a JavaScript string.
+    browserPngExportMs: exportEnd - renderEnd,
     dataUrl,
   };
 }

@@ -125,37 +125,34 @@ const browser = await chromium.launch({
 });
 
 let report;
+let framePipelineStartedAt;
 try {
   const determinism = await verifyHistoryIndependence(browser);
-  const pipelineStart = performance.now();
+  framePipelineStartedAt = performance.now();
   const page = await openRendererPage(browser);
   try {
     const environment = await page.evaluate(() => window.rendererFeasibility.rendererEnvironment());
     const evaluationSamples = [];
-    const renderSamples = [];
-    const pngEncodeSamples = [];
-    const pngWriteSamples = [];
-    const pngExportSamples = [];
+    const pixiSubmitSamples = [];
+    const browserPngExportSamples = [];
+    const frameWriteSamples = [];
 
     // Warm shader compilation and texture upload before measuring steady-state frames.
     await page.evaluate(() => window.rendererFeasibility.applyFrame(0));
     for (let frame = 0; frame < frameCount; frame += 1) {
       const profile = await page.evaluate(frameNumber => window.rendererFeasibility.profileFrame(frameNumber), frame);
       evaluationSamples.push(profile.evaluationMs);
-      renderSamples.push(profile.pixiRenderMs);
-      pngEncodeSamples.push(profile.pngEncodeMs);
+      pixiSubmitSamples.push(profile.pixiSubmitMs);
+      browserPngExportSamples.push(profile.browserPngExportMs);
       const fileName = `frame-${String(frame).padStart(3, '0')}.png`;
       const bytes = dataUrlToBuffer(profile.dataUrl);
       const writeStart = performance.now();
       await writeFile(join(framesRoot, fileName), bytes);
       const writeMs = performance.now() - writeStart;
-      pngWriteSamples.push(writeMs);
-      pngExportSamples.push(profile.pngEncodeMs + writeMs);
+      frameWriteSamples.push(writeMs);
       if (frame === 0 || frame === 30 || frame === 60) await writeFile(join(modeOutputRoot, fileName), bytes);
     }
 
-    const pngEncode = summarize(pngEncodeSamples);
-    const pngWrite = summarize(pngWriteSamples);
     report = {
       environment: {
         mode,
@@ -174,16 +171,15 @@ try {
         criticalFrames: determinism.comparisons,
       },
       evaluation: summarize(evaluationSamples),
-      pixiRender: summarize(renderSamples),
-      pngExport: {
-        ...summarize(pngExportSamples),
-        encode: pngEncode,
-        write: pngWrite,
+      pixiSubmit: summarize(pixiSubmitSamples),
+      browserPngExport: {
+        ...summarize(browserPngExportSamples),
+        includes: ['gpu-completion-wait', 'framebuffer-readback', 'png-encode', 'base64-encode'],
       },
+      frameWrite: summarize(frameWriteSamples),
       ffmpeg: {encodeMs: null},
-      total: {elapsedMs: null, pipelineElapsedMs: null},
+      total: {framePipelineElapsedMs: null, elapsedMs: null},
     };
-    report.total.pipelineStartedAt = pipelineStart;
   } finally {
     await page.close();
   }
@@ -191,6 +187,9 @@ try {
   await browser.close();
   await server.close();
 }
+
+if (framePipelineStartedAt === undefined) throw new Error('Frame Pipeline did not start');
+report.total.framePipelineElapsedMs = performance.now() - framePipelineStartedAt;
 
 if (!skipFfmpeg) {
   const ffmpegStart = performance.now();
@@ -204,8 +203,6 @@ if (!skipFfmpeg) {
   report.ffmpeg.encodeMs = performance.now() - ffmpegStart;
 }
 if (externalFfmpegMs !== null) report.ffmpeg.encodeMs = externalFfmpegMs;
-report.total.pipelineElapsedMs = performance.now() - report.total.pipelineStartedAt;
-report.total.elapsedMs = report.total.pipelineElapsedMs + (report.ffmpeg.encodeMs ?? 0);
-delete report.total.pipelineStartedAt;
+report.total.elapsedMs = report.total.framePipelineElapsedMs + (report.ffmpeg.encodeMs ?? 0);
 await writeFile(join(modeOutputRoot, 'renderer-gate-report.json'), `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Renderer Gate (${mode}) artifacts: ${modeOutputRoot}\n`);

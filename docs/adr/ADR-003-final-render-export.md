@@ -67,7 +67,7 @@ MVP、M0 与 M1 不采用 Remotion 作为 Final Renderer，也不实现 Pixi 与
 
 ## 后果
 
-- Frame Export 与 PNG 写盘是当前主要性能成本，应单独 Benchmark；
+- Browser PNG Export 与帧写盘是当前主要性能成本，应单独 Benchmark；其中 Browser PNG Export 包含 GPU 完成等待、Framebuffer Readback、PNG 编码和 Base64 编码，不能解释为单纯 PNG Codec 耗时；
 - FFmpeg 路径、版本和参数必须进入生产任务的 Producer/Tool Version 与 Cache Material；
 - Renderer 环境（GPU/SwiftShader、浏览器、WebGL 实现）需要记录在 QA 报告中；
 - 跨不同 GPU 或驱动的像素一致性不由本 ADR 自动保证，需要独立兼容性基线。
