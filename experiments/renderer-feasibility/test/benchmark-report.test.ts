@@ -13,21 +13,22 @@ describe('benchmark report timing contract', () => {
     expect(report.total).toEqual({framePipelineElapsedMs: 14_575, elapsedMs: 15_336});
   });
 
-  it('migrates the old ambiguous field names without changing measured durations', () => {
-    const report = normalizeBenchmarkReport({
-      pixiRender: {averageMsPerFrame: 0.3},
-      pngExport: {
-        encode: {averageMsPerFrame: 12},
-        write: {averageMsPerFrame: 14},
-      },
+  it('rejects legacy reports instead of inferring the Frame Pipeline duration', () => {
+    expect(() => normalizeBenchmarkReport({
+      pixiSubmit: {averageMsPerFrame: 0.3},
+      browserPngExport: {averageMsPerFrame: 12},
+      frameWrite: {averageMsPerFrame: 14},
       ffmpeg: {encodeMs: null},
       total: {pipelineElapsedMs: 14_575, elapsedMs: 14_575},
-    }, 761);
-    expect(report.pixiRender).toBeUndefined();
-    expect(report.pngExport).toBeUndefined();
-    expect(report.pixiSubmit?.averageMsPerFrame).toBe(0.3);
-    expect(report.browserPngExport?.averageMsPerFrame).toBe(12);
-    expect(report.frameWrite?.averageMsPerFrame).toBe(14);
-    expect(report.total).toEqual({framePipelineElapsedMs: 14_575, elapsedMs: 15_336});
+    } as never, 761)).toThrow('rerun the Benchmark');
+  });
+
+  it('rejects reports using legacy metric names', () => {
+    expect(() => normalizeBenchmarkReport({
+      pixiRender: {averageMsPerFrame: 0.3},
+      pngExport: {averageMsPerFrame: 26},
+      ffmpeg: {encodeMs: null},
+      total: {framePipelineElapsedMs: 14_575, elapsedMs: 14_575},
+    } as never, 761)).toThrow('current metric fields');
   });
 });

@@ -6,21 +6,14 @@ import process from 'node:process';
 import {performance} from 'node:perf_hooks';
 import {chromium} from 'playwright-core';
 import {createServer} from 'vite';
+import {parseBenchmarkArgs} from './benchmark-args.mjs';
 
 const experimentRoot = resolve(import.meta.dirname, '..');
 const outputRoot = join(experimentRoot, 'output');
 const frameCount = 300;
 const criticalFrames = [3, 20, 31, 50, 70, 90];
 const historyFrames = [0, 20, 31, 50, 79, 100];
-const modeArg = process.argv.find(argument => argument.startsWith('--mode='));
-const mode = modeArg?.slice('--mode='.length) ?? 'swiftshader';
-if (!['swiftshader', 'gpu'].includes(mode)) throw new Error(`Unsupported renderer mode: ${mode}`);
-const skipFfmpeg = process.argv.includes('--skip-ffmpeg');
-const externalFfmpegMsArg = process.argv.find(argument => argument.startsWith('--ffmpeg-ms='));
-const externalFfmpegMs = externalFfmpegMsArg === undefined ? null : Number(externalFfmpegMsArg.slice('--ffmpeg-ms='.length));
-if (externalFfmpegMs !== null && (!Number.isFinite(externalFfmpegMs) || externalFfmpegMs < 0)) {
-  throw new Error(`Invalid --ffmpeg-ms value: ${externalFfmpegMsArg}`);
-}
+const {mode, skipFfmpeg, externalFfmpegMs} = parseBenchmarkArgs(process.argv.slice(2));
 const modeOutputRoot = join(outputRoot, mode);
 const framesRoot = join(modeOutputRoot, 'frames');
 
