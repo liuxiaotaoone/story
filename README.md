@@ -64,4 +64,4 @@ schemas → paper-engine → paper-pixi → PNG → FFmpeg
 
 React、PixiJS、Gemini、ComfyUI 和 FFmpeg 不得成为 `paper-engine` 的依赖。Renderer 只消费 `RenderState`；不得反向定义 Timeline、PoseClip、Ownership、GroundLock 或 CameraSpace 语义。
 
-详细状态见 [M0 Paper Engine v0.1 里程碑](docs/milestones/M0-paper-engine-v0.1.md)与 [M0 Renderer Gate](docs/milestones/M0-renderer-gate.md)。
+详细状态见 [M0 Paper Engine v0.1 里程碑](docs/milestones/M0-paper-engine-v0.1.md)、[M0 Renderer Gate](docs/milestones/M0-renderer-gate.md)与 [ADR-003 Final Export](docs/adr/ADR-003-final-render-export.md)。

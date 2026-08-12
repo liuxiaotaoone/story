@@ -11,12 +11,34 @@ interface PixelComparison {
   maxChannelDelta: number;
 }
 
+interface FrameProfile {
+  frame: number;
+  evaluationMs: number;
+  pixiRenderMs: number;
+  pngEncodeMs: number;
+  dataUrl: string;
+}
+
+interface RendererEnvironment {
+  userAgent: string;
+  webglVersion: string;
+  vendor: string;
+  renderer: string;
+  unmaskedVendor: string | null;
+  unmaskedRenderer: string | null;
+}
+
 interface RendererFeasibilityApi {
   ready: boolean;
   applyFrame(frame: number): void;
+  applySequence(frames: number[]): void;
   exportFrameDataUrl(frame: number): Promise<string>;
+  exportCurrentDataUrl(): string;
   previewFrameDataUrl(frame: number): string;
   comparePreviewAndExport(frame: number): Promise<PixelComparison>;
+  compareDataUrls(left: string, right: string, frame: number): Promise<PixelComparison>;
+  profileFrame(frame: number): FrameProfile;
+  rendererEnvironment(): RendererEnvironment;
 }
 
 declare global {
@@ -38,6 +60,24 @@ function applyFrame(frame: number): void {
   if (slider !== null) slider.value = String(bounded);
 }
 
+function profileFrame(frame: number): FrameProfile {
+  const bounded = Math.max(0, Math.min(prepared.plan.timeline.durationFrames - 1, Math.trunc(frame)));
+  const evaluationStart = performance.now();
+  const state = evaluateFrame(prepared, bounded);
+  const evaluationEnd = performance.now();
+  renderer.apply(state);
+  const renderEnd = performance.now();
+  const dataUrl = exportCanonicalPngDataUrl(application);
+  const exportEnd = performance.now();
+  return {
+    frame: bounded,
+    evaluationMs: evaluationEnd - evaluationStart,
+    pixiRenderMs: renderEnd - evaluationEnd,
+    pngEncodeMs: exportEnd - renderEnd,
+    dataUrl,
+  };
+}
+
 async function dataUrlPixels(dataUrl: string): Promise<ImageData> {
   const image = new Image();
   image.src = dataUrl;
@@ -55,6 +95,12 @@ async function comparePreviewAndExport(frame: number): Promise<PixelComparison> 
   applyFrame(frame);
   const preview = await dataUrlPixels(application.canvas.toDataURL('image/png'));
   const offline = await dataUrlPixels(await exportCanonicalPngDataUrl(application));
+  return comparePixelData(preview, offline, frame);
+}
+
+function comparePixelData(left: ImageData, right: ImageData, frame: number): PixelComparison {
+  const preview = left;
+  const offline = right;
   if (preview.width !== offline.width || preview.height !== offline.height) throw new Error('Preview/export dimensions differ');
   let differingPixels = 0;
   let maxChannelDelta = 0;
@@ -70,12 +116,35 @@ async function comparePreviewAndExport(frame: number): Promise<PixelComparison> 
   return {frame, width: preview.width, height: preview.height, differingPixels, maxChannelDelta};
 }
 
+async function compareDataUrls(left: string, right: string, frame: number): Promise<PixelComparison> {
+  return comparePixelData(await dataUrlPixels(left), await dataUrlPixels(right), frame);
+}
+
+function rendererEnvironment(): RendererEnvironment {
+  const gl = application.canvas.getContext('webgl2') ?? application.canvas.getContext('webgl');
+  if (gl === null) throw new Error('Pixi WebGL context unavailable');
+  const debug = gl.getExtension('WEBGL_debug_renderer_info');
+  return {
+    userAgent: navigator.userAgent,
+    webglVersion: String(gl.getParameter(gl.VERSION)),
+    vendor: String(gl.getParameter(gl.VENDOR)),
+    renderer: String(gl.getParameter(gl.RENDERER)),
+    unmaskedVendor: debug === null ? null : String(gl.getParameter(debug.UNMASKED_VENDOR_WEBGL)),
+    unmaskedRenderer: debug === null ? null : String(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)),
+  };
+}
+
 window.rendererFeasibility = {
   ready: true,
   applyFrame,
+  applySequence(frames) { for (const frame of frames) applyFrame(frame); },
   async exportFrameDataUrl(frame) { applyFrame(frame); return exportCanonicalPngDataUrl(application); },
+  exportCurrentDataUrl() { return exportCanonicalPngDataUrl(application); },
   previewFrameDataUrl(frame) { applyFrame(frame); return application.canvas.toDataURL('image/png'); },
   comparePreviewAndExport,
+  compareDataUrls,
+  profileFrame,
+  rendererEnvironment,
 };
 
 const slider = document.querySelector<HTMLInputElement>('#frame')!;
@@ -87,4 +156,4 @@ document.querySelector<HTMLButtonElement>('#export')!.addEventListener('click', 
   anchor.click();
 });
 document.querySelector('#status')!.textContent = `WebGL ready · ${application.canvas.width}×${application.canvas.height}`;
-applyFrame(0);
+if (new URLSearchParams(location.search).get('automation') !== '1') applyFrame(0);

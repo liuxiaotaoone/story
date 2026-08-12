@@ -8,7 +8,8 @@
     "build": "vite build",
     "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
     "test": "node ../../node_modules/vitest/vitest.mjs run",
-    "feasibility": "node scripts/run-feasibility.mjs"
+    "feasibility": "node scripts/run-feasibility.mjs --mode=swiftshader",
+    "feasibility:gpu": "node scripts/run-feasibility.mjs --mode=gpu"
   },
   "dependencies": {
     "@pose-clip/paper-engine": "workspace:*",

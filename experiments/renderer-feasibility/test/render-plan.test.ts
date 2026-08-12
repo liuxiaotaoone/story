@@ -12,4 +12,16 @@ describe('renderer feasibility fixture', () => {
       expect(() => RenderStateSchema.parse(evaluateFrame(prepared, frame))).not.toThrow();
     }
   });
+
+  it('keeps every renderer-determinism boundary frame evaluable after arbitrary history', () => {
+    const prepared = prepareRenderPlan(RenderPlanSchema.parse(createRendererFeasibilityPlan()));
+    const history = [0, 20, 31, 50, 79, 100];
+    for (const target of [3, 20, 31, 50, 70, 90]) {
+      for (const frame of [...history.filter(candidate => candidate !== target), target]) {
+        RenderStateSchema.parse(evaluateFrame(prepared, frame));
+      }
+      const direct = evaluateFrame(prepared, target);
+      expect(evaluateFrame(prepared, target)).toEqual(direct);
+    }
+  });
 });

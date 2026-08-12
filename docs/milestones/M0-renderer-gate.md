@@ -30,6 +30,10 @@ RenderPlan
 - 300 帧，1280×720，30 FPS，输出 10.000 秒 H.264 MP4。
 - 关键帧 3、20、31、50、60、79 覆盖 GroundLock、Crossfade、Socket/Baked Attachment、Camera 与前景排序。
 - 所有关键帧 Preview/Final 对照均为 `differingPixels=0`、`maxChannelDelta=0`。
+- 两个独立 Pixi Application 的“直接渲染目标帧”与“先渲染任意历史再回跳目标帧”在 SwiftShader、Intel Arc 环境均通过精确 RGBA 对照。
+- 已建立 FrameEvaluator、Pixi Render、PNG Encode/Write、FFmpeg 的分段 Benchmark；当前主要成本位于 PNG Export，而不是 Evaluator 或 Pixi 场景提交。
 - 仓库测试共 73 项通过；schemas、paper-engine、paper-pixi 与 renderer-feasibility strict TypeScript 检查通过。
 
 运行入口与生成物说明见 `experiments/renderer-feasibility/README.md`。生成物位于被 Git 忽略的 `output/` 目录。
+
+Final Export 的正式决策见 [ADR-003](../adr/ADR-003-final-render-export.md)。
