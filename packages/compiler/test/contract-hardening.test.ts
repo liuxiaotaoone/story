@@ -86,10 +86,13 @@ describe('M2 contract hardening', () => {
       mode: 'experiment' as const,
       productionReady: false,
       assets: {schemaVersion: '1.0.0' as const, assets: []},
-      poseClips: [], environments: [], entityDefinitions: [],
+      poseClips: [], environments: [], entityDefinitions: [], characterBindings: [],
     };
     const assetCatalog = {...assetCatalogPayload, catalogHash: await hashResolvedAssetCatalogPayload(assetCatalogPayload)};
-    const base = {effectiveDirectorPlan: effective, preflight, measuredAudio, capabilityCatalog, assetCatalog};
+    const base = {
+      effectiveDirectorPlan: effective, preflight, measuredAudio, capabilityCatalog, assetCatalog,
+      context: {seed: 42, compilerVersion: '0.1.0', compiledAt: '2026-08-12T00:00:00.000Z'},
+    };
     expect(FinalCompileInputSchema.safeParse({
       ...base,
       preflight: {...preflight, effectiveDirectorPlanHash: 'a'.repeat(64)},

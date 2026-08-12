@@ -13,7 +13,7 @@ describe('ResolvedAssetCatalog contract', () => {
   it('allows experiment mode but keeps the productionReady gate explicit', () => {
     const base = {
       schemaVersion: '1.0.0', catalogHash: '0'.repeat(64),
-      assets: {schemaVersion: '1.0.0', assets: []}, poseClips: [], environments: [], entityDefinitions: [],
+      assets: {schemaVersion: '1.0.0', assets: []}, poseClips: [], environments: [], entityDefinitions: [], characterBindings: [],
     };
     expect(ResolvedAssetCatalogSchema.safeParse({...base, mode: 'experiment', productionReady: false}).success).toBe(true);
     expect(ResolvedAssetCatalogSchema.safeParse({...base, mode: 'production', productionReady: false}).success).toBe(false);
@@ -22,7 +22,7 @@ describe('ResolvedAssetCatalog contract', () => {
   it('protects catalog content and rejects unresolved required assets', async () => {
     const payload = {
       schemaVersion: '1.0.0' as const, mode: 'experiment' as const, productionReady: false,
-      assets: {schemaVersion: '1.0.0' as const, assets: []}, poseClips: [], environments: [], entityDefinitions: [],
+      assets: {schemaVersion: '1.0.0' as const, assets: []}, poseClips: [], environments: [], entityDefinitions: [], characterBindings: [],
     };
     const catalog = {...payload, catalogHash: await hashResolvedAssetCatalogPayload(payload)};
     await expect(assertResolvedAssetCatalogIntegrity(catalog)).resolves.toEqual(catalog);

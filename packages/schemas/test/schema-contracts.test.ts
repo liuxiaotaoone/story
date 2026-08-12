@@ -300,14 +300,16 @@ describe('two-stage compiler contracts', () => {
     };
     const assetCatalog = {
       schemaVersion: '1.0.0', mode: 'experiment', productionReady: false, catalogHash: HASH,
-      assets: {schemaVersion: '1.0.0', assets: []}, poseClips: [], environments: [], entityDefinitions: [],
+        assets: {schemaVersion: '1.0.0', assets: []}, poseClips: [], environments: [], entityDefinitions: [], characterBindings: [],
     };
-    expect(FinalCompileInputSchema.safeParse({effectiveDirectorPlan, preflight, measuredAudio: [], capabilityCatalog, assetCatalog}).success).toBe(false);
+    const context = {seed: 42, compilerVersion: '0.1.0', compiledAt: '2026-08-12T00:00:00.000Z'};
+    expect(FinalCompileInputSchema.safeParse({effectiveDirectorPlan, preflight, measuredAudio: [], capabilityCatalog, assetCatalog, context}).success).toBe(false);
     expect(FinalCompileInputSchema.safeParse({
       effectiveDirectorPlan,
       preflight,
       capabilityCatalog,
       assetCatalog,
+      context,
       measuredAudio: [{
         requestId: 'tts-1',
         sourceTtsRequestHash: HASH,

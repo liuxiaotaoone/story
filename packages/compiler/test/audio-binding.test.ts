@@ -17,10 +17,13 @@ async function baseInput() {
   }));
   const assetCatalogPayload = {
     schemaVersion: '1.0.0' as const, mode: 'experiment' as const, productionReady: false,
-    assets: {schemaVersion: '1.0.0' as const, assets: audioAssets}, poseClips: [], environments: [], entityDefinitions: [],
+    assets: {schemaVersion: '1.0.0' as const, assets: audioAssets}, poseClips: [], environments: [], entityDefinitions: [], characterBindings: [],
   };
   const assetCatalog = {...assetCatalogPayload, catalogHash: await hashResolvedAssetCatalogPayload(assetCatalogPayload)};
-  return {effectiveDirectorPlan, preflight, measuredAudio, capabilityCatalog, assetCatalog};
+  return {
+    effectiveDirectorPlan, preflight, measuredAudio, capabilityCatalog, assetCatalog,
+    context: {seed: 42, compilerVersion: '0.1.0', compiledAt: '2026-08-12T00:00:00.000Z'},
+  };
 }
 
 describe('Final audio asset binding', () => {

@@ -4,6 +4,13 @@ import {EffectiveDirectorPlanSchema} from './effective-director-plan.js';
 import {MeasuredAudioSchema} from './measured-audio.js';
 import {PreflightCompileResultSchema} from './preflight-plan.js';
 import {ResolvedAssetCatalogSchema} from './resolved-asset-catalog.js';
+import {IsoDateTimeSchema, SemverSchema} from './common.js';
+
+export const FinalCompileContextSchema = z.object({
+  seed: z.number().int(),
+  compilerVersion: SemverSchema,
+  compiledAt: IsoDateTimeSchema,
+}).strict();
 
 export const FinalCompileInputSchema = z.object({
   effectiveDirectorPlan: EffectiveDirectorPlanSchema,
@@ -11,6 +18,7 @@ export const FinalCompileInputSchema = z.object({
   measuredAudio: z.array(MeasuredAudioSchema),
   capabilityCatalog: CapabilityCatalogSchema,
   assetCatalog: ResolvedAssetCatalogSchema,
+  context: FinalCompileContextSchema,
 }).strict().superRefine((input, context) => {
   if (input.preflight.effectiveDirectorPlanHash !== input.effectiveDirectorPlan.effectivePlanHash) {
     context.addIssue({code: 'custom', message: 'Preflight was compiled from a different EffectiveDirectorPlan', path: ['preflight', 'effectiveDirectorPlanHash']});
@@ -44,3 +52,4 @@ export const FinalCompileInputSchema = z.object({
 });
 
 export type FinalCompileInput = z.infer<typeof FinalCompileInputSchema>;
+export type FinalCompileContext = z.infer<typeof FinalCompileContextSchema>;

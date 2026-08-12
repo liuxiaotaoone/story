@@ -42,6 +42,13 @@ export const EntityCapabilitySchema = z.object({
   for (const [index, action] of entity.actions.entries()) {
     if (actions.has(action.action)) context.addIssue({code: 'custom', message: `Duplicate action capability: ${action.action}`, path: ['actions', index, 'action']});
     actions.add(action.action);
+    for (const [clipIndex, clipId] of action.requiredPoseClips.entries()) {
+      if (!entity.poseClips.includes(clipId)) context.addIssue({
+        code: 'custom',
+        message: `Action ${action.action} requires undeclared PoseClip ${clipId}`,
+        path: ['actions', index, 'requiredPoseClips', clipIndex],
+      });
+    }
   }
 });
 

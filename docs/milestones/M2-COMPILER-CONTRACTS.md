@@ -32,8 +32,8 @@ Story
 - `PreflightCompileResult` 是 Final Compiler 的输入，不是第二套 Timeline。
 - Preflight 同时记录 EffectivePlan Hash 与 CapabilityCatalog Version/Hash，禁止两阶段语义漂移。
 - Preflight 对全部编译输出计算 `preflightHash`；持久化后的 Narration、Action、AssetRequirement 或 Diagnostic 被修改都会在 Final Gate 失败。
-- Final Compile 输入必须携带 EffectiveDirectorPlan、Preflight、MeasuredAudio 与 CapabilityCatalog；任一 Hash 不一致或 Preflight 含 Error 时立即停止。
-- `ResolvedAssetCatalog` 是正式资产解析契约，包含 AssetManifest、PoseClip、Environment 与 EntityDefinition，并区分 experiment/production Gate。
+- Final Compile 输入必须携带 EffectiveDirectorPlan、Preflight、MeasuredAudio、CapabilityCatalog、ResolvedAssetCatalog 与显式 FinalCompileContext；任一 Hash 不一致或 Preflight 含 Error 时立即停止。
+- `ResolvedAssetCatalog` 是正式资产解析契约，包含 AssetManifest、PoseClip、Environment、EntityDefinition 与 CharacterAssetBinding，并区分 experiment/production Gate。
 - 同一 Shot 内 Action 按唯一 `sequence` 串行执行；同一角色每个 Shot 只能有一条 BlockingIntent。
 - Capability Catalog 中所有被编译器按键查找的集合都必须唯一。
 - TTS 时长的权威值为 `sampleFrameCount / sampleRate`；`durationSeconds` 不进入 `MeasuredAudio` Schema。
