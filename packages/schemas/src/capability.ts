@@ -26,6 +26,8 @@ export const ActionCapabilitySchema = z.object({
   targetTypes: z.array(IdSchema).optional(),
   minDurationFrames: z.number().int().positive(),
   supportsDirections: z.array(DirectionSchema).min(1),
+  completionPolicy: z.enum(['hold', 'return-default']),
+  spatialMode: z.enum(['stationary', 'locomotion']),
   attachmentMode: AttachmentModeSchema.optional(),
 }).strict().superRefine((action, context) => {
   addDuplicateIssues(action.requiredPoseClips, context, 'requiredPoseClips');

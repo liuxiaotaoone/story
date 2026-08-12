@@ -33,11 +33,13 @@ describe('M2 semantic boundary contracts', () => {
   it('rejects zero-duration required action capability and expansion', () => {
     expect(ActionCapabilitySchema.safeParse({
       action: 'impact', requiredPoseClips: [], poseBindings: [], minDurationFrames: 0, supportsDirections: ['front'],
+      completionPolicy: 'hold', spatialMode: 'stationary',
     }).success).toBe(false);
     expect(ExpandedActionSchema.safeParse({
       id: 'expanded-impact', sourceActionId: 'impact', sceneId: 'scene-1', shotId: 'shot-1',
       actorId: 'farmer', action: 'impact', sequence: 0, direction: 'front', priority: 'required',
       minDurationFrames: 0, poseClipId: 'farmer.impact', requiredPoseClipIds: [],
+      completionPolicy: 'hold', spatialMode: 'stationary',
     }).success).toBe(false);
   });
   it('keeps Story references valid and rejects unknown beat participants', () => {
@@ -72,6 +74,23 @@ describe('M2 semantic boundary contracts', () => {
     };
     expect(PreflightCompileResultSchema.safeParse(preflight).success).toBe(true);
     expect(PreflightCompileResultSchema.safeParse({...preflight, timeline: {}}).success).toBe(false);
+  });
+
+  it('requires explicit spatial and follow-camera semantics', () => {
+    const locomotion = {
+      id: 'expanded-run', sourceActionId: 'run', sceneId: 'scene-1', shotId: 'shot-1',
+      actorId: 'farmer', action: 'run', sequence: 0, direction: 'left', priority: 'required',
+      minDurationFrames: 12, poseClipId: 'farmer.run-left', requiredPoseClipIds: ['farmer.run-left'],
+      completionPolicy: 'return-default', spatialMode: 'locomotion',
+    };
+    expect(ExpandedActionSchema.safeParse(locomotion).success).toBe(false);
+    expect(ExpandedActionSchema.safeParse({
+      ...locomotion, destinationBlocking: {horizontal: 'left', depth: 'ground'},
+    }).success).toBe(true);
+    expect(DirectorPlanSchema.safeParse({
+      ...minimalDirectorPlan,
+      cameraIntents: [{id: 'camera-follow', sceneId: 'scene-1', shotId: 'shot-1', type: 'follow'}],
+    }).success).toBe(false);
   });
 
   it('requires unique blocking targets and sequential action slots per shot', () => {

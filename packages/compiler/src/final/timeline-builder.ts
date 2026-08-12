@@ -10,7 +10,7 @@ import {compileBlockingIntent} from './blocking-compiler.js';
 import {compileCameraTrack} from './camera-compiler.js';
 import type {SolvedTimingPlan} from '../timing/types.js';
 
-function actionEvents(input: {
+export function compileActionPoseEvents(input: {
   effective: EffectiveDirectorPlan;
   preflight: PreflightCompileResult;
   timing: SolvedTimingPlan;
@@ -18,48 +18,109 @@ function actionEvents(input: {
 }): Pick<Timeline, 'poseEvents' | 'poseTransitions'> {
   const definitions = new Map(input.catalog.entityDefinitions.map(definition => [definition.id, definition]));
   const bindings = new Map(input.catalog.characterBindings.map(binding => [binding.characterId, binding.entityDefinitionId]));
-  const activePose = new Map(input.effective.plan.characters.map(character => {
+  const defaultPose = new Map(input.effective.plan.characters.map(character => {
     const definition = definitions.get(bindings.get(character.characterId)!)!;
     return [character.characterId, definition.defaultPoseClipId] as const;
   }));
   const actions = new Map(input.preflight.expandedActions.map(action => [action.id, action]));
   const poseEvents: Timeline['poseEvents'] = [];
   const poseTransitions: Timeline['poseTransitions'] = [];
-  for (const shot of input.timing.shots) {
-    for (const solved of shot.actions) {
-      const action = actions.get(solved.expandedActionId)!;
-      const previous = activePose.get(action.actorId)!;
+  const solvedActions = input.timing.shots.flatMap(shot => shot.actions).map(solved => ({
+    solved,
+    action: actions.get(solved.expandedActionId)!,
+  }));
+  for (const character of input.effective.plan.characters) {
+    const actorActions = solvedActions
+      .filter(item => item.action.actorId === character.characterId)
+      .sort((left, right) => left.solved.startFrame - right.solved.startFrame || left.action.id.localeCompare(right.action.id));
+    let activePose = defaultPose.get(character.characterId)!;
+    for (const [index, item] of actorActions.entries()) {
+      const {solved, action} = item;
+      const previousItem = actorActions[index - 1];
+      if (previousItem !== undefined
+        && previousItem.action.completionPolicy === 'return-default'
+        && previousItem.solved.endFrame < solved.startFrame
+        && previousItem.solved.endFrame < input.timing.durationFrames) {
+        const fallback = defaultPose.get(character.characterId)!;
+        if (activePose !== fallback) {
+          poseEvents.push({
+            id: `pose-complete.${previousItem.action.id}`, frame: previousItem.solved.endFrame,
+            entityId: character.characterId, poseClipId: fallback, clipStartOffset: 0, playbackRate: 1,
+          });
+          poseTransitions.push({
+            id: `pose-transition-complete.${previousItem.action.id}`, entityId: character.characterId,
+            fromPoseClipId: activePose, toPoseClipId: fallback,
+            startFrame: previousItem.solved.endFrame, durationFrames: 0, mode: 'cut', anchorPolicy: 'foot',
+          });
+          activePose = fallback;
+        }
+      }
       poseEvents.push({
         id: `pose.${action.id}`, frame: solved.startFrame, entityId: action.actorId,
         poseClipId: action.poseClipId, clipStartOffset: 0, playbackRate: 1,
       });
-      if (previous !== action.poseClipId) {
+      if (activePose !== action.poseClipId) {
         poseTransitions.push({
           id: `pose-transition.${action.id}`, entityId: action.actorId,
-          fromPoseClipId: previous, toPoseClipId: action.poseClipId,
+          fromPoseClipId: activePose, toPoseClipId: action.poseClipId,
           startFrame: solved.startFrame, durationFrames: 0, mode: 'cut', anchorPolicy: 'foot',
         });
       }
-      activePose.set(action.actorId, action.poseClipId);
+      activePose = action.poseClipId;
+    }
+    const last = actorActions.at(-1);
+    if (last !== undefined
+      && last.action.completionPolicy === 'return-default'
+      && last.solved.endFrame < input.timing.durationFrames) {
+      const fallback = defaultPose.get(character.characterId)!;
+      if (activePose !== fallback) {
+        poseEvents.push({
+          id: `pose-complete.${last.action.id}`, frame: last.solved.endFrame,
+          entityId: character.characterId, poseClipId: fallback, clipStartOffset: 0, playbackRate: 1,
+        });
+        poseTransitions.push({
+          id: `pose-transition-complete.${last.action.id}`, entityId: character.characterId,
+          fromPoseClipId: activePose, toPoseClipId: fallback,
+          startFrame: last.solved.endFrame, durationFrames: 0, mode: 'cut', anchorPolicy: 'foot',
+        });
+      }
     }
   }
+  poseEvents.sort((left, right) => left.frame - right.frame || left.entityId.localeCompare(right.entityId) || left.id.localeCompare(right.id));
+  poseTransitions.sort((left, right) => left.startFrame - right.startFrame || left.entityId.localeCompare(right.entityId) || left.id.localeCompare(right.id));
   return {poseEvents, poseTransitions};
 }
 
-function entityTracks(effective: EffectiveDirectorPlan, timing: SolvedTimingPlan): Timeline['entityTracks'] {
-  const shotTiming = new Map(timing.shots.map(shot => [shot.shotId, shot]));
+export function compileEntityTracks(
+  effective: EffectiveDirectorPlan,
+  preflight: PreflightCompileResult,
+  timing: SolvedTimingPlan,
+): Timeline['entityTracks'] {
+  const expandedActions = new Map(preflight.expandedActions.map(action => [action.id, action]));
   return effective.plan.characters.map(character => {
-    const points = effective.plan.blockingIntents
-      .filter(blocking => blocking.characterId === character.characterId)
-      .map(blocking => ({
-        frame: shotTiming.get(blocking.shotId)!.startFrame,
-        value: compileBlockingIntent(blocking.blocking),
-        easing: 'hold' as const,
-      }))
-      .sort((left, right) => left.frame - right.frame);
-    if (points[0]?.frame !== 0) points.unshift({
-      frame: 0, value: compileBlockingIntent(character.initialBlocking), easing: 'hold',
-    });
+    const points: NonNullable<Timeline['entityTracks'][number]['groundPosition']> = [];
+    const upsert = (frame: number, value: ReturnType<typeof compileBlockingIntent>, easing: 'hold' | 'linear'): void => {
+      const index = points.findIndex(point => point.frame === frame);
+      const keyframe = {frame, value, easing};
+      if (index === -1) points.push(keyframe);
+      else points[index] = keyframe;
+      points.sort((left, right) => left.frame - right.frame);
+    };
+    upsert(0, compileBlockingIntent(character.initialBlocking), 'hold');
+    for (const shotTiming of timing.shots) {
+      const blocking = effective.plan.blockingIntents.find(intent =>
+        intent.shotId === shotTiming.shotId && intent.characterId === character.characterId);
+      if (blocking !== undefined) upsert(shotTiming.startFrame, compileBlockingIntent(blocking.blocking), 'hold');
+      for (const solved of shotTiming.actions) {
+        const action = expandedActions.get(solved.expandedActionId)!;
+        if (action.actorId !== character.characterId || action.spatialMode !== 'locomotion') continue;
+        const destination = compileBlockingIntent(action.destinationBlocking!);
+        const start = points.filter(point => point.frame <= solved.startFrame).at(-1)?.value
+          ?? compileBlockingIntent(character.initialBlocking);
+        upsert(solved.startFrame, start, 'linear');
+        upsert(solved.endFrame, destination, 'hold');
+      }
+    }
     return {entityId: character.characterId, groundPosition: points};
   });
 }
@@ -98,8 +159,9 @@ export function buildCanonicalTimeline(input: {
   const scenes = new Map(input.effective.plan.scenes.map(scene => [scene.id, scene]));
   const shots = new Map(input.effective.plan.shots.map(shot => [shot.id, shot]));
   const cameraIntents = new Map(input.effective.plan.cameraIntents.map(intent => [intent.shotId, intent]));
-  const actionOutput = actionEvents(input);
+  const actionOutput = compileActionPoseEvents(input);
   const narrationOutput = narrationCues(input);
+  const compiledEntityTracks = compileEntityTracks(input.effective, input.preflight, input.timing);
   return TimelineSchema.parse({
     schemaVersion: '1.0.0', fps: 30, durationFrames: input.timing.durationFrames,
     shots: input.timing.shots.map(timing => {
@@ -111,10 +173,19 @@ export function buildCanonicalTimeline(input: {
         ...(shot.focusEntityId === undefined ? {} : {focusEntityId: shot.focusEntityId}),
       };
     }),
-    entityTracks: entityTracks(input.effective, input.timing),
+    entityTracks: compiledEntityTracks,
     cameraTracks: input.timing.shots.map(timing => {
       const shot = shots.get(timing.shotId)!;
-      return compileCameraTrack({intent: cameraIntents.get(timing.shotId)!, shotType: shot.shotType, timing});
+      const intent = cameraIntents.get(timing.shotId)!;
+      const scene = scenes.get(shot.sceneId)!;
+      const focusEntityTrack = intent.focusEntityId === undefined
+        ? undefined
+        : compiledEntityTracks.find(track => track.entityId === intent.focusEntityId);
+      return compileCameraTrack({
+        intent, shotType: shot.shotType, timing,
+        ...(focusEntityTrack === undefined ? {} : {focusEntityTrack}),
+        environment: input.catalog.environments.find(environment => environment.id === scene.environmentIntent)!,
+      });
     }),
     ...actionOutput,
     ownershipEvents: [], visibilityEvents: [], effectEvents: [],

@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {AssetKindSchema} from './asset.js';
 import {CompileDiagnosticSchema} from './compile-diagnostics.js';
 import {ContentHashSchema, IdSchema, SemverSchema} from './common.js';
-import {DurationPreferenceSchema} from './director-plan.js';
+import {BlockingIntentSchema, DurationPreferenceSchema} from './director-plan.js';
 import {DirectionSchema} from './pose-clip.js';
 import {NarrationSegmentSchema, TtsRequestSchema} from './tts-request.js';
 
@@ -37,6 +37,9 @@ export const ExpandedActionSchema = z.object({
   minDurationFrames: z.number().int().positive(),
   poseClipId: IdSchema,
   requiredPoseClipIds: z.array(IdSchema).min(1),
+  completionPolicy: z.enum(['hold', 'return-default']),
+  spatialMode: z.enum(['stationary', 'locomotion']),
+  destinationBlocking: BlockingIntentSchema.optional(),
   rewrite: z.object({
     fromAction: IdSchema,
     ruleReason: z.string().trim().min(1),
@@ -44,6 +47,12 @@ export const ExpandedActionSchema = z.object({
 }).strict().superRefine((action, context) => {
   if (!action.requiredPoseClipIds.includes(action.poseClipId)) context.addIssue({
     code: 'custom', message: 'poseClipId must be declared in requiredPoseClipIds', path: ['poseClipId'],
+  });
+  if (action.spatialMode === 'locomotion' && action.destinationBlocking === undefined) context.addIssue({
+    code: 'custom', message: 'Locomotion action requires destinationBlocking', path: ['destinationBlocking'],
+  });
+  if (action.spatialMode === 'stationary' && action.destinationBlocking !== undefined) context.addIssue({
+    code: 'custom', message: 'Stationary action cannot define destinationBlocking', path: ['destinationBlocking'],
   });
 });
 

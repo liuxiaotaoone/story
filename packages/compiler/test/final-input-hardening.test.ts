@@ -109,6 +109,8 @@ describe('Final Compiler input and asset binding hardening', () => {
       id: 'expanded.required', sourceActionId: 'required', sceneId: 'scene', shotId: 'shot', actorId: 'rabbit',
       action: 'run', sequence: 0, direction: 'left' as const, priority: 'required' as const,
       minDurationFrames: 10, poseClipId: 'rabbit.run-left', requiredPoseClipIds: ['rabbit.run-left'],
+      completionPolicy: 'return-default' as const, spatialMode: 'locomotion' as const,
+      destinationBlocking: {horizontal: 'left' as const, depth: 'ground' as const},
     };
     const optional = {...required, id: 'expanded.optional', sourceActionId: 'optional', priority: 'optional' as const};
     expect(optionalActionDropDiagnostics([required, optional])).toEqual([expect.objectContaining({

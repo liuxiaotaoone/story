@@ -99,13 +99,31 @@ export function resolveActions(
       });
       continue;
     }
+    if (capability.spatialMode === 'locomotion' && action.destinationBlocking === undefined) {
+      diagnostics.push({
+        id: `diagnostic.${action.id}.destination`, severity: 'error', code: 'BLOCKING_UNRESOLVABLE',
+        message: `Locomotion action ${actionName} requires destinationBlocking`,
+        sourceId: action.id, path: `/actions/${action.id}/destinationBlocking`, recoverable: false,
+      });
+      continue;
+    }
+    if (capability.spatialMode === 'stationary' && action.destinationBlocking !== undefined) {
+      diagnostics.push({
+        id: `diagnostic.${action.id}.stationary-destination`, severity: 'error', code: 'BLOCKING_UNRESOLVABLE',
+        message: `Stationary action ${actionName} cannot consume destinationBlocking`,
+        sourceId: action.id, path: `/actions/${action.id}/destinationBlocking`, recoverable: false,
+      });
+      continue;
+    }
     expandedActions.push({
       id: `expanded.${action.id}`, sourceActionId: action.id, sceneId: action.sceneId, shotId: action.shotId,
       actorId: action.actorId, action: actionName, sequence: action.sequence,
       ...(action.targetId === undefined ? {} : {targetId: action.targetId}),
       ...(action.durationPreference === undefined ? {} : {durationPreference: action.durationPreference}),
       direction, priority: action.priority, minDurationFrames: capability.minDurationFrames,
-      poseClipId: poseBinding.poseClipId, requiredPoseClipIds: capability.requiredPoseClips,
+      poseClipId: poseBinding.poseClipId, requiredPoseClipIds: [poseBinding.poseClipId],
+      completionPolicy: capability.completionPolicy, spatialMode: capability.spatialMode,
+      ...(action.destinationBlocking === undefined ? {} : {destinationBlocking: action.destinationBlocking}),
       ...(rewrite === undefined ? {} : {rewrite}),
     });
   }

@@ -77,7 +77,10 @@
       "durationPreference": {"preferredSeconds": 4},
       "minDurationFrames": 12,
       "poseClipId": "rabbit.run-left",
-      "requiredPoseClipIds": ["rabbit.run-left"]
+      "requiredPoseClipIds": ["rabbit.run-left"],
+      "completionPolicy": "return-default",
+      "spatialMode": "locomotion",
+      "destinationBlocking": {"horizontal": "left", "depth": "ground", "facing": "left"}
     },
     {
       "id": "expanded.action-dance",
@@ -92,6 +95,8 @@
       "minDurationFrames": 15,
       "poseClipId": "farmer.notice-right",
       "requiredPoseClipIds": ["farmer.notice-right"],
+      "completionPolicy": "hold",
+      "spatialMode": "stationary",
       "rewrite": {
         "fromAction": "dance",
         "ruleReason": "MVP replaces dance with a readable notice pose"

@@ -6,12 +6,13 @@ import {
   type FinalCompileInput,
   type MeasuredAudio,
 } from '@pose-clip/schemas';
-import {prepareRenderPlan} from '@pose-clip/paper-engine';
+import {evaluateFrame, prepareRenderPlan} from '@pose-clip/paper-engine';
 import {
   compileFinal,
   compilePreflight,
   createEffectiveDirectorPlan,
   hashResolvedAssetCatalogPayload,
+  compileActionPoseEvents,
 } from '../src/index.js';
 import {capabilityCatalog, sourceStory, storyDirectorPlan} from './fixture.js';
 
@@ -116,8 +117,10 @@ describe('M2 Final Compiler', () => {
     expect(plan.timeline.durationFrames).toBe(660);
     expect(plan.timeline.shots).toHaveLength(2);
     expect(plan.timeline.cameraTracks).toHaveLength(2);
-    expect(plan.timeline.poseEvents.map(event => event.poseClipId)).toEqual(['rabbit.run-left', 'farmer.notice-right']);
-    expect(plan.timeline.poseTransitions).toHaveLength(2);
+    expect(plan.timeline.poseEvents.map(event => event.poseClipId)).toEqual([
+      'rabbit.run-left', 'rabbit.idle-left', 'farmer.notice-right',
+    ]);
+    expect(plan.timeline.poseTransitions).toHaveLength(3);
     expect(plan.timeline.narration).toHaveLength(2);
     expect(plan.timeline.subtitles).toHaveLength(2);
     expect(plan.provenance.warnings).toContainEqual(expect.objectContaining({code: 'ACTION_REWRITTEN'}));
@@ -134,5 +137,63 @@ describe('M2 Final Compiler', () => {
       expect(next).toEqual(first);
       expect(await semanticRenderPlanHash(next)).toBe(expectedHash);
     }
+  });
+
+  it('executes action duration, locomotion and follow-camera semantics in RenderState', async () => {
+    const plan = await compileFinal(await finalInput());
+    const prepared = prepareRenderPlan(plan);
+    const rabbitAt = (frame: number) => {
+      const state = evaluateFrame(prepared, frame);
+      const rabbit = state.sprites.find(sprite => sprite.entityId === 'rabbit');
+      if (rabbit === undefined) throw new Error(`Rabbit missing at frame ${frame}`);
+      return {state, rabbit};
+    };
+    const frame0 = rabbitAt(0);
+    const frame60 = rabbitAt(60);
+    const frame119 = rabbitAt(119);
+    const frame120 = rabbitAt(120);
+    const frame180 = rabbitAt(180);
+
+    expect(frame0.rabbit.assetId).toBe('rabbit.run-left.frame');
+    expect(frame119.rabbit.assetId).toBe('rabbit.run-left.frame');
+    expect(frame120.rabbit.assetId).toBe('rabbit.idle-left.frame');
+    expect(frame180.rabbit.assetId).toBe('rabbit.idle-left.frame');
+    expect(frame0.rabbit.transform.position.x).toBeGreaterThan(frame60.rabbit.transform.position.x);
+    expect(frame60.rabbit.transform.position.x).toBeGreaterThan(frame120.rabbit.transform.position.x);
+    expect(frame120.rabbit.transform.position.x).toBe(frame180.rabbit.transform.position.x);
+    for (const frame of [frame0, frame60, frame119, frame120]) {
+      expect(frame.state.camera.position.x).toBeCloseTo(frame.rabbit.transform.position.x, 8);
+      expect(frame.state.camera.position.y).toBeCloseTo(frame.rabbit.transform.position.y, 8);
+    }
+  });
+
+  it('switches consecutive actions directly without an intermediate default PoseEvent', async () => {
+    const input = await finalInput();
+    const first = input.preflight.expandedActions[0]!;
+    const {destinationBlocking: _destinationBlocking, ...stationaryBase} = first;
+    const second = {
+      ...stationaryBase, id: 'expanded.rabbit-next', sourceActionId: 'rabbit-next',
+      poseClipId: 'rabbit.idle-left', requiredPoseClipIds: ['rabbit.idle-left'],
+      completionPolicy: 'hold' as const, spatialMode: 'stationary' as const,
+    };
+    const output = compileActionPoseEvents({
+      effective: input.effectiveDirectorPlan,
+      preflight: {...input.preflight, expandedActions: [first, second]},
+      catalog: input.assetCatalog,
+      timing: {
+        fps: 30, durationFrames: 180, diagnostics: [],
+        shots: [{
+          shotId: 'shot-run', startFrame: 0, endFrame: 180, narration: [],
+          actions: [
+            {expandedActionId: first.id, startFrame: 0, endFrame: 120},
+            {expandedActionId: second.id, startFrame: 120, endFrame: 180},
+          ],
+        }],
+      },
+    });
+    expect(output.poseEvents.filter(event => event.frame === 120)).toEqual([
+      expect.objectContaining({id: 'pose.expanded.rabbit-next', poseClipId: 'rabbit.idle-left'}),
+    ]);
+    expect(output.poseEvents.some(event => event.id === `pose-complete.${first.id}`)).toBe(false);
   });
 });

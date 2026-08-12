@@ -72,6 +72,7 @@ export const ActionIntentSchema = z.object({
   priority: z.enum(['required', 'optional']),
   enabled: z.boolean().default(true),
   durationPreference: DurationPreferenceSchema.optional(),
+  destinationBlocking: BlockingIntentSchema.optional(),
 }).strict();
 
 export const NarrationIntentSchema = z.object({
@@ -91,7 +92,11 @@ export const CameraIntentDefinitionSchema = z.object({
   shotId: IdSchema,
   type: CameraIntentSchema,
   focusEntityId: IdSchema.optional(),
-}).strict();
+}).strict().superRefine((intent, context) => {
+  if (intent.type === 'follow' && intent.focusEntityId === undefined) context.addIssue({
+    code: 'custom', message: 'Follow camera requires focusEntityId', path: ['focusEntityId'],
+  });
+});
 
 export const CharacterBlockingIntentSchema = z.object({
   id: IdSchema,
