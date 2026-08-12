@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {AttachmentModeSchema} from './attachment.js';
 import {IdSchema, SemverSchema} from './common.js';
-import {CameraIntentSchema, DepthIntentSchema, ShotTypeSchema} from './director.js';
+import {CameraIntentSchema, DepthIntentSchema, ShotTypeSchema} from './director-plan.js';
 import {DirectionSchema} from './pose-clip.js';
 
 export const ActionCapabilitySchema = z.object({
@@ -48,3 +48,8 @@ export const CapabilityCatalogSchema = z.object({
 }).strict();
 
 export type CapabilityCatalog = z.infer<typeof CapabilityCatalogSchema>;
+export type ActionCapability = z.infer<typeof ActionCapabilitySchema>;
+export type EntityCapability = z.infer<typeof EntityCapabilitySchema>;
+export type CameraCapability = z.infer<typeof CameraCapabilitySchema>;
+export type EnvironmentCapability = z.infer<typeof EnvironmentCapabilitySchema>;
+export type FallbackRule = z.infer<typeof FallbackRuleSchema>;

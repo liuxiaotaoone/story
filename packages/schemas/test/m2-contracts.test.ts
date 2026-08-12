@@ -1,0 +1,70 @@
+import {describe, expect, it} from 'vitest';
+import {
+  DirectorPlanSchema,
+  MeasuredAudioSchema,
+  PreflightCompileResultSchema,
+  StorySchema,
+  measuredAudioDurationSeconds,
+} from '../src/index.js';
+
+const HASH = '0'.repeat(64);
+
+const minimalDirectorPlan = {
+  schemaVersion: '1.0.0',
+  projectId: 'project-1',
+  storyId: 'story-1',
+  storyBible: {title: 'A Story', summary: 'A short story.', styleGuideId: 'paper-cut'},
+  characters: [{
+    characterId: 'farmer', entityType: 'farmer', role: 'observer',
+    initialBlocking: {horizontal: 'left', depth: 'ground', facing: 'right'},
+  }],
+  scenes: [{id: 'scene-1', sourceBeatIds: ['beat-1'], environmentIntent: 'field', summary: 'A field.'}],
+  shots: [{id: 'shot-1', sceneId: 'scene-1', shotType: 'wide', focusEntityId: 'farmer'}],
+  narration: [],
+  actions: [],
+  cameraIntents: [{id: 'camera-1', sceneId: 'scene-1', shotId: 'shot-1', type: 'static'}],
+  blockingIntents: [],
+};
+
+describe('M2 semantic boundary contracts', () => {
+  it('keeps Story references valid and rejects unknown beat participants', () => {
+    const story = {
+      schemaVersion: '1.0.0', id: 'story-1', title: 'A Story', language: 'en-US', domain: 'fable',
+      synopsis: 'A farmer waits.',
+      characters: [{id: 'farmer', entityType: 'farmer', description: 'A farmer.', traits: ['patient']}],
+      beats: [{id: 'beat-1', summary: 'The farmer waits.', participantIds: ['rabbit']}],
+    };
+    expect(StorySchema.safeParse(story).success).toBe(false);
+  });
+
+  it('forbids frame, pixel, asset and Renderer fields in DirectorPlan', () => {
+    for (const illegal of [
+      {frame: 10},
+      {pixelPosition: {x: 1, y: 2}},
+      {assetRequirements: []},
+      {timeline: {}},
+      {pixi: {}},
+    ]) {
+      expect(DirectorPlanSchema.safeParse({...minimalDirectorPlan, ...illegal}).success).toBe(false);
+    }
+    expect(DirectorPlanSchema.safeParse(minimalDirectorPlan).success).toBe(true);
+  });
+
+  it('defines Preflight as compile input rather than a second Timeline', () => {
+    const preflight = {
+      schemaVersion: '1.0.0', effectiveDirectorPlanHash: HASH,
+      narrationSegments: [], ttsRequests: [], assetRequirements: [], expandedActions: [], diagnostics: [],
+    };
+    expect(PreflightCompileResultSchema.safeParse(preflight).success).toBe(true);
+    expect(PreflightCompileResultSchema.safeParse({...preflight, timeline: {}}).success).toBe(false);
+  });
+
+  it('derives audio duration from integer sampleLength/sampleRate only', () => {
+    const audio = {
+      requestId: 'tts-1', assetId: 'audio-1', sampleRate: 48_000, sampleLength: 72_000,
+      channels: 1, contentHash: HASH, measurementProducer: {name: 'wav-parser', version: '1.0.0'},
+    };
+    expect(MeasuredAudioSchema.safeParse({...audio, durationSeconds: 1.5}).success).toBe(false);
+    expect(measuredAudioDurationSeconds(MeasuredAudioSchema.parse(audio))).toBe(1.5);
+  });
+});

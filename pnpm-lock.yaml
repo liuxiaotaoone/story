@@ -59,6 +59,12 @@ importers:
         specifier: workspace:*
         version: link:../schemas
 
+  packages/compiler:
+    dependencies:
+      '@pose-clip/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+
   packages/paper-pixi:
     dependencies:
       '@pose-clip/paper-engine':

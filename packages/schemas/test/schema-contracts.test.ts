@@ -257,19 +257,22 @@ describe('two-stage compiler contracts', () => {
   const preflight = {
     schemaVersion: '1.0.0',
     effectiveDirectorPlanHash: HASH,
+    narrationSegments: [{
+      id: 'segment-1', narrationIntentId: 'narration-1', shotId: 'shot-1', sequence: 0,
+      text: 'A farmer waited by the tree.', language: 'en',
+    }],
     expandedActions: [],
-    ttsRequirements: [{
+    ttsRequests: [{
       id: 'tts-1',
-      shotId: 'shot-1',
       segmentId: 'segment-1',
       text: '从前有一个农夫。',
       voiceId: 'narrator',
-      requestedRate: 1,
+      speed: 1,
       language: 'zh-CN',
       inputHash: HASH,
     }],
     assetRequirements: [],
-    warnings: [],
+    diagnostics: [],
   };
 
   it('requires measured audio for every TTS requirement before final compile', () => {
@@ -277,11 +280,12 @@ describe('two-stage compiler contracts', () => {
     expect(FinalCompileInputSchema.safeParse({
       preflight,
       measuredAudio: [{
-        requirementId: 'tts-1',
+        requestId: 'tts-1',
         assetId: 'audio-1',
         sampleRate: 48_000,
         sampleLength: 48_000,
-        durationSeconds: 1,
+        channels: 1,
+        contentHash: HASH,
         measurementProducer: {name: 'ffprobe-wrapper', version: '1.0.0'},
       }],
     }).success).toBe(true);
@@ -292,7 +296,7 @@ describe('override and task provenance contracts', () => {
   it('requires values for replace/insert and forbids them for remove', () => {
     const base = {
       id: 'override-1',
-      baseDirectorPlanHash: HASH,
+      sourceDirectorPlanHash: HASH,
       targetPath: '/scenes/0/shots/0/cameraIntent',
       reason: 'Composition review',
       createdBy: 'reviewer',

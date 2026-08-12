@@ -12,7 +12,7 @@ import {
   Transform2DSchema,
   UnitIntervalSchema,
 } from './common.js';
-import {CompileWarningSchema} from './compiler.js';
+import {CompileWarningSchema} from './compile-diagnostics.js';
 import {EntityDefinitionSchema, EntityInstanceSchema} from './entity.js';
 import {
   CameraStateSchema,

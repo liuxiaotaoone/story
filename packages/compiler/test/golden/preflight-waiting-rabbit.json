@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "1.0.0",
+  "narrationSegments": [
+    {
+      "id": "narration-run.segment.1",
+      "narrationIntentId": "narration-run",
+      "shotId": "shot-run",
+      "sequence": 0,
+      "text": "A rabbit ran quickly.",
+      "language": "en-US"
+    },
+    {
+      "id": "narration-run.segment.2",
+      "narrationIntentId": "narration-run",
+      "shotId": "shot-run",
+      "sequence": 1,
+      "text": "It hit the old tree!",
+      "language": "en-US"
+    }
+  ],
+  "ttsRequests": [
+    {
+      "id": "tts.narration-run.segment.1",
+      "segmentId": "narration-run.segment.1",
+      "text": "A rabbit ran quickly.",
+      "voiceId": "narrator",
+      "speed": 1,
+      "language": "en-US"
+    },
+    {
+      "id": "tts.narration-run.segment.2",
+      "segmentId": "narration-run.segment.2",
+      "text": "It hit the old tree!",
+      "voiceId": "narrator",
+      "speed": 1,
+      "language": "en-US"
+    }
+  ],
+  "assetRequirements": [
+    {
+      "id": "asset.environment.scene-field",
+      "kind": "environment-layer",
+      "environmentIntent": "pastoral-field",
+      "required": true
+    },
+    {
+      "id": "asset.action.expanded.action-run",
+      "kind": "animal-frame",
+      "entityType": "rabbit",
+      "action": "run",
+      "direction": "left",
+      "required": true
+    },
+    {
+      "id": "asset.action.expanded.action-dance",
+      "kind": "character-frame",
+      "entityType": "farmer",
+      "action": "notice",
+      "direction": "right",
+      "required": true
+    }
+  ],
+  "expandedActions": [
+    {
+      "id": "expanded.action-run",
+      "sourceActionId": "action-run",
+      "sceneId": "scene-field",
+      "shotId": "shot-run",
+      "actorId": "rabbit",
+      "action": "run",
+      "direction": "left",
+      "priority": "required",
+      "minDurationFrames": 12,
+      "requiredPoseClipIds": ["rabbit.run-left"]
+    },
+    {
+      "id": "expanded.action-dance",
+      "sourceActionId": "action-dance",
+      "sceneId": "scene-field",
+      "shotId": "shot-notice",
+      "actorId": "farmer",
+      "action": "notice",
+      "direction": "right",
+      "priority": "required",
+      "minDurationFrames": 15,
+      "requiredPoseClipIds": ["farmer.notice-right"],
+      "rewrite": {
+        "fromAction": "dance",
+        "ruleReason": "MVP replaces dance with a readable notice pose"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "diagnostic.action-dance.rewrite",
+      "severity": "warning",
+      "code": "ACTION_REWRITTEN",
+      "message": "dance was rewritten to notice: MVP replaces dance with a readable notice pose",
+      "sourceId": "action-dance",
+      "path": "/actions/action-dance",
+      "recoverable": true,
+      "suggestedFallbacks": ["notice"]
+    }
+  ]
+}
