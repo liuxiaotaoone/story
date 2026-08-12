@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "idle",
+  "file": "processed/farmer/idle.png",
+  "anchors": {
+    "foot": {
+      "x": 0.502,
+      "y": 0.9635
+    },
+    "leftFoot": {
+      "x": 0.451,
+      "y": 0.9635
+    },
+    "rightFoot": {
+      "x": 0.5529,
+      "y": 0.9635
+    },
+    "leftHand": {
+      "x": 0.3745,
+      "y": 0.4951
+    },
+    "rightHand": {
+      "x": 0.6294,
+      "y": 0.4951
+    },
+    "center": {
+      "x": 0.502,
+      "y": 0.4951
+    },
+    "head": {
+      "x": 0.502,
+      "y": 0.1672
+    }
+  },
+  "reviewStatus": "auto-estimate"
+}

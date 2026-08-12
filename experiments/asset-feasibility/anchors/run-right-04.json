@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "run-right-04",
+  "file": "processed/rabbit/run-right-04.png",
+  "anchors": {
+    "foot": {
+      "x": 0.4925,
+      "y": 0.8405
+    },
+    "leftFoot": {
+      "x": 0.4221,
+      "y": 0.8405
+    },
+    "rightFoot": {
+      "x": 0.5629,
+      "y": 0.8405
+    },
+    "leftHand": {
+      "x": 0.3165,
+      "y": 0.5102
+    },
+    "rightHand": {
+      "x": 0.6685,
+      "y": 0.5102
+    },
+    "center": {
+      "x": 0.4925,
+      "y": 0.5102
+    },
+    "head": {
+      "x": 0.4925,
+      "y": 0.2791
+    }
+  },
+  "reviewStatus": "auto-estimate"
+}

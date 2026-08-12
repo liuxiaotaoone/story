@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "environmentId": "pastoral-field-001",
+  "referenceResolution": {"width": 1280, "height": 720},
+  "layers": [
+    {"id": "far", "file": "processed/environment/far.png", "parallaxFactor": 0.1, "alphaRequired": false},
+    {"id": "mid", "file": "processed/environment/mid.png", "parallaxFactor": 0.35, "alphaRequired": true},
+    {"id": "ground", "file": "processed/environment/ground.png", "parallaxFactor": 0.7, "alphaRequired": true},
+    {"id": "foreground", "file": "processed/environment/foreground.png", "parallaxFactor": 1.15, "alphaRequired": true}
+  ]
+}

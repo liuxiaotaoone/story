@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>AI Asset Gate Tools</title>
+  </head>
+  <body>
+    <main>
+      <header><span>M0 / ASSET FEASIBILITY</span><h1>Whole-body Pose Package Lab</h1><p>Anchor metadata and continuity review before an AI asset may enter the frozen renderer. <a href="/demo.html">Open 10-second renderer demo →</a></p></header>
+      <section class="toolbar">
+        <label>Manifest <select id="manifest"><option value="farmer">Farmer</option><option value="rabbit">Rabbit</option></select></label>
+        <label>Pose <select id="pose"></select></label>
+        <label>FPS <input id="fps" type="range" min="4" max="12" value="8"/><output id="fps-value">8</output></label>
+        <button id="play">Pause</button>
+      </section>
+      <div class="workspace">
+        <section class="stage-panel">
+          <div id="stage" class="stage"><img id="asset" alt="Pose frame"/><div id="bbox"></div><div id="ground"></div><div id="anchors"></div></div>
+          <p id="frame-label">No processed frame available</p>
+        </section>
+        <aside>
+          <h2>Anchor Editor</h2>
+          <p>Choose an anchor, then click the image. Coordinates are normalized to 0..1.</p>
+          <div id="anchor-buttons"></div>
+          <pre id="anchor-json">{}</pre>
+          <button id="download">Download anchor JSON</button>
+          <h2>Review overlays</h2>
+          <label><input id="show-ground" type="checkbox" checked/> Ground line</label>
+          <label><input id="show-bbox" type="checkbox" checked/> Alpha bounding box</label>
+          <label><input id="show-anchors" type="checkbox" checked/> Anchors</label>
+        </aside>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

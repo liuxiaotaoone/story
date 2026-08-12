@@ -1,6 +1,6 @@
 # M0 Renderer Gate — PixiJS v0.1
 
-状态：技术验证通过。Paper Engine 未增加 Renderer 语义；AI Asset Gate 仍是独立的 M0 投资门槛。
+状态：PASS / Frozen。Paper Engine 未增加 Renderer 语义；AI Asset Gate 仍是独立的 M0 投资门槛。
 
 ## 已验证链路
 
@@ -28,7 +28,13 @@ RenderPlan
 ## 验收结果
 
 - 300 帧，1280×720，30 FPS，输出 10.000 秒 H.264 MP4。
-- 关键帧 3、20、31、50、60、79 覆盖 GroundLock、Crossfade、Socket/Baked Attachment、Camera 与前景排序。
+- Renderer Determinism 关键帧与验证语义：
+  - Frame 3：GroundLock；
+  - Frame 20：Socket Attachment；
+  - Frame 31：Pose Crossfade；
+  - Frame 50：Baked Attachment / Effect；
+  - Frame 70：Camera / Parallax / Foreground；
+  - Frame 90：Baked Detach。
 - 所有关键帧 Preview/Final 对照均为 `differingPixels=0`、`maxChannelDelta=0`。
 - 两个独立 Pixi Application 的“直接渲染目标帧”与“先渲染任意历史再回跳目标帧”在 SwiftShader、Intel Arc 环境均通过精确 RGBA 对照。
 - 已建立 FrameEvaluator、Pixi CPU Submit、Browser PNG Export、Frame Write、FFmpeg 的分段 Benchmark；当前主要成本位于 Browser PNG Export，而不是 Evaluator 或 Pixi 场景提交。Browser PNG Export 包含 GPU 完成等待、Framebuffer Readback、PNG 编码和 Base64 编码，不解释为单纯 Codec 耗时。

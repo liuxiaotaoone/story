@@ -15,6 +15,25 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(vite@8.2.1)
 
+  experiments/asset-feasibility:
+    dependencies:
+      '@pose-clip/paper-engine':
+        specifier: workspace:*
+        version: link:../../packages/paper-engine
+      '@pose-clip/paper-pixi':
+        specifier: workspace:*
+        version: link:../../packages/paper-pixi
+      '@pose-clip/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
+      playwright-core:
+        specifier: 1.62.1
+        version: 1.62.1
+    devDependencies:
+      vite:
+        specifier: 8.2.1
+        version: 8.2.1
+
   experiments/renderer-feasibility:
     dependencies:
       '@pose-clip/paper-engine':

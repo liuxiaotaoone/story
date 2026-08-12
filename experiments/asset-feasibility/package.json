@@ -1,0 +1,23 @@
+{
+  "name": "@pose-clip/asset-feasibility",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
+    "test": "python test/test_asset_qa.py",
+    "qa": "python scripts/run_asset_qa.py --workspace .",
+    "demo": "node scripts/run-demo.mjs"
+  },
+  "dependencies": {
+    "@pose-clip/paper-engine": "workspace:*",
+    "@pose-clip/paper-pixi": "workspace:*",
+    "@pose-clip/schemas": "workspace:*",
+    "playwright-core": "1.62.1"
+  },
+  "devDependencies": {
+    "vite": "8.2.1"
+  }
+}

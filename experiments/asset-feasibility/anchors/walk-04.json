@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "walk-04",
+  "file": "processed/farmer/walk-04.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5122,
+      "y": 0.9447
+    },
+    "leftFoot": {
+      "x": 0.4578,
+      "y": 0.9447
+    },
+    "rightFoot": {
+      "x": 0.5666,
+      "y": 0.9447
+    },
+    "leftHand": {
+      "x": 0.3762,
+      "y": 0.4915
+    },
+    "rightHand": {
+      "x": 0.6482,
+      "y": 0.4915
+    },
+    "center": {
+      "x": 0.5122,
+      "y": 0.4915
+    },
+    "head": {
+      "x": 0.5122,
+      "y": 0.1743
+    }
+  },
+  "reviewStatus": "auto-estimate"
+}

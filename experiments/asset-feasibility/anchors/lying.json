@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "lying",
+  "file": "processed/rabbit/lying.png",
+  "anchors": {
+    "foot": {
+      "x": 0.4779,
+      "y": 0.7906
+    },
+    "leftFoot": {
+      "x": 0.3963,
+      "y": 0.7906
+    },
+    "rightFoot": {
+      "x": 0.5595,
+      "y": 0.7906
+    },
+    "leftHand": {
+      "x": 0.2739,
+      "y": 0.529
+    },
+    "rightHand": {
+      "x": 0.6819,
+      "y": 0.529
+    },
+    "center": {
+      "x": 0.4779,
+      "y": 0.529
+    },
+    "head": {
+      "x": 0.4779,
+      "y": 0.3459
+    }
+  },
+  "reviewStatus": "auto-estimate"
+}

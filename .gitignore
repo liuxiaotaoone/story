@@ -4,6 +4,12 @@ dist/
 coverage/
 .vite/
 experiments/**/output/
+experiments/asset-feasibility/generated/
+experiments/asset-feasibility/processed/
+experiments/asset-feasibility/reports/
+experiments/asset-feasibility/output/
+**/__pycache__/
+*.pyc
 *.log
 .DS_Store
 Thumbs.db

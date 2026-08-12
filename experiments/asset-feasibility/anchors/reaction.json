@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "reaction",
+  "file": "processed/farmer/reaction.png",
+  "anchors": {
+    "foot": {
+      "x": 0.521,
+      "y": 0.9707
+    },
+    "leftFoot": {
+      "x": 0.4617,
+      "y": 0.9707
+    },
+    "rightFoot": {
+      "x": 0.5803,
+      "y": 0.9707
+    },
+    "leftHand": {
+      "x": 0.3728,
+      "y": 0.5007
+    },
+    "rightHand": {
+      "x": 0.6692,
+      "y": 0.5007
+    },
+    "center": {
+      "x": 0.521,
+      "y": 0.5007
+    },
+    "head": {
+      "x": 0.521,
+      "y": 0.1716
+    }
+  },
+  "reviewStatus": "auto-estimate"
+}

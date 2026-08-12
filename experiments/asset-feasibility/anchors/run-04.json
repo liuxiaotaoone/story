@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "run-04",
+  "file": "processed/farmer/run-04.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5073,
+      "y": 0.9173
+    },
+    "leftFoot": {
+      "x": 0.4357,
+      "y": 0.9173
+    },
+    "rightFoot": {
+      "x": 0.5789,
+      "y": 0.9173
+    },
+    "leftHand": {
+      "x": 0.3284,
+      "y": 0.4814
+    },
+    "rightHand": {
+      "x": 0.6863,
+      "y": 0.4814
+    },
+    "center": {
+      "x": 0.5073,
+      "y": 0.4814
+    },
+    "head": {
+      "x": 0.5073,
+      "y": 0.1763
+    }
+  },
+  "reviewStatus": "auto-estimate"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "hold-rabbit",
+  "file": "processed/farmer/hold-rabbit.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5083,
+      "y": 0.9629
+    },
+    "leftFoot": {
+      "x": 0.4607,
+      "y": 0.9629
+    },
+    "rightFoot": {
+      "x": 0.5559,
+      "y": 0.9629
+    },
+    "leftHand": {
+      "x": 0.3894,
+      "y": 0.4958
+    },
+    "rightHand": {
+      "x": 0.6272,
+      "y": 0.4958
+    },
+    "center": {
+      "x": 0.5083,
+      "y": 0.4958
+    },
+    "head": {
+      "x": 0.5083,
+      "y": 0.1688
+    }
+  },
+  "reviewStatus": "auto-estimate"
+}
