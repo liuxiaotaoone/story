@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {ContentHashSchema, IdSchema} from './common.js';
+import {canonicalHash} from './hash.js';
 
 export const NarrationSegmentSchema = z.object({
   id: IdSchema,
@@ -22,6 +23,17 @@ export const TtsRequestSchema = z.object({
 
 // Compatibility name for the earlier two-stage compiler contract.
 export const TtsRequirementSchema = TtsRequestSchema;
+
+export type TtsRequestInput = Pick<z.infer<typeof TtsRequestSchema>, 'text' | 'voiceId' | 'speed' | 'language'>;
+
+export async function hashTtsRequestInput(request: TtsRequestInput): Promise<string> {
+  return canonicalHash('tts-request-input-v1', {
+    text: request.text,
+    voiceId: request.voiceId,
+    speed: request.speed,
+    language: request.language,
+  });
+}
 
 export type NarrationSegment = z.infer<typeof NarrationSegmentSchema>;
 export type TtsRequest = z.infer<typeof TtsRequestSchema>;

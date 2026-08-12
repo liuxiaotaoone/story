@@ -15,6 +15,12 @@ export const TtsArtifactSchema = z.object({
   if (artifact.asset.contentHash !== artifact.measuredAudio.contentHash) {
     context.addIssue({code: 'custom', message: 'TTS artifact content hashes do not match', path: ['measuredAudio', 'contentHash']});
   }
+  if (artifact.asset.source !== 'generated') {
+    context.addIssue({code: 'custom', message: 'TTS artifact asset must be generated', path: ['asset', 'source']});
+  }
+  if (artifact.asset.provenance?.inputHash !== artifact.measuredAudio.sourceTtsRequestHash) {
+    context.addIssue({code: 'custom', message: 'TTS artifact provenance does not match its TTS request', path: ['asset', 'provenance', 'inputHash']});
+  }
 });
 
 export type TtsArtifact = z.infer<typeof TtsArtifactSchema>;

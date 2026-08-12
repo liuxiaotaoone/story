@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
-import {canonicalHash, measuredAudioDurationSeconds} from '@pose-clip/schemas';
-import {fakeTtsSampleFrameCount, generateFakeTts, measureWav, writePcm16Wav} from '../src/index.js';
+import {TtsArtifactSchema, canonicalHash, measuredAudioDurationSeconds} from '@pose-clip/schemas';
+import {TtsIntegrityError, fakeTtsSampleFrameCount, generateFakeTts, measureWav, writePcm16Wav} from '../src/index.js';
 
 async function request(overrides: Partial<{
   id: string;
@@ -36,6 +36,26 @@ describe('deterministic Fake TTS', () => {
     const second = await generateFakeTts(await request({text: 'A farmer waited.'}), 'b.wav');
     expect(first.artifact.measuredAudio.sourceTtsRequestHash).not.toBe(second.artifact.measuredAudio.sourceTtsRequestHash);
     expect(first.artifact.asset.contentHash).not.toBe(second.artifact.asset.contentHash);
+  });
+
+  it('rejects modified request content before generating audio', async () => {
+    const input = await request();
+    await expect(generateFakeTts({...input, text: 'Tampered text with the old hash.'}, 'bad.wav')).rejects.toBeInstanceOf(TtsIntegrityError);
+  });
+
+  it('requires generated provenance to bind the same TTS request', async () => {
+    const generated = await generateFakeTts(await request(), 'audio.wav');
+    expect(TtsArtifactSchema.safeParse({
+      ...generated.artifact,
+      asset: {...generated.artifact.asset, source: 'manual'},
+    }).success).toBe(false);
+    expect(TtsArtifactSchema.safeParse({
+      ...generated.artifact,
+      asset: {
+        ...generated.artifact.asset,
+        provenance: {...generated.artifact.asset.provenance!, inputHash: '0'.repeat(64)},
+      },
+    }).success).toBe(false);
   });
 
   it('makes speed 0.8 longer than speed 1.2', async () => {

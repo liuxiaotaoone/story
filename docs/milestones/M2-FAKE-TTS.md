@@ -25,6 +25,8 @@ NarrationIntent
 
 Fake TTS 根据语言、文本单位数和 `speed` 计算确定性帧数，并使用 TTS Request Hash 派生固定音调；实现不使用随机数。同一个 TTS Request 必须产生完全一致的 WAV bytes、WAV SHA-256、AssetRecord 与 MeasuredAudio。
 
+Preflight、Audio Worker 与 Final Integrity 统一调用 `hashTtsRequestInput()`；Audio Worker 会在写 WAV 前拒绝内容与 `inputHash` 不一致的请求。
+
 WAV Measurer 不信任生成器的帧数，而是独立解析 RIFF `fmt ` 与 `data` chunk，通过 `dataByteLength / blockAlign` 得出 `sampleFrameCount`。
 
 ## 完整性约束

@@ -2,7 +2,7 @@ import {
   CapabilityCatalogSchema,
   EffectiveDirectorPlanSchema,
   PreflightCompileResultSchema,
-  canonicalHash,
+  hashTtsRequestInput,
   type CapabilityCatalog,
   type EffectiveDirectorPlan,
   type PreflightCompileResult,
@@ -32,7 +32,7 @@ export async function compilePreflight(input: {
     ttsRequests.push({
       id: `tts.${segment.id}`, segmentId: segment.id, text: segment.text, voiceId: intent.voiceId,
       speed: intent.speed, language: segment.language,
-      inputHash: await canonicalHash('tts-request-input-v1', {
+      inputHash: await hashTtsRequestInput({
         text: segment.text, voiceId: intent.voiceId, speed: intent.speed, language: segment.language,
       }),
     });

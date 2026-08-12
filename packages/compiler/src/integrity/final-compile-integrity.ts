@@ -1,6 +1,6 @@
 import {
   FinalCompileInputSchema,
-  canonicalHash,
+  hashTtsRequestInput,
   type FinalCompileInput,
 } from '@pose-clip/schemas';
 import {assertEffectiveDirectorPlanIntegrity, CompileIntegrityError, hashCapabilityCatalog} from './hash-integrity.js';
@@ -18,7 +18,7 @@ export async function assertFinalCompileInputIntegrity(input: FinalCompileInput)
   }
   const recomputedTtsRequests = await Promise.all(parsed.preflight.ttsRequests.map(async request => ({
     id: request.id,
-    inputHash: await canonicalHash('tts-request-input-v1', {
+    inputHash: await hashTtsRequestInput({
       text: request.text,
       voiceId: request.voiceId,
       speed: request.speed,

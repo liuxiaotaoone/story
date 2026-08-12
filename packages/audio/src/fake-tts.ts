@@ -1,6 +1,7 @@
 import {
   TtsArtifactSchema,
   TtsRequestSchema,
+  hashTtsRequestInput,
   sha256Bytes,
   type TtsArtifact,
   type TtsRequest,
@@ -11,6 +12,13 @@ import {writePcm16Wav} from './wav-writer.js';
 export const FAKE_TTS_SAMPLE_RATE = 48_000;
 const MIN_DURATION_SECONDS = 0.5;
 const MAX_DURATION_SECONDS = 12;
+
+export class TtsIntegrityError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TtsIntegrityError';
+  }
+}
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value));
@@ -32,6 +40,9 @@ function frequencyFromHash(inputHash: string): number {
 
 export async function generateFakeTts(requestInput: TtsRequest, uri: string): Promise<{wavBytes: Uint8Array; artifact: TtsArtifact}> {
   const request = TtsRequestSchema.parse(requestInput);
+  if (await hashTtsRequestInput(request) !== request.inputHash) {
+    throw new TtsIntegrityError(`TTS request ${request.id} content does not match inputHash`);
+  }
   const sampleFrameCount = fakeTtsSampleFrameCount(request);
   const samples = new Int16Array(sampleFrameCount);
   const frequency = frequencyFromHash(request.inputHash);
