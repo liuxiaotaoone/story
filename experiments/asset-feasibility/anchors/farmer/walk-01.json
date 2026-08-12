@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "walk-01",
+  "file": "normalized/farmer/walk-01.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5,
+      "y": 0.96
+    },
+    "leftFoot": {
+      "x": 0.4376,
+      "y": 0.96
+    },
+    "rightFoot": {
+      "x": 0.5623,
+      "y": 0.96
+    },
+    "leftHand": {
+      "x": 0.3439,
+      "y": 0.4952
+    },
+    "rightHand": {
+      "x": 0.656,
+      "y": 0.4952
+    },
+    "center": {
+      "x": 0.5,
+      "y": 0.4952
+    },
+    "head": {
+      "x": 0.5,
+      "y": 0.17
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.5186,
+      "y": 0.9212
+    },
+    "leftFoot": {
+      "x": 0.459,
+      "y": 0.9212
+    },
+    "rightFoot": {
+      "x": 0.5781,
+      "y": 0.9212
+    },
+    "leftHand": {
+      "x": 0.3696,
+      "y": 0.4775
+    },
+    "rightHand": {
+      "x": 0.6675,
+      "y": 0.4775
+    },
+    "center": {
+      "x": 0.5186,
+      "y": 0.4775
+    },
+    "head": {
+      "x": 0.5186,
+      "y": 0.167
+    }
+  },
+  "normalization": {
+    "policy": "standing",
+    "scale": 1.047468,
+    "translate": {
+      "x": -0.043217,
+      "y": -0.004927
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}

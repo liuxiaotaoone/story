@@ -9,7 +9,9 @@
     "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
     "test": "python test/test_asset_qa.py",
     "qa": "python scripts/run_asset_qa.py --workspace .",
+    "package": "python scripts/run_asset_qa.py --workspace . && python scripts/build_asset_package.py --workspace .",
     "demo": "node scripts/run-demo.mjs"
+    ,"verify:editor": "node scripts/verify-anchor-editor.mjs"
   },
   "dependencies": {
     "@pose-clip/paper-engine": "workspace:*",

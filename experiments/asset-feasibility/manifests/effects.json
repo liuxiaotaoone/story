@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetPackageId": "m1-effects",
+  "assets": [
+    {"id": "impact", "kind": "effect", "file": "processed/effects/impact.png", "alphaRequired": true},
+    {"id": "soft-shadow", "kind": "prop", "file": "processed/shadow.png", "alphaRequired": true}
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "characterId": "rabbit-001",
+  "reviewedAt": "2026-08-12T00:00:00.000Z",
+  "identity": {"status": "passed", "notes": "Cream fur, pink ears, round proportions and ink treatment remain consistent; left/right run clips are deterministic mirrors."},
+  "clips": {
+    "rabbit.idle-left": {"identity": "passed", "continuity": "passed", "scaleConsistency": "passed", "anchors": "needs-review"},
+    "rabbit.idle-right": {"identity": "passed", "continuity": "passed", "scaleConsistency": "passed", "anchors": "needs-review"},
+    "rabbit.run-left": {"identity": "passed", "continuity": "warning", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"},
+    "rabbit.run-right": {"identity": "passed", "continuity": "warning", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"},
+    "rabbit.collision": {"identity": "passed", "continuity": "passed", "scaleConsistency": "passed-after-normalization", "anchors": "needs-review"},
+    "rabbit.lying": {"identity": "passed", "continuity": "passed", "scaleConsistency": "policy-exempt-lying", "anchors": "needs-review"}
+  },
+  "productionStatus": "warning"
+}

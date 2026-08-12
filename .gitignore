@@ -6,7 +6,9 @@ coverage/
 experiments/**/output/
 experiments/asset-feasibility/generated/
 experiments/asset-feasibility/processed/
+experiments/asset-feasibility/normalized/
 experiments/asset-feasibility/reports/
+!experiments/asset-feasibility/reports/README.md
 experiments/asset-feasibility/output/
 **/__pycache__/
 *.pyc

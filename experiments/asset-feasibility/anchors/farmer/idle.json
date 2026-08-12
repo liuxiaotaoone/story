@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "idle",
+  "file": "normalized/farmer/idle.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5,
+      "y": 0.96
+    },
+    "leftFoot": {
+      "x": 0.4494,
+      "y": 0.96
+    },
+    "rightFoot": {
+      "x": 0.5505,
+      "y": 0.96
+    },
+    "leftHand": {
+      "x": 0.3735,
+      "y": 0.4953
+    },
+    "rightHand": {
+      "x": 0.6264,
+      "y": 0.4953
+    },
+    "center": {
+      "x": 0.5,
+      "y": 0.4953
+    },
+    "head": {
+      "x": 0.5,
+      "y": 0.17
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.502,
+      "y": 0.9635
+    },
+    "leftFoot": {
+      "x": 0.451,
+      "y": 0.9635
+    },
+    "rightFoot": {
+      "x": 0.5529,
+      "y": 0.9635
+    },
+    "leftHand": {
+      "x": 0.3745,
+      "y": 0.4951
+    },
+    "rightHand": {
+      "x": 0.6294,
+      "y": 0.4951
+    },
+    "center": {
+      "x": 0.502,
+      "y": 0.4951
+    },
+    "head": {
+      "x": 0.502,
+      "y": 0.1672
+    }
+  },
+  "normalization": {
+    "policy": "standing",
+    "scale": 0.992088,
+    "translate": {
+      "x": 0.001972,
+      "y": 0.004123
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}

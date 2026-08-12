@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "reaction",
+  "file": "normalized/farmer/reaction.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5,
+      "y": 0.96
+    },
+    "leftFoot": {
+      "x": 0.4414,
+      "y": 0.96
+    },
+    "rightFoot": {
+      "x": 0.5586,
+      "y": 0.96
+    },
+    "leftHand": {
+      "x": 0.3535,
+      "y": 0.4954
+    },
+    "rightHand": {
+      "x": 0.6465,
+      "y": 0.4954
+    },
+    "center": {
+      "x": 0.5,
+      "y": 0.4954
+    },
+    "head": {
+      "x": 0.5,
+      "y": 0.17
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.521,
+      "y": 0.9707
+    },
+    "leftFoot": {
+      "x": 0.4617,
+      "y": 0.9707
+    },
+    "rightFoot": {
+      "x": 0.5803,
+      "y": 0.9707
+    },
+    "leftHand": {
+      "x": 0.3728,
+      "y": 0.5007
+    },
+    "rightHand": {
+      "x": 0.6692,
+      "y": 0.5007
+    },
+    "center": {
+      "x": 0.521,
+      "y": 0.5007
+    },
+    "head": {
+      "x": 0.521,
+      "y": 0.1716
+    }
+  },
+  "normalization": {
+    "policy": "standing",
+    "scale": 0.988612,
+    "translate": {
+      "x": -0.015067,
+      "y": 0.000354
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}

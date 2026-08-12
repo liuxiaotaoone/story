@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "bend",
+  "file": "normalized/farmer/bend.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5088,
+      "y": 0.9219
+    },
+    "leftFoot": {
+      "x": 0.4369,
+      "y": 0.9219
+    },
+    "rightFoot": {
+      "x": 0.5807,
+      "y": 0.9219
+    },
+    "leftHand": {
+      "x": 0.3291,
+      "y": 0.5091
+    },
+    "rightHand": {
+      "x": 0.6885,
+      "y": 0.5091
+    },
+    "center": {
+      "x": 0.5088,
+      "y": 0.5091
+    },
+    "head": {
+      "x": 0.5088,
+      "y": 0.2202
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.5088,
+      "y": 0.9219
+    },
+    "leftFoot": {
+      "x": 0.4369,
+      "y": 0.9219
+    },
+    "rightFoot": {
+      "x": 0.5807,
+      "y": 0.9219
+    },
+    "leftHand": {
+      "x": 0.3291,
+      "y": 0.5091
+    },
+    "rightHand": {
+      "x": 0.6885,
+      "y": 0.5091
+    },
+    "center": {
+      "x": 0.5088,
+      "y": 0.5091
+    },
+    "head": {
+      "x": 0.5088,
+      "y": 0.2202
+    }
+  },
+  "normalization": {
+    "policy": "crouched",
+    "scale": 1.0,
+    "translate": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}

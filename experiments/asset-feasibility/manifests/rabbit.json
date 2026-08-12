@@ -2,13 +2,13 @@
   "schemaVersion": "1.0.0",
   "characterId": "rabbit-001",
   "entityType": "rabbit",
-  "referenceAsset": "processed/rabbit/rabbit-reference.png",
+  "referenceAsset": "normalized/rabbit/rabbit-reference.png",
   "poses": [
-    {"id": "rabbit.idle-left", "kind": "static", "fps": 1, "loop": true, "frames": ["processed/rabbit/idle-left.png"]},
-    {"id": "rabbit.idle-right", "kind": "static", "fps": 1, "loop": true, "frames": ["processed/rabbit/idle-right.png"]},
-    {"id": "rabbit.run-left", "kind": "clip", "fps": 10, "loop": true, "frames": ["processed/rabbit/run-left-01.png", "processed/rabbit/run-left-02.png", "processed/rabbit/run-left-03.png", "processed/rabbit/run-left-04.png"]},
-    {"id": "rabbit.run-right", "kind": "clip", "fps": 10, "loop": true, "frames": ["processed/rabbit/run-right-01.png", "processed/rabbit/run-right-02.png", "processed/rabbit/run-right-03.png", "processed/rabbit/run-right-04.png"]},
-    {"id": "rabbit.collision", "kind": "static", "fps": 1, "loop": false, "frames": ["processed/rabbit/collision.png"]},
-    {"id": "rabbit.lying", "kind": "static", "fps": 1, "loop": true, "frames": ["processed/rabbit/lying.png"]}
+    {"id": "rabbit.idle-left", "kind": "static", "fps": 1, "loop": true, "normalizationPolicy": "standing", "frames": ["normalized/rabbit/idle-left.png"]},
+    {"id": "rabbit.idle-right", "kind": "static", "fps": 1, "loop": true, "normalizationPolicy": "standing", "frames": ["normalized/rabbit/idle-right.png"]},
+    {"id": "rabbit.run-left", "kind": "clip", "fps": 10, "loop": true, "normalizationPolicy": "locomotion", "frames": ["normalized/rabbit/run-left-01.png", "normalized/rabbit/run-left-02.png", "normalized/rabbit/run-left-03.png", "normalized/rabbit/run-left-04.png"]},
+    {"id": "rabbit.run-right", "kind": "clip", "fps": 10, "loop": true, "normalizationPolicy": "locomotion", "frames": ["normalized/rabbit/run-right-01.png", "normalized/rabbit/run-right-02.png", "normalized/rabbit/run-right-03.png", "normalized/rabbit/run-right-04.png"]},
+    {"id": "rabbit.collision", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "locomotion", "frames": ["normalized/rabbit/collision.png"]},
+    {"id": "rabbit.lying", "kind": "static", "fps": 1, "loop": true, "normalizationPolicy": "lying", "frames": ["normalized/rabbit/lying.png"]}
   ]
 }

@@ -9,7 +9,7 @@ from PIL import Image
 
 def bootstrap(workspace: Path, character: str) -> None:
     processed = workspace / "processed" / character
-    anchors_dir = workspace / "anchors"
+    anchors_dir = workspace / "anchors" / character
     anchors_dir.mkdir(parents=True, exist_ok=True)
     for path in sorted(processed.glob("*.png")):
         target = anchors_dir / f"{path.stem}.json"

@@ -22,7 +22,15 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def find_anchor_file(workspace: Path, asset_path: str) -> Path:
-    return workspace / "anchors" / f"{Path(asset_path).stem}.json"
+    relative = Path(asset_path)
+    asset_relative = relative
+    for root in ("processed", "normalized"):
+        try:
+            asset_relative = relative.relative_to(root)
+            break
+        except ValueError:
+            continue
+    return workspace / "anchors" / asset_relative.with_suffix(".json")
 
 
 def inspect_image(
@@ -132,6 +140,16 @@ def manifest_assets(manifest: dict[str, Any]) -> list[tuple[str, str, bool, bool
             )
             for layer in manifest["layers"]
         )
+    if "assets" in manifest:
+        assets.extend(
+            (
+                f"{manifest['assetPackageId']}.{asset['id']}",
+                asset["file"],
+                False,
+                bool(asset.get("alphaRequired", True)),
+            )
+            for asset in manifest["assets"]
+        )
     return assets
 
 
@@ -140,6 +158,8 @@ def run(workspace: Path) -> dict[str, Any]:
     package_findings: list[Finding] = []
     manifests = sorted((workspace / "manifests").glob("*.json"))
     for manifest_path in manifests:
+        if manifest_path.name == "compiled-asset-package.json":
+            continue
         try:
             manifest = load_json(manifest_path)
             if manifest.get("schemaVersion") != "1.0.0":

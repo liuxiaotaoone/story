@@ -1,6 +1,6 @@
 # M0 AI Asset Gate Report
 
-Status: **PASS / Asset pipeline feasible**  
+Status: **Feasibility PASS / not Production-ready**
 Date: 2026-08-12  
 Scope: Asset Feasibility v0.1; no Gemini Director and no full ComfyUI platform.
 
@@ -14,7 +14,8 @@ Scope: Asset Feasibility v0.1; no Gemini Director and no full ComfyUI platform.
 | Four-layer environment | PASS | Opaque Far plus alpha Mid/Ground/Foreground, all 1280×720 with frozen parallax factors. |
 | Matting / alpha | PASS | Chroma-key pipeline produces RGBA cutouts; QA inspects alpha ratios and bounds. |
 | Anchor metadata | PASS with production review required | All character assets contain normalized Foot/LeftFoot/RightFoot/LeftHand/RightHand/Center/Head estimates and load in the editor. |
-| Automated QA | PASS | 31/31 assets passed, 0 warnings, 0 failures. Checks include files, decoding, SHA-256, dimensions, alpha, bbox, crop risk, anchor range and package canvas consistency. |
+| Automated Structural QA | PASS | 33/33 files passed, 0 structural warnings, 0 failures. This proves files, decoding, SHA-256, dimensions, alpha, bbox, crop risk, anchor range and canvas consistency—not identity or animation quality. |
+| Human Visual Review | WARNING | Identity passes; Walk/Run continuity and final anchor approval remain review items. |
 | Frozen renderer integration | PASS | New experiment RenderPlan uses existing `prepareRenderPlan`, `evaluateFrame` and `PaperPixiRenderer`; no paper-engine or paper-pixi source modification. |
 | 10-second AI demo | PASS | 300 canonical 1280×720 frames at 30 FPS encoded to H.264 MP4. Contains AI Farmer, Rabbit, four AI environment layers, GroundLock, 3-frame Pose Crossfades, camera pan, parallax, foreground occlusion and shadow. |
 
@@ -27,4 +28,4 @@ Scope: Asset Feasibility v0.1; no Gemini Director and no full ComfyUI platform.
 
 ## Decision
 
-M0 AI Asset Gate passes. The next investment may proceed to a polished M1 10-second demo and later asset-worker automation. Do not promote experiment manifests into the formal RenderPlan Schema until the normalization and human-review workflow has one more production example.
+M0 AI Asset Gate closes as a Feasibility PASS. It must not be described as Production-ready. The compiled package deliberately reports `productionReady=false`. Do not promote experiment manifests into the formal RenderPlan Schema until normalization and Human Review have one more production example.

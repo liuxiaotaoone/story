@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "collision",
+  "file": "normalized/rabbit/collision.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5,
+      "y": 0.8405
+    },
+    "leftFoot": {
+      "x": 0.4144,
+      "y": 0.8405
+    },
+    "rightFoot": {
+      "x": 0.5856,
+      "y": 0.8405
+    },
+    "leftHand": {
+      "x": 0.286,
+      "y": 0.5206
+    },
+    "rightHand": {
+      "x": 0.714,
+      "y": 0.5206
+    },
+    "center": {
+      "x": 0.5,
+      "y": 0.5206
+    },
+    "head": {
+      "x": 0.5,
+      "y": 0.2966
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.5,
+      "y": 0.8431
+    },
+    "leftFoot": {
+      "x": 0.412,
+      "y": 0.8431
+    },
+    "rightFoot": {
+      "x": 0.588,
+      "y": 0.8431
+    },
+    "leftHand": {
+      "x": 0.28,
+      "y": 0.5143
+    },
+    "rightHand": {
+      "x": 0.72,
+      "y": 0.5143
+    },
+    "center": {
+      "x": 0.5,
+      "y": 0.5143
+    },
+    "head": {
+      "x": 0.5,
+      "y": 0.284
+    }
+  },
+  "normalization": {
+    "policy": "locomotion",
+    "scale": 0.972813,
+    "translate": {
+      "x": 0.013593,
+      "y": 0.020321
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}

@@ -50,5 +50,5 @@ try {
   await browser.close();
   await server.close();
 }
-await run(process.env.POSE_CLIP_FFMPEG ?? 'ffmpeg', ['-y', '-hide_banner', '-loglevel', 'warning', '-framerate', '30', '-i', join(frames, 'frame-%03d.png'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', join(output, 'asset-gate-10s.mp4')]);
+await run(process.env.POSE_CLIP_FFMPEG ?? 'ffmpeg', ['-y', '-hide_banner', '-loglevel', 'warning', '-framerate', '30', '-i', join(frames, 'frame-%03d.png'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', join(output, 'm1-high-quality-demo-10s.mp4')]);
 process.stdout.write(`Asset Gate demo: ${output}\n`);

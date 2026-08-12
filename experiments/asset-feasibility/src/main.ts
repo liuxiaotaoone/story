@@ -9,6 +9,8 @@ const manifests: Record<string, Manifest> = {farmer: farmerManifest, rabbit: rab
 const anchorNames = ['foot','leftFoot','rightFoot','leftHand','rightHand','center','head'];
 let selectedAnchor = 'foot';
 let anchors: Record<string, Point> = {};
+let reviewStatus = 'pending';
+let frameLoadToken = 0;
 let frameIndex = 0;
 let playing = true;
 let timer = 0;
@@ -31,7 +33,33 @@ function renderAnchors(): void {
     marker.style.left = `${point.x * 100}%`; marker.style.top = `${point.y * 100}%`;
     return marker;
   }));
-  anchorJson.textContent = JSON.stringify({assetId: image.dataset.assetId, anchors}, null, 2);
+  anchorJson.textContent = JSON.stringify({
+    schemaVersion: '1.0.0',
+    assetId: image.dataset.assetId,
+    file: image.dataset.assetFile,
+    anchors,
+    reviewStatus,
+  }, null, 2);
+}
+
+function anchorMetadataPath(frame: string): string {
+  return `/${frame.replace(/^(processed|normalized)\//, 'anchors/').replace(/\.png$/i, '.json')}`;
+}
+
+async function loadAnchorMetadata(frame: string, token: number): Promise<void> {
+  try {
+    const response = await fetch(anchorMetadataPath(frame), {cache: 'no-store'});
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const metadata = await response.json() as {anchors?: Record<string, Point>; reviewStatus?: string};
+    if (token !== frameLoadToken) return;
+    anchors = metadata.anchors ?? {};
+    reviewStatus = metadata.reviewStatus ?? 'pending';
+  } catch {
+    if (token !== frameLoadToken) return;
+    anchors = {};
+    reviewStatus = 'pending';
+  }
+  renderAnchors();
 }
 
 function setFrame(): void {
@@ -40,9 +68,13 @@ function setFrame(): void {
   const frame = pose.frames[frameIndex]!;
   image.src = `/${frame}`;
   image.dataset.assetId = frame.split('/').at(-1)!.replace(/\.png$/,'');
+  image.dataset.assetFile = frame;
   select('#frame-label').textContent = `${pose.id} · ${frameIndex + 1}/${pose.frames.length} · ${frame}`;
+  const token = ++frameLoadToken;
   anchors = {};
+  reviewStatus = 'loading';
   renderAnchors();
+  void loadAnchorMetadata(frame, token);
 }
 
 image.addEventListener('load', () => {
@@ -83,6 +115,7 @@ for (const name of anchorNames) {
 stage.addEventListener('click', event => {
   const bounds = stage.getBoundingClientRect();
   anchors[selectedAnchor] = {x: Number(((event.clientX-bounds.left)/bounds.width).toFixed(4)), y: Number(((event.clientY-bounds.top)/bounds.height).toFixed(4))};
+  reviewStatus = 'edited';
   renderAnchors();
 });
 manifestSelect.addEventListener('change', populatePoses);
@@ -93,4 +126,10 @@ select('#show-ground').addEventListener('change', event => {select<HTMLDivElemen
 select('#show-bbox').addEventListener('change', event => {select<HTMLDivElement>('#bbox').hidden=!(event.target as HTMLInputElement).checked;});
 select('#show-anchors').addEventListener('change', event => {anchorLayer.hidden=!(event.target as HTMLInputElement).checked;});
 select('#download').addEventListener('click', () => {const link=document.createElement('a');link.download=`${image.dataset.assetId}.json`;link.href=URL.createObjectURL(new Blob([anchorJson.textContent??'{}'],{type:'application/json'}));link.click();URL.revokeObjectURL(link.href);});
+select('#approve').addEventListener('click', async () => {
+  reviewStatus='approved';
+  renderAnchors();
+  const response = await fetch('/api/anchors', {method:'POST',headers:{'content-type':'application/json'},body:anchorJson.textContent??'{}'});
+  if(!response.ok){reviewStatus='save-failed';renderAnchors();throw new Error(await response.text());}
+});
 populatePoses();

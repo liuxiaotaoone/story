@@ -1,0 +1,2499 @@
+{
+  "schemaVersion": "1.0.0",
+  "automatedStructuralQa": "PASS",
+  "humanVisualReview": "WARNING",
+  "productionReady": false,
+  "assets": [
+    {
+      "id": "farmer.idle.01",
+      "kind": "character-frame",
+      "file": "normalized/farmer/idle.png",
+      "contentHash": "d9475d1be6f9037c4aceaf74bdcedcc3925d26bd031f1e35a7828c0c50562d47",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "passed",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4494,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5505,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3735,
+          "y": 0.4953
+        },
+        "rightHand": {
+          "x": 0.6264,
+          "y": 0.4953
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4953
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 0.992088,
+        "translate": {
+          "x": 0.001972,
+          "y": 0.004123
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.walk.01",
+      "kind": "character-frame",
+      "file": "normalized/farmer/walk-01.png",
+      "contentHash": "e83498b4f5619a5888c163c7c4d943651fb8b36a0486b6e991e1b31963f75a65",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4376,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5623,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3439,
+          "y": 0.4952
+        },
+        "rightHand": {
+          "x": 0.656,
+          "y": 0.4952
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4952
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.047468,
+        "translate": {
+          "x": -0.043217,
+          "y": -0.004927
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.walk.02",
+      "kind": "character-frame",
+      "file": "normalized/farmer/walk-02.png",
+      "contentHash": "aee0cab94c75136f71cd43c5a76de023559d475accc86c4e536ab58036491127",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4443,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5557,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3608,
+          "y": 0.4953
+        },
+        "rightHand": {
+          "x": 0.6392,
+          "y": 0.4953
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4953
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.018172,
+        "translate": {
+          "x": -0.022017,
+          "y": -0.008486
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.walk.03",
+      "kind": "character-frame",
+      "file": "normalized/farmer/walk-03.png",
+      "contentHash": "80e30b414d48fe0245322f346c10d537030e752349b90f0928290bf26f7f9a17",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4378,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5621,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3447,
+          "y": 0.4953
+        },
+        "rightHand": {
+          "x": 0.6553,
+          "y": 0.4953
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4953
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.017517,
+        "translate": {
+          "x": -0.031144,
+          "y": 7.5e-05
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.walk.04",
+      "kind": "character-frame",
+      "file": "normalized/farmer/walk-04.png",
+      "contentHash": "7ea0c2589ef8899669b0e3d71c1fd1600e62e6dc804d2fa29cdc524e99e924cb",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4442,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5558,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3605,
+          "y": 0.4953
+        },
+        "rightHand": {
+          "x": 0.6395,
+          "y": 0.4953
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4953
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.025441,
+        "translate": {
+          "x": -0.025231,
+          "y": -0.008734
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.run.01",
+      "kind": "character-frame",
+      "file": "normalized/farmer/run-01.png",
+      "contentHash": "5aaf5ba41a7fc72a4595275bdae0aca1e2538b98b556565a253e854febc6b393",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4324,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5677,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3308,
+          "y": 0.4953
+        },
+        "rightHand": {
+          "x": 0.6692,
+          "y": 0.4953
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4953
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.0614,
+        "translate": {
+          "x": -0.020829,
+          "y": -0.026041
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.run.02",
+      "kind": "character-frame",
+      "file": "normalized/farmer/run-02.png",
+      "contentHash": "f1452b82adda70705912203c2e22b66d9be9d66beacda3c54484013d6bdf5775",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4224,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5776,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3062,
+          "y": 0.4953
+        },
+        "rightHand": {
+          "x": 0.6938,
+          "y": 0.4953
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4953
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.084718,
+        "translate": {
+          "x": -0.042359,
+          "y": -0.02872
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.run.03",
+      "kind": "character-frame",
+      "file": "normalized/farmer/run-03.png",
+      "contentHash": "0fbef8e696c643e3475aacb300a325fdefa96b0629325854f640d118d4f3e690",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4185,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5815,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.2962,
+          "y": 0.4953
+        },
+        "rightHand": {
+          "x": 0.7038,
+          "y": 0.4953
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4953
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.083974,
+        "translate": {
+          "x": -0.043071,
+          "y": -0.031511
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.run.04",
+      "kind": "character-frame",
+      "file": "normalized/farmer/run-04.png",
+      "contentHash": "72946fac51793526f08dbb417701bd64869a7c6f401c38dc4b62a800f9a8738e",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4237,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5763,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3093,
+          "y": 0.4953
+        },
+        "rightHand": {
+          "x": 0.6908,
+          "y": 0.4953
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4953
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.066127,
+        "translate": {
+          "x": -0.040846,
+          "y": -0.017958
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.bend.01",
+      "kind": "character-frame",
+      "file": "normalized/farmer/bend.png",
+      "contentHash": "5e25366361326c7c53cc46bb0624bf708ce8073956e4439817abdd343a15e0ef",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "policy-exempt-crouched",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5088,
+          "y": 0.9219
+        },
+        "leftFoot": {
+          "x": 0.4369,
+          "y": 0.9219
+        },
+        "rightFoot": {
+          "x": 0.5807,
+          "y": 0.9219
+        },
+        "leftHand": {
+          "x": 0.3291,
+          "y": 0.5091
+        },
+        "rightHand": {
+          "x": 0.6885,
+          "y": 0.5091
+        },
+        "center": {
+          "x": 0.5088,
+          "y": 0.5091
+        },
+        "head": {
+          "x": 0.5088,
+          "y": 0.2202
+        }
+      },
+      "normalization": {
+        "policy": "crouched",
+        "scale": 1.0,
+        "translate": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.pickup.01",
+      "kind": "character-frame",
+      "file": "normalized/farmer/pickup.png",
+      "contentHash": "41457b2f6179b64936631cb498bdb7ed47c945b7cd1738dbae7e348a668aaae2",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "policy-exempt-crouched",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.4873,
+          "y": 0.9154
+        },
+        "leftFoot": {
+          "x": 0.426,
+          "y": 0.9154
+        },
+        "rightFoot": {
+          "x": 0.5486,
+          "y": 0.9154
+        },
+        "leftHand": {
+          "x": 0.334,
+          "y": 0.5042
+        },
+        "rightHand": {
+          "x": 0.6406,
+          "y": 0.5042
+        },
+        "center": {
+          "x": 0.4873,
+          "y": 0.5042
+        },
+        "head": {
+          "x": 0.4873,
+          "y": 0.2164
+        }
+      },
+      "normalization": {
+        "policy": "crouched",
+        "scale": 1.0,
+        "translate": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.hold-rabbit.01",
+      "kind": "character-frame",
+      "file": "normalized/farmer/hold-rabbit.png",
+      "contentHash": "67cdf79a383c3868811cea0b00256340de0248c230f11a6160d07468a24f0416",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "policy-exempt-composite",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5083,
+          "y": 0.9629
+        },
+        "leftFoot": {
+          "x": 0.4607,
+          "y": 0.9629
+        },
+        "rightFoot": {
+          "x": 0.5559,
+          "y": 0.9629
+        },
+        "leftHand": {
+          "x": 0.3894,
+          "y": 0.4958
+        },
+        "rightHand": {
+          "x": 0.6272,
+          "y": 0.4958
+        },
+        "center": {
+          "x": 0.5083,
+          "y": 0.4958
+        },
+        "head": {
+          "x": 0.5083,
+          "y": 0.1688
+        }
+      },
+      "normalization": {
+        "policy": "composite",
+        "scale": 1.0,
+        "translate": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "farmer.reaction.01",
+      "kind": "character-frame",
+      "file": "normalized/farmer/reaction.png",
+      "contentHash": "90504e17c51efe214a0b7932331d394c1dc1f1b412404232fcfdf8a673430664",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1024,
+      "height": 1536,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.96
+        },
+        "leftFoot": {
+          "x": 0.4414,
+          "y": 0.96
+        },
+        "rightFoot": {
+          "x": 0.5586,
+          "y": 0.96
+        },
+        "leftHand": {
+          "x": 0.3535,
+          "y": 0.4954
+        },
+        "rightHand": {
+          "x": 0.6465,
+          "y": 0.4954
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.4954
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.17
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 0.988612,
+        "translate": {
+          "x": -0.015067,
+          "y": 0.000354
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.idle-left.01",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/idle-left.png",
+      "contentHash": "02ddef1dbdc3bba6721296c26e37acaec133d18bc20bda31fda6b8c8efcce318",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "passed",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.4889,
+          "y": 0.9251
+        },
+        "leftFoot": {
+          "x": 0.425,
+          "y": 0.9251
+        },
+        "rightFoot": {
+          "x": 0.5527,
+          "y": 0.9251
+        },
+        "leftHand": {
+          "x": 0.3293,
+          "y": 0.492
+        },
+        "rightHand": {
+          "x": 0.6484,
+          "y": 0.492
+        },
+        "center": {
+          "x": 0.4889,
+          "y": 0.492
+        },
+        "head": {
+          "x": 0.4889,
+          "y": 0.1888
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.0,
+        "translate": {
+          "x": -0.0222,
+          "y": 0.0
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.idle-right.01",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/idle-right.png",
+      "contentHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "passed",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.4889,
+          "y": 0.9251
+        },
+        "leftFoot": {
+          "x": 0.4251,
+          "y": 0.9251
+        },
+        "rightFoot": {
+          "x": 0.5528,
+          "y": 0.9251
+        },
+        "leftHand": {
+          "x": 0.3294,
+          "y": 0.492
+        },
+        "rightHand": {
+          "x": 0.6485,
+          "y": 0.492
+        },
+        "center": {
+          "x": 0.4889,
+          "y": 0.492
+        },
+        "head": {
+          "x": 0.4889,
+          "y": 0.1888
+        }
+      },
+      "normalization": {
+        "policy": "standing",
+        "scale": 1.0,
+        "translate": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.run-left.01",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/run-left-01.png",
+      "contentHash": "6853b36843bb167fea5df81a951f2e8415a266236ab98a2f3b583b36f6e99312",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4195,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5805,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.2988,
+          "y": 0.5205
+        },
+        "rightHand": {
+          "x": 0.7012,
+          "y": 0.5205
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5205
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 1.036,
+        "translate": {
+          "x": -0.03758,
+          "y": 0.0002
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.run-left.02",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/run-left-02.png",
+      "contentHash": "28f9bfe3536f1e318d81fc0a8629f036d2f0504e086c18db117974237008cbfc",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4368,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5633,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.3419,
+          "y": 0.5206
+        },
+        "rightHand": {
+          "x": 0.6582,
+          "y": 0.5206
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5206
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 1.0,
+        "translate": {
+          "x": -0.0046,
+          "y": -0.024
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.run-left.03",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/run-left-03.png",
+      "contentHash": "aed3e81a7e0d2ba04340971f032cf0ee941089fa8f5c160aab07239b42be1dbe",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4056,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5944,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.264,
+          "y": 0.5206
+        },
+        "rightHand": {
+          "x": 0.736,
+          "y": 0.5206
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5206
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 1.134307,
+        "translate": {
+          "x": -0.069989,
+          "y": -0.046074
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.run-left.04",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/run-left-04.png",
+      "contentHash": "587cd33ead7d88ec41641db72e49d9c9d9b656a5979d88f8cbcda576afcf4bd0",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4318,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5682,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.3295,
+          "y": 0.5205
+        },
+        "rightHand": {
+          "x": 0.6705,
+          "y": 0.5205
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5205
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 0.968828,
+        "translate": {
+          "x": 0.00832,
+          "y": 0.0262
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.run-right.01",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/run-right-01.png",
+      "contentHash": "d144486d709c9507695469b5eb06688fd7950639a76300bfa92afa43458b699c",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4195,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5805,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.2988,
+          "y": 0.5205
+        },
+        "rightHand": {
+          "x": 0.7012,
+          "y": 0.5205
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5205
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 1.036,
+        "translate": {
+          "x": 0.00158,
+          "y": 0.0002
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.run-right.02",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/run-right-02.png",
+      "contentHash": "f76794fd5407f7d86cd3d4c2c873c7cabff87a6980e3e1b8bb73ec3a0b7f52ca",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4367,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5632,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.3418,
+          "y": 0.5206
+        },
+        "rightHand": {
+          "x": 0.6581,
+          "y": 0.5206
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5206
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 1.0,
+        "translate": {
+          "x": 0.0046,
+          "y": -0.024
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.run-right.03",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/run-right-03.png",
+      "contentHash": "e9d343b805938bb1bbe606c3f01c58aa1a2a7a9c21ef0c31fbe4b0ddd9c1a43b",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4056,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5944,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.264,
+          "y": 0.5206
+        },
+        "rightHand": {
+          "x": 0.736,
+          "y": 0.5206
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5206
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 1.134307,
+        "translate": {
+          "x": -0.064318,
+          "y": -0.046074
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.run-right.04",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/run-right-04.png",
+      "contentHash": "41480d5dbedf9ec1940b80de7ebdbfc8cf0b76c26f584d8af3c4eb211b52c12d",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "warning",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4318,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5682,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.3295,
+          "y": 0.5205
+        },
+        "rightHand": {
+          "x": 0.6705,
+          "y": 0.5205
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5205
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 0.968828,
+        "translate": {
+          "x": 0.022852,
+          "y": 0.0262
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.collision.01",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/collision.png",
+      "contentHash": "beab8711121630d34d12ab57c2219ee71cc4efe395703bc9622380f0fee648c1",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "passed-after-normalization",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.5,
+          "y": 0.8405
+        },
+        "leftFoot": {
+          "x": 0.4144,
+          "y": 0.8405
+        },
+        "rightFoot": {
+          "x": 0.5856,
+          "y": 0.8405
+        },
+        "leftHand": {
+          "x": 0.286,
+          "y": 0.5206
+        },
+        "rightHand": {
+          "x": 0.714,
+          "y": 0.5206
+        },
+        "center": {
+          "x": 0.5,
+          "y": 0.5206
+        },
+        "head": {
+          "x": 0.5,
+          "y": 0.2966
+        }
+      },
+      "normalization": {
+        "policy": "locomotion",
+        "scale": 0.972813,
+        "translate": {
+          "x": 0.013593,
+          "y": 0.020321
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "rabbit.lying.01",
+      "kind": "animal-frame",
+      "file": "normalized/rabbit/lying.png",
+      "contentHash": "26d83697b47f4a4436a4bb7bcb383c668864a4be7bc574b10b9961705e9aa459",
+      "qaStatus": "passed",
+      "reviewStatus": "auto-estimate",
+      "visualReview": {
+        "identity": "passed",
+        "continuity": "passed",
+        "scaleConsistency": "policy-exempt-lying",
+        "anchors": "needs-review"
+      },
+      "width": 1402,
+      "height": 1122,
+      "anchors": {
+        "foot": {
+          "x": 0.4779,
+          "y": 0.7906
+        },
+        "leftFoot": {
+          "x": 0.3963,
+          "y": 0.7906
+        },
+        "rightFoot": {
+          "x": 0.5595,
+          "y": 0.7906
+        },
+        "leftHand": {
+          "x": 0.2739,
+          "y": 0.529
+        },
+        "rightHand": {
+          "x": 0.6819,
+          "y": 0.529
+        },
+        "center": {
+          "x": 0.4779,
+          "y": 0.529
+        },
+        "head": {
+          "x": 0.4779,
+          "y": 0.3459
+        }
+      },
+      "normalization": {
+        "policy": "lying",
+        "scale": 1.0,
+        "translate": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "operations": [
+          "whole-sprite-scale",
+          "whole-sprite-translate"
+        ]
+      }
+    },
+    {
+      "id": "environment.far",
+      "kind": "environment-layer",
+      "file": "processed/environment/far.png",
+      "contentHash": "30ad4ba8a1c78ef74413225e2f9171ed689db721e741d0cd49ba8b258e4301e1",
+      "qaStatus": "passed",
+      "width": 1280,
+      "height": 720,
+      "visualReview": {
+        "schemaVersion": "1.0.0",
+        "assetPackageId": "pastoral-field-001",
+        "reviewedAt": "2026-08-12T00:00:00.000Z",
+        "styleConsistency": "passed",
+        "layerSeparation": "passed",
+        "collisionTreeReadability": "warning",
+        "productionStatus": "warning"
+      }
+    },
+    {
+      "id": "environment.mid",
+      "kind": "environment-layer",
+      "file": "processed/environment/mid.png",
+      "contentHash": "05a0f5099706855a5fdf918422dc30da44a74779a18a522c398e483d3788f3ee",
+      "qaStatus": "passed",
+      "width": 1280,
+      "height": 720,
+      "visualReview": {
+        "schemaVersion": "1.0.0",
+        "assetPackageId": "pastoral-field-001",
+        "reviewedAt": "2026-08-12T00:00:00.000Z",
+        "styleConsistency": "passed",
+        "layerSeparation": "passed",
+        "collisionTreeReadability": "warning",
+        "productionStatus": "warning"
+      }
+    },
+    {
+      "id": "environment.ground",
+      "kind": "environment-layer",
+      "file": "processed/environment/ground.png",
+      "contentHash": "8c17244a931f9b740237937c6ed223756c872277f75683ceef635d573e3678ab",
+      "qaStatus": "passed",
+      "width": 1280,
+      "height": 720,
+      "visualReview": {
+        "schemaVersion": "1.0.0",
+        "assetPackageId": "pastoral-field-001",
+        "reviewedAt": "2026-08-12T00:00:00.000Z",
+        "styleConsistency": "passed",
+        "layerSeparation": "passed",
+        "collisionTreeReadability": "warning",
+        "productionStatus": "warning"
+      }
+    },
+    {
+      "id": "environment.foreground",
+      "kind": "environment-layer",
+      "file": "processed/environment/foreground.png",
+      "contentHash": "bc39f2e66cc8b502d7da8be74b077dd1114737e8ed9d9de8f9e4fddbfc9bbff1",
+      "qaStatus": "passed",
+      "width": 1280,
+      "height": 720,
+      "visualReview": {
+        "schemaVersion": "1.0.0",
+        "assetPackageId": "pastoral-field-001",
+        "reviewedAt": "2026-08-12T00:00:00.000Z",
+        "styleConsistency": "passed",
+        "layerSeparation": "passed",
+        "collisionTreeReadability": "warning",
+        "productionStatus": "warning"
+      }
+    },
+    {
+      "id": "effects.impact",
+      "kind": "effect",
+      "file": "processed/effects/impact.png",
+      "contentHash": "89ee2af292b256d325edb8a314a0225a8700594a85dd5aaee03bb0976a6f4587",
+      "qaStatus": "passed",
+      "width": 1254,
+      "height": 1254,
+      "visualReview": {
+        "productionStatus": "passed"
+      }
+    },
+    {
+      "id": "effects.soft-shadow",
+      "kind": "prop",
+      "file": "processed/shadow.png",
+      "contentHash": "e53c2852649401840a8eb72cd16c0e7f592e68630eb9962eecf3ad36fe0c534e",
+      "qaStatus": "passed",
+      "width": 512,
+      "height": 192,
+      "visualReview": {
+        "productionStatus": "passed"
+      }
+    }
+  ],
+  "poseClips": [
+    {
+      "id": "farmer.idle",
+      "entityType": "farmer",
+      "fps": 1,
+      "loop": true,
+      "normalizationPolicy": "standing",
+      "frames": [
+        {
+          "assetId": "farmer.idle.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4494,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5505,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3735,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6264,
+              "y": 0.4953
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "farmer.walk",
+      "entityType": "farmer",
+      "fps": 8,
+      "loop": true,
+      "normalizationPolicy": "standing",
+      "frames": [
+        {
+          "assetId": "farmer.walk.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4376,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5623,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3439,
+              "y": 0.4952
+            },
+            "rightHand": {
+              "x": 0.656,
+              "y": 0.4952
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4952
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        },
+        {
+          "assetId": "farmer.walk.02",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4443,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5557,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3608,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6392,
+              "y": 0.4953
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        },
+        {
+          "assetId": "farmer.walk.03",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4378,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5621,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3447,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6553,
+              "y": 0.4953
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        },
+        {
+          "assetId": "farmer.walk.04",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4442,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5558,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3605,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6395,
+              "y": 0.4953
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "farmer.run",
+      "entityType": "farmer",
+      "fps": 10,
+      "loop": true,
+      "normalizationPolicy": "standing",
+      "frames": [
+        {
+          "assetId": "farmer.run.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4324,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5677,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3308,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6692,
+              "y": 0.4953
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        },
+        {
+          "assetId": "farmer.run.02",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4224,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5776,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3062,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6938,
+              "y": 0.4953
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        },
+        {
+          "assetId": "farmer.run.03",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4185,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5815,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.2962,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.7038,
+              "y": 0.4953
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        },
+        {
+          "assetId": "farmer.run.04",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4237,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5763,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3093,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6908,
+              "y": 0.4953
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "farmer.bend",
+      "entityType": "farmer",
+      "fps": 1,
+      "loop": false,
+      "normalizationPolicy": "crouched",
+      "frames": [
+        {
+          "assetId": "farmer.bend.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5088,
+              "y": 0.9219
+            },
+            "leftFoot": {
+              "x": 0.4369,
+              "y": 0.9219
+            },
+            "rightFoot": {
+              "x": 0.5807,
+              "y": 0.9219
+            },
+            "leftHand": {
+              "x": 0.3291,
+              "y": 0.5091
+            },
+            "rightHand": {
+              "x": 0.6885,
+              "y": 0.5091
+            },
+            "center": {
+              "x": 0.5088,
+              "y": 0.5091
+            },
+            "head": {
+              "x": 0.5088,
+              "y": 0.2202
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "farmer.pickup",
+      "entityType": "farmer",
+      "fps": 1,
+      "loop": false,
+      "normalizationPolicy": "crouched",
+      "frames": [
+        {
+          "assetId": "farmer.pickup.01",
+          "anchors": {
+            "foot": {
+              "x": 0.4873,
+              "y": 0.9154
+            },
+            "leftFoot": {
+              "x": 0.426,
+              "y": 0.9154
+            },
+            "rightFoot": {
+              "x": 0.5486,
+              "y": 0.9154
+            },
+            "leftHand": {
+              "x": 0.334,
+              "y": 0.5042
+            },
+            "rightHand": {
+              "x": 0.6406,
+              "y": 0.5042
+            },
+            "center": {
+              "x": 0.4873,
+              "y": 0.5042
+            },
+            "head": {
+              "x": 0.4873,
+              "y": 0.2164
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "farmer.hold-rabbit",
+      "entityType": "farmer",
+      "fps": 1,
+      "loop": true,
+      "normalizationPolicy": "composite",
+      "frames": [
+        {
+          "assetId": "farmer.hold-rabbit.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5083,
+              "y": 0.9629
+            },
+            "leftFoot": {
+              "x": 0.4607,
+              "y": 0.9629
+            },
+            "rightFoot": {
+              "x": 0.5559,
+              "y": 0.9629
+            },
+            "leftHand": {
+              "x": 0.3894,
+              "y": 0.4958
+            },
+            "rightHand": {
+              "x": 0.6272,
+              "y": 0.4958
+            },
+            "center": {
+              "x": 0.5083,
+              "y": 0.4958
+            },
+            "head": {
+              "x": 0.5083,
+              "y": 0.1688
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "farmer.reaction",
+      "entityType": "farmer",
+      "fps": 1,
+      "loop": false,
+      "normalizationPolicy": "standing",
+      "frames": [
+        {
+          "assetId": "farmer.reaction.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4414,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5586,
+              "y": 0.96
+            },
+            "leftHand": {
+              "x": 0.3535,
+              "y": 0.4954
+            },
+            "rightHand": {
+              "x": 0.6465,
+              "y": 0.4954
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4954
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "rabbit.idle-left",
+      "entityType": "rabbit",
+      "fps": 1,
+      "loop": true,
+      "normalizationPolicy": "standing",
+      "frames": [
+        {
+          "assetId": "rabbit.idle-left.01",
+          "anchors": {
+            "foot": {
+              "x": 0.4889,
+              "y": 0.9251
+            },
+            "leftFoot": {
+              "x": 0.425,
+              "y": 0.9251
+            },
+            "rightFoot": {
+              "x": 0.5527,
+              "y": 0.9251
+            },
+            "leftHand": {
+              "x": 0.3293,
+              "y": 0.492
+            },
+            "rightHand": {
+              "x": 0.6484,
+              "y": 0.492
+            },
+            "center": {
+              "x": 0.4889,
+              "y": 0.492
+            },
+            "head": {
+              "x": 0.4889,
+              "y": 0.1888
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "rabbit.idle-right",
+      "entityType": "rabbit",
+      "fps": 1,
+      "loop": true,
+      "normalizationPolicy": "standing",
+      "frames": [
+        {
+          "assetId": "rabbit.idle-right.01",
+          "anchors": {
+            "foot": {
+              "x": 0.4889,
+              "y": 0.9251
+            },
+            "leftFoot": {
+              "x": 0.4251,
+              "y": 0.9251
+            },
+            "rightFoot": {
+              "x": 0.5528,
+              "y": 0.9251
+            },
+            "leftHand": {
+              "x": 0.3294,
+              "y": 0.492
+            },
+            "rightHand": {
+              "x": 0.6485,
+              "y": 0.492
+            },
+            "center": {
+              "x": 0.4889,
+              "y": 0.492
+            },
+            "head": {
+              "x": 0.4889,
+              "y": 0.1888
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "rabbit.run-left",
+      "entityType": "rabbit",
+      "fps": 10,
+      "loop": true,
+      "normalizationPolicy": "locomotion",
+      "frames": [
+        {
+          "assetId": "rabbit.run-left.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4195,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5805,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.2988,
+              "y": 0.5205
+            },
+            "rightHand": {
+              "x": 0.7012,
+              "y": 0.5205
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5205
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        },
+        {
+          "assetId": "rabbit.run-left.02",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4368,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5633,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.3419,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.6582,
+              "y": 0.5206
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        },
+        {
+          "assetId": "rabbit.run-left.03",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4056,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5944,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.264,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.736,
+              "y": 0.5206
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        },
+        {
+          "assetId": "rabbit.run-left.04",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4318,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5682,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.3295,
+              "y": 0.5205
+            },
+            "rightHand": {
+              "x": 0.6705,
+              "y": 0.5205
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5205
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "rabbit.run-right",
+      "entityType": "rabbit",
+      "fps": 10,
+      "loop": true,
+      "normalizationPolicy": "locomotion",
+      "frames": [
+        {
+          "assetId": "rabbit.run-right.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4195,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5805,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.2988,
+              "y": 0.5205
+            },
+            "rightHand": {
+              "x": 0.7012,
+              "y": 0.5205
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5205
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        },
+        {
+          "assetId": "rabbit.run-right.02",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4367,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5632,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.3418,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.6581,
+              "y": 0.5206
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        },
+        {
+          "assetId": "rabbit.run-right.03",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4056,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5944,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.264,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.736,
+              "y": 0.5206
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        },
+        {
+          "assetId": "rabbit.run-right.04",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4318,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5682,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.3295,
+              "y": 0.5205
+            },
+            "rightHand": {
+              "x": 0.6705,
+              "y": 0.5205
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5205
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "rabbit.collision",
+      "entityType": "rabbit",
+      "fps": 1,
+      "loop": false,
+      "normalizationPolicy": "locomotion",
+      "frames": [
+        {
+          "assetId": "rabbit.collision.01",
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4144,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5856,
+              "y": 0.8405
+            },
+            "leftHand": {
+              "x": 0.286,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.714,
+              "y": 0.5206
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "rabbit.lying",
+      "entityType": "rabbit",
+      "fps": 1,
+      "loop": true,
+      "normalizationPolicy": "lying",
+      "frames": [
+        {
+          "assetId": "rabbit.lying.01",
+          "anchors": {
+            "foot": {
+              "x": 0.4779,
+              "y": 0.7906
+            },
+            "leftFoot": {
+              "x": 0.3963,
+              "y": 0.7906
+            },
+            "rightFoot": {
+              "x": 0.5595,
+              "y": 0.7906
+            },
+            "leftHand": {
+              "x": 0.2739,
+              "y": 0.529
+            },
+            "rightHand": {
+              "x": 0.6819,
+              "y": 0.529
+            },
+            "center": {
+              "x": 0.4779,
+              "y": 0.529
+            },
+            "head": {
+              "x": 0.4779,
+              "y": 0.3459
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "packageHash": "146733ed80be1bdd36f1addde9d73b4d01ecf96af1109b717726cdfb3840ad17"
+}

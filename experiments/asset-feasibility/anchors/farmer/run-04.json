@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "run-04",
+  "file": "normalized/farmer/run-04.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5,
+      "y": 0.96
+    },
+    "leftFoot": {
+      "x": 0.4237,
+      "y": 0.96
+    },
+    "rightFoot": {
+      "x": 0.5763,
+      "y": 0.96
+    },
+    "leftHand": {
+      "x": 0.3093,
+      "y": 0.4953
+    },
+    "rightHand": {
+      "x": 0.6908,
+      "y": 0.4953
+    },
+    "center": {
+      "x": 0.5,
+      "y": 0.4953
+    },
+    "head": {
+      "x": 0.5,
+      "y": 0.17
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.5073,
+      "y": 0.9173
+    },
+    "leftFoot": {
+      "x": 0.4357,
+      "y": 0.9173
+    },
+    "rightFoot": {
+      "x": 0.5789,
+      "y": 0.9173
+    },
+    "leftHand": {
+      "x": 0.3284,
+      "y": 0.4814
+    },
+    "rightHand": {
+      "x": 0.6863,
+      "y": 0.4814
+    },
+    "center": {
+      "x": 0.5073,
+      "y": 0.4814
+    },
+    "head": {
+      "x": 0.5073,
+      "y": 0.1763
+    }
+  },
+  "normalization": {
+    "policy": "standing",
+    "scale": 1.066127,
+    "translate": {
+      "x": -0.040846,
+      "y": -0.017958
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}

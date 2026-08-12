@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "run-left-02",
+  "file": "normalized/rabbit/run-left-02.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5,
+      "y": 0.8405
+    },
+    "leftFoot": {
+      "x": 0.4368,
+      "y": 0.8405
+    },
+    "rightFoot": {
+      "x": 0.5633,
+      "y": 0.8405
+    },
+    "leftHand": {
+      "x": 0.3419,
+      "y": 0.5206
+    },
+    "rightHand": {
+      "x": 0.6582,
+      "y": 0.5206
+    },
+    "center": {
+      "x": 0.5,
+      "y": 0.5206
+    },
+    "head": {
+      "x": 0.5,
+      "y": 0.2966
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.5046,
+      "y": 0.8645
+    },
+    "leftFoot": {
+      "x": 0.4414,
+      "y": 0.8645
+    },
+    "rightFoot": {
+      "x": 0.5679,
+      "y": 0.8645
+    },
+    "leftHand": {
+      "x": 0.3465,
+      "y": 0.5446
+    },
+    "rightHand": {
+      "x": 0.6628,
+      "y": 0.5446
+    },
+    "center": {
+      "x": 0.5046,
+      "y": 0.5446
+    },
+    "head": {
+      "x": 0.5046,
+      "y": 0.3206
+    }
+  },
+  "normalization": {
+    "policy": "locomotion",
+    "scale": 1.0,
+    "translate": {
+      "x": -0.0046,
+      "y": -0.024
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}

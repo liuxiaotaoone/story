@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "characterId": "farmer-001",
   "entityType": "farmer",
-  "referenceAsset": "processed/farmer/farmer-reference.png",
+  "referenceAsset": "normalized/farmer/farmer-reference.png",
   "identity": {
     "face": "warm oval face, friendly eyes, subtle mustache, tan skin",
     "hairAndHat": "short dark hair under broad woven straw hat",
@@ -11,12 +11,12 @@
     "style": "2.5D paper-cut children's storybook, restrained dark-brown outlines and paper texture"
   },
   "poses": [
-    {"id": "farmer.idle", "kind": "static", "fps": 1, "loop": true, "frames": ["processed/farmer/idle.png"]},
-    {"id": "farmer.walk", "kind": "clip", "fps": 8, "loop": true, "frames": ["processed/farmer/walk-01.png", "processed/farmer/walk-02.png", "processed/farmer/walk-03.png", "processed/farmer/walk-04.png"]},
-    {"id": "farmer.run", "kind": "clip", "fps": 10, "loop": true, "frames": ["processed/farmer/run-01.png", "processed/farmer/run-02.png", "processed/farmer/run-03.png", "processed/farmer/run-04.png"]},
-    {"id": "farmer.bend", "kind": "static", "fps": 1, "loop": false, "frames": ["processed/farmer/bend.png"]},
-    {"id": "farmer.pickup", "kind": "static", "fps": 1, "loop": false, "frames": ["processed/farmer/pickup.png"]},
-    {"id": "farmer.hold-rabbit", "kind": "static", "fps": 1, "loop": true, "frames": ["processed/farmer/hold-rabbit.png"]},
-    {"id": "farmer.reaction", "kind": "static", "fps": 1, "loop": false, "frames": ["processed/farmer/reaction.png"]}
+    {"id": "farmer.idle", "kind": "static", "fps": 1, "loop": true, "normalizationPolicy": "standing", "frames": ["normalized/farmer/idle.png"]},
+    {"id": "farmer.walk", "kind": "clip", "fps": 8, "loop": true, "normalizationPolicy": "standing", "frames": ["normalized/farmer/walk-01.png", "normalized/farmer/walk-02.png", "normalized/farmer/walk-03.png", "normalized/farmer/walk-04.png"]},
+    {"id": "farmer.run", "kind": "clip", "fps": 10, "loop": true, "normalizationPolicy": "standing", "frames": ["normalized/farmer/run-01.png", "normalized/farmer/run-02.png", "normalized/farmer/run-03.png", "normalized/farmer/run-04.png"]},
+    {"id": "farmer.bend", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "crouched", "frames": ["normalized/farmer/bend.png"]},
+    {"id": "farmer.pickup", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "crouched", "frames": ["normalized/farmer/pickup.png"]},
+    {"id": "farmer.hold-rabbit", "kind": "static", "fps": 1, "loop": true, "normalizationPolicy": "composite", "frames": ["normalized/farmer/hold-rabbit.png"]},
+    {"id": "farmer.reaction", "kind": "static", "fps": 1, "loop": false, "normalizationPolicy": "standing", "frames": ["normalized/farmer/reaction.png"]}
   ]
 }

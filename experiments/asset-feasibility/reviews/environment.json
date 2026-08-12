@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetPackageId": "pastoral-field-001",
+  "reviewedAt": "2026-08-12T00:00:00.000Z",
+  "styleConsistency": "passed",
+  "layerSeparation": "passed",
+  "collisionTreeReadability": "warning",
+  "productionStatus": "warning"
+}

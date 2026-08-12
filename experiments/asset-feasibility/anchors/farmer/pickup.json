@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "pickup",
+  "file": "normalized/farmer/pickup.png",
+  "anchors": {
+    "foot": {
+      "x": 0.4873,
+      "y": 0.9154
+    },
+    "leftFoot": {
+      "x": 0.426,
+      "y": 0.9154
+    },
+    "rightFoot": {
+      "x": 0.5486,
+      "y": 0.9154
+    },
+    "leftHand": {
+      "x": 0.334,
+      "y": 0.5042
+    },
+    "rightHand": {
+      "x": 0.6406,
+      "y": 0.5042
+    },
+    "center": {
+      "x": 0.4873,
+      "y": 0.5042
+    },
+    "head": {
+      "x": 0.4873,
+      "y": 0.2164
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.4873,
+      "y": 0.9154
+    },
+    "leftFoot": {
+      "x": 0.426,
+      "y": 0.9154
+    },
+    "rightFoot": {
+      "x": 0.5486,
+      "y": 0.9154
+    },
+    "leftHand": {
+      "x": 0.334,
+      "y": 0.5042
+    },
+    "rightHand": {
+      "x": 0.6406,
+      "y": 0.5042
+    },
+    "center": {
+      "x": 0.4873,
+      "y": 0.5042
+    },
+    "head": {
+      "x": 0.4873,
+      "y": 0.2164
+    }
+  },
+  "normalization": {
+    "policy": "crouched",
+    "scale": 1.0,
+    "translate": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}

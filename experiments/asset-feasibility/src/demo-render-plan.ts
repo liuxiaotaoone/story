@@ -1,35 +1,16 @@
 import {RenderPlanSchema, type PoseAnchors, type RenderPlan} from '@pose-clip/schemas';
-import farmerIdle from '../anchors/idle.json' with {type: 'json'};
-import farmerReaction from '../anchors/reaction.json' with {type: 'json'};
-import rabbitCollision from '../anchors/collision.json' with {type: 'json'};
-import rabbitLying from '../anchors/lying.json' with {type: 'json'};
-import rabbitRun01 from '../anchors/run-left-01.json' with {type: 'json'};
-import rabbitRun02 from '../anchors/run-left-02.json' with {type: 'json'};
-import rabbitRun03 from '../anchors/run-left-03.json' with {type: 'json'};
-import rabbitRun04 from '../anchors/run-left-04.json' with {type: 'json'};
+import farmerIdle from '../anchors/farmer/idle.json' with {type: 'json'};
+import farmerReaction from '../anchors/farmer/reaction.json' with {type: 'json'};
+import rabbitCollision from '../anchors/rabbit/collision.json' with {type: 'json'};
+import rabbitLying from '../anchors/rabbit/lying.json' with {type: 'json'};
+import rabbitRun01 from '../anchors/rabbit/run-left-01.json' with {type: 'json'};
+import rabbitRun02 from '../anchors/rabbit/run-left-02.json' with {type: 'json'};
+import rabbitRun03 from '../anchors/rabbit/run-left-03.json' with {type: 'json'};
+import rabbitRun04 from '../anchors/rabbit/run-left-04.json' with {type: 'json'};
+import {importedPackageDecision, importedVisualAsset} from './asset-package-importer.js';
 
-const HASH = '0'.repeat(64);
+const HASH = importedPackageDecision.packageHash;
 const transform = {position: {x: 0, y: 0}, scale: {x: 1, y: 1}, rotation: 0, opacity: 1};
-
-function uri(file: string): string {
-  return new URL(`/processed/${file}`, location.href).href;
-}
-
-function provenance() {
-  return {
-    inputHash: HASH,
-    promptHash: HASH,
-    modelId: 'imagegen',
-    modelVersion: '2026-08-12',
-    workflowVersion: '1.0.0',
-    producer: {name: 'asset-feasibility', version: '0.1.0'},
-    createdAt: '2026-08-12T00:00:00.000Z',
-  };
-}
-
-function visual(id: string, kind: 'environment-layer' | 'character-frame' | 'animal-frame' | 'prop', file: string, width: number, height: number, alphaMode: 'straight' | 'opaque' = 'straight') {
-  return {id, kind, uri: uri(file), contentHash: HASH, source: 'generated' as const, provenance: provenance(), qaStatus: 'passed' as const, width, height, alphaMode};
-}
 
 function anchors(value: {anchors: Record<string, {x: number; y: number}>}): PoseAnchors {
   return value.anchors as unknown as PoseAnchors;
@@ -46,19 +27,20 @@ export function createAssetGateRenderPlan(): RenderPlan {
     assets: {
       schemaVersion: '1.0.0',
       assets: [
-        visual('env-far', 'environment-layer', 'environment/far.png', 1280, 720, 'opaque'),
-        visual('env-mid', 'environment-layer', 'environment/mid.png', 1280, 720),
-        visual('env-ground', 'environment-layer', 'environment/ground.png', 1280, 720),
-        visual('env-foreground', 'environment-layer', 'environment/foreground.png', 1280, 720),
-        visual('farmer-idle', 'character-frame', 'farmer/idle.png', 1024, 1536),
-        visual('farmer-reaction', 'character-frame', 'farmer/reaction.png', 1024, 1536),
-        visual('rabbit-run-01', 'animal-frame', 'rabbit/run-left-01.png', 1402, 1122),
-        visual('rabbit-run-02', 'animal-frame', 'rabbit/run-left-02.png', 1402, 1122),
-        visual('rabbit-run-03', 'animal-frame', 'rabbit/run-left-03.png', 1402, 1122),
-        visual('rabbit-run-04', 'animal-frame', 'rabbit/run-left-04.png', 1402, 1122),
-        visual('rabbit-collision', 'animal-frame', 'rabbit/collision.png', 1402, 1122),
-        visual('rabbit-lying', 'animal-frame', 'rabbit/lying.png', 1402, 1122),
-        visual('soft-shadow', 'prop', 'shadow.png', 512, 192),
+        importedVisualAsset('env-far', 'environment-layer', 'processed/environment/far.png', 'opaque'),
+        importedVisualAsset('env-mid', 'environment-layer', 'processed/environment/mid.png'),
+        importedVisualAsset('env-ground', 'environment-layer', 'processed/environment/ground.png'),
+        importedVisualAsset('env-foreground', 'environment-layer', 'processed/environment/foreground.png'),
+        importedVisualAsset('farmer-idle', 'character-frame', 'normalized/farmer/idle.png'),
+        importedVisualAsset('farmer-reaction', 'character-frame', 'normalized/farmer/reaction.png'),
+        importedVisualAsset('rabbit-run-01', 'animal-frame', 'normalized/rabbit/run-left-01.png'),
+        importedVisualAsset('rabbit-run-02', 'animal-frame', 'normalized/rabbit/run-left-02.png'),
+        importedVisualAsset('rabbit-run-03', 'animal-frame', 'normalized/rabbit/run-left-03.png'),
+        importedVisualAsset('rabbit-run-04', 'animal-frame', 'normalized/rabbit/run-left-04.png'),
+        importedVisualAsset('rabbit-collision', 'animal-frame', 'normalized/rabbit/collision.png'),
+        importedVisualAsset('rabbit-lying', 'animal-frame', 'normalized/rabbit/lying.png'),
+        importedVisualAsset('soft-shadow', 'prop', 'processed/shadow.png'),
+        importedVisualAsset('impact-burst', 'prop', 'processed/effects/impact.png'),
       ],
     },
     environments: [{
@@ -80,11 +62,13 @@ export function createAssetGateRenderPlan(): RenderPlan {
       {id: 'farmer-def', entityType: 'farmer', displayName: 'Farmer', poseClipIds: ['farmer.idle', 'farmer.reaction'], defaultPoseClipId: 'farmer.idle', attachmentSlots: []},
       {id: 'rabbit-def', entityType: 'rabbit', displayName: 'Rabbit', poseClipIds: ['rabbit.run-left', 'rabbit.collision', 'rabbit.lying'], defaultPoseClipId: 'rabbit.run-left', attachmentSlots: []},
       {id: 'shadow-def', entityType: 'shadow', displayName: 'Rabbit shadow', poseClipIds: ['shadow.idle'], defaultPoseClipId: 'shadow.idle', attachmentSlots: []},
+      {id: 'impact-def', entityType: 'effect', displayName: 'Paper impact', poseClipIds: ['impact.idle'], defaultPoseClipId: 'impact.idle', attachmentSlots: []},
     ],
     instances: [
       {id: 'farmer', definitionId: 'farmer-def', sceneId: 'scene-1', activeRange: {startFrame: 0, endFrame: 300}, initialOwner: {kind: 'world', environmentId: 'pastoral-field'}},
       {id: 'rabbit', definitionId: 'rabbit-def', sceneId: 'scene-1', activeRange: {startFrame: 0, endFrame: 300}, initialOwner: {kind: 'world', environmentId: 'pastoral-field'}},
       {id: 'rabbit-shadow', definitionId: 'shadow-def', sceneId: 'scene-1', activeRange: {startFrame: 0, endFrame: 300}, initialOwner: {kind: 'world', environmentId: 'pastoral-field'}},
+      {id: 'impact', definitionId: 'impact-def', sceneId: 'scene-1', activeRange: {startFrame: 0, endFrame: 300}, initialOwner: {kind: 'world', environmentId: 'pastoral-field'}},
     ],
     poseClips: [
       {
@@ -122,16 +106,27 @@ export function createAssetGateRenderPlan(): RenderPlan {
         frames: [{assetId: 'soft-shadow', durationFrames: 30, anchors: {foot: {x: 0.5, y: 0.5}, center: {x: 0.5, y: 0.5}}, contact: {type: 'none'}}],
         rootMotion: {mode: 'timeline'}, groundLock: {mode: 'none', maxCorrectionPx: 0},
       },
+      {
+        id: 'impact.idle', entityType: 'effect', action: 'impact', loop: true, direction: 'front',
+        frames: [{assetId: 'impact-burst', durationFrames: 30, anchors: {foot: {x: 0.5, y: 0.5}, center: {x: 0.5, y: 0.5}}, contact: {type: 'none'}}],
+        rootMotion: {mode: 'timeline'}, groundLock: {mode: 'none', maxCorrectionPx: 0},
+      },
     ],
     timeline: {
       schemaVersion: '1.0.0', fps: 30, durationFrames: 300,
       shots: [{id: 'shot-01', sceneId: 'scene-1', environmentId: 'pastoral-field', range: {startFrame: 0, endFrame: 300}, focusEntityId: 'rabbit'}],
       entityTracks: [
-        {entityId: 'farmer', groundPosition: [{frame: 0, value: {u: 0.28, v: 0.72}, easing: 'hold'}], scale: [{frame: 0, value: {x: 0.24, y: 0.24}, easing: 'hold'}]},
-        {entityId: 'rabbit', groundPosition: [{frame: 0, value: {u: 0.96, v: 0.76}, easing: 'linear'}, {frame: 89, value: {u: 0.73, v: 0.76}, easing: 'linear'}, {frame: 299, value: {u: 0.73, v: 0.76}, easing: 'hold'}], scale: [{frame: 0, value: {x: 0.18, y: 0.18}, easing: 'hold'}]},
-        {entityId: 'rabbit-shadow', groundPosition: [{frame: 0, value: {u: 0.96, v: 0.76}, easing: 'linear'}, {frame: 89, value: {u: 0.73, v: 0.76}, easing: 'linear'}, {frame: 299, value: {u: 0.73, v: 0.76}, easing: 'hold'}], scale: [{frame: 0, value: {x: 0.34, y: 0.34}, easing: 'hold'}], opacity: [{frame: 0, value: 0.45, easing: 'hold'}]},
+        {
+          entityId: 'farmer',
+          groundPosition: [{frame: 0, value: {u: 0.21, v: 0.58}, easing: 'linear'}, {frame: 165, value: {u: 0.21, v: 0.58}, easing: 'linear'}, {frame: 240, value: {u: 0.31, v: 0.69}, easing: 'ease-out'}, {frame: 299, value: {u: 0.31, v: 0.69}, easing: 'hold'}],
+          scale: [{frame: 0, value: {x: 0.205, y: 0.205}, easing: 'linear'}, {frame: 14, value: {x: 0.208, y: 0.208}, easing: 'linear'}, {frame: 29, value: {x: 0.205, y: 0.205}, easing: 'linear'}, {frame: 165, value: {x: 0.205, y: 0.205}, easing: 'linear'}, {frame: 240, value: {x: 0.23, y: 0.23}, easing: 'hold'}],
+          rotation: [{frame: 0, value: -0.0052, easing: 'linear'}, {frame: 15, value: 0.0052, easing: 'linear'}, {frame: 30, value: -0.0052, easing: 'linear'}, {frame: 165, value: -0.0052, easing: 'linear'}, {frame: 180, value: 0.0052, easing: 'linear'}, {frame: 195, value: -0.0052, easing: 'linear'}, {frame: 210, value: 0, easing: 'hold'}],
+        },
+        {entityId: 'rabbit', groundPosition: [{frame: 0, value: {u: 0.90, v: 0.66}, easing: 'linear'}, {frame: 89, value: {u: 0.77, v: 0.66}, easing: 'linear'}, {frame: 299, value: {u: 0.77, v: 0.66}, easing: 'hold'}], scale: [{frame: 0, value: {x: 0.18, y: 0.18}, easing: 'hold'}]},
+        {entityId: 'rabbit-shadow', groundPosition: [{frame: 0, value: {u: 0.90, v: 0.66}, easing: 'linear'}, {frame: 89, value: {u: 0.77, v: 0.66}, easing: 'linear'}, {frame: 299, value: {u: 0.77, v: 0.66}, easing: 'hold'}], scale: [{frame: 0, value: {x: 0.34, y: 0.34}, easing: 'hold'}], opacity: [{frame: 0, value: 0.4, easing: 'hold'}]},
+        {entityId: 'impact', groundPosition: [{frame: 0, value: {u: 0.79, v: 0.72}, easing: 'hold'}], scale: [{frame: 0, value: {x: 0.18, y: 0.18}, easing: 'linear'}, {frame: 90, value: {x: 0.18, y: 0.18}, easing: 'linear'}, {frame: 97, value: {x: 0.27, y: 0.27}, easing: 'hold'}]},
       ],
-      cameraTracks: [{shotId: 'shot-01', position: [{frame: 0, value: {x: 640, y: 360}, easing: 'linear'}, {frame: 299, value: {x: 670, y: 360}, easing: 'linear'}], zoom: [{frame: 0, value: 1, easing: 'hold'}]}],
+      cameraTracks: [{shotId: 'shot-01', position: [{frame: 0, value: {x: 670, y: 360}, easing: 'hold'}, {frame: 165, value: {x: 670, y: 360}, easing: 'ease-in-out'}, {frame: 225, value: {x: 610, y: 360}, easing: 'hold'}, {frame: 299, value: {x: 610, y: 360}, easing: 'hold'}], zoom: [{frame: 0, value: 1, easing: 'hold'}]}],
       poseEvents: [
         {id: 'rabbit-collision-event', frame: 90, entityId: 'rabbit', poseClipId: 'rabbit.collision', clipStartOffset: 0, playbackRate: 1},
         {id: 'rabbit-lying-event', frame: 150, entityId: 'rabbit', poseClipId: 'rabbit.lying', clipStartOffset: 0, playbackRate: 1},
@@ -143,11 +138,12 @@ export function createAssetGateRenderPlan(): RenderPlan {
         {id: 'farmer-idle-reaction-xfade', entityId: 'farmer', fromPoseClipId: 'farmer.idle', toPoseClipId: 'farmer.reaction', startFrame: 210, durationFrames: 3, mode: 'crossfade', anchorPolicy: 'foot'},
       ], ownershipEvents: [],
       visibilityEvents: [
-        {id: 'farmer-hidden', frame: 0, entityId: 'farmer', visible: false},
-        {id: 'farmer-revealed', frame: 180, entityId: 'farmer', visible: true},
         {id: 'shadow-hidden', frame: 150, entityId: 'rabbit-shadow', visible: false},
+        {id: 'impact-hidden-start', frame: 0, entityId: 'impact', visible: false},
+        {id: 'impact-visible', frame: 90, entityId: 'impact', visible: true},
+        {id: 'impact-hidden-end', frame: 98, entityId: 'impact', visible: false},
       ],
-      effectEvents: [{id: 'collision-pop', frame: 90, effectType: 'paper-impact', targetEntityId: 'rabbit', durationFrames: 8}],
+      effectEvents: [],
       narration: [], subtitles: [
         {id: 'subtitle-run', range: {startFrame: 0, endFrame: 90}, text: '一只兔子飞快地奔向田边……', styleId: 'default'},
         {id: 'subtitle-hit', range: {startFrame: 90, endFrame: 150}, text: '砰！它撞在老树旁。', styleId: 'default'},

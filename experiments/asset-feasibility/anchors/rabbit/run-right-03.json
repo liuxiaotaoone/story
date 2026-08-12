@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "run-right-03",
+  "file": "normalized/rabbit/run-right-03.png",
+  "anchors": {
+    "foot": {
+      "x": 0.5,
+      "y": 0.8405
+    },
+    "leftFoot": {
+      "x": 0.4056,
+      "y": 0.8405
+    },
+    "rightFoot": {
+      "x": 0.5944,
+      "y": 0.8405
+    },
+    "leftHand": {
+      "x": 0.264,
+      "y": 0.5206
+    },
+    "rightHand": {
+      "x": 0.736,
+      "y": 0.5206
+    },
+    "center": {
+      "x": 0.5,
+      "y": 0.5206
+    },
+    "head": {
+      "x": 0.5,
+      "y": 0.2966
+    }
+  },
+  "reviewStatus": "auto-estimate",
+  "sourceAnchors": {
+    "foot": {
+      "x": 0.4975,
+      "y": 0.7816
+    },
+    "leftFoot": {
+      "x": 0.4143,
+      "y": 0.7816
+    },
+    "rightFoot": {
+      "x": 0.5807,
+      "y": 0.7816
+    },
+    "leftHand": {
+      "x": 0.2894,
+      "y": 0.4996
+    },
+    "rightHand": {
+      "x": 0.7056,
+      "y": 0.4996
+    },
+    "center": {
+      "x": 0.4975,
+      "y": 0.4996
+    },
+    "head": {
+      "x": 0.4975,
+      "y": 0.3021
+    }
+  },
+  "normalization": {
+    "policy": "locomotion",
+    "scale": 1.134307,
+    "translate": {
+      "x": -0.064318,
+      "y": -0.046074
+    },
+    "operations": [
+      "whole-sprite-scale",
+      "whole-sprite-translate"
+    ]
+  }
+}
