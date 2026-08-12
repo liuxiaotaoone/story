@@ -1,5 +1,6 @@
 {
   "schemaVersion": "1.0.0",
+  "capabilityCatalogVersion": "1.0.0",
   "narrationSegments": [
     {
       "id": "narration-run.segment.1",
@@ -38,26 +39,28 @@
   ],
   "assetRequirements": [
     {
-      "id": "asset.environment.scene-field",
+      "id": "asset.environment.pastoral-field",
       "kind": "environment-layer",
       "environmentIntent": "pastoral-field",
       "required": true
     },
     {
-      "id": "asset.action.expanded.action-run",
+      "id": "asset.animal-frame.rabbit.run.left",
       "kind": "animal-frame",
       "entityType": "rabbit",
       "action": "run",
       "direction": "left",
-      "required": true
+      "required": true,
+      "requestedByActionIds": ["action-run"]
     },
     {
-      "id": "asset.action.expanded.action-dance",
+      "id": "asset.character-frame.farmer.notice.right",
       "kind": "character-frame",
       "entityType": "farmer",
       "action": "notice",
       "direction": "right",
-      "required": true
+      "required": true,
+      "requestedByActionIds": ["action-dance"]
     }
   ],
   "expandedActions": [
@@ -68,8 +71,10 @@
       "shotId": "shot-run",
       "actorId": "rabbit",
       "action": "run",
+      "sequence": 0,
       "direction": "left",
       "priority": "required",
+      "durationPreference": {"preferredSeconds": 4},
       "minDurationFrames": 12,
       "requiredPoseClipIds": ["rabbit.run-left"]
     },
@@ -80,6 +85,7 @@
       "shotId": "shot-notice",
       "actorId": "farmer",
       "action": "notice",
+      "sequence": 0,
       "direction": "right",
       "priority": "required",
       "minDurationFrames": 15,

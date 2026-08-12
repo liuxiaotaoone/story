@@ -257,6 +257,8 @@ describe('two-stage compiler contracts', () => {
   const preflight = {
     schemaVersion: '1.0.0',
     effectiveDirectorPlanHash: HASH,
+    capabilityCatalogVersion: '1.0.0',
+    capabilityCatalogHash: HASH,
     narrationSegments: [{
       id: 'segment-1', narrationIntentId: 'narration-1', shotId: 'shot-1', sequence: 0,
       text: 'A farmer waited by the tree.', language: 'en',
@@ -276,9 +278,30 @@ describe('two-stage compiler contracts', () => {
   };
 
   it('requires measured audio for every TTS requirement before final compile', () => {
-    expect(FinalCompileInputSchema.safeParse({preflight, measuredAudio: []}).success).toBe(false);
+    const effectiveDirectorPlan = {
+      sourceDirectorPlanHash: HASH,
+      overrideIds: [],
+      effectivePlanHash: HASH,
+      plan: {
+        schemaVersion: '1.0.0', projectId: 'project-1', storyId: 'story-1', sourceStoryHash: HASH,
+        storyBible: {title: 'Story', summary: 'Summary', styleGuideId: 'paper'},
+        characters: [{characterId: 'farmer', entityType: 'farmer', role: 'observer', initialBlocking: {horizontal: 'left', depth: 'ground'}}],
+        scenes: [{id: 'scene-1', sourceBeatIds: ['beat-1'], environmentIntent: 'field', summary: 'Field'}],
+        shots: [{id: 'shot-1', sceneId: 'scene-1', shotType: 'wide'}],
+        narration: [], actions: [],
+        cameraIntents: [{id: 'camera-1', sceneId: 'scene-1', shotId: 'shot-1', type: 'static'}],
+        blockingIntents: [],
+      },
+    };
+    const capabilityCatalog = {
+      schemaVersion: '1.0.0', catalogVersion: '1.0.0', entityCapabilities: [],
+      cameraCapabilities: [], environmentCapabilities: [], fallbackRules: [],
+    };
+    expect(FinalCompileInputSchema.safeParse({effectiveDirectorPlan, preflight, measuredAudio: [], capabilityCatalog}).success).toBe(false);
     expect(FinalCompileInputSchema.safeParse({
+      effectiveDirectorPlan,
       preflight,
+      capabilityCatalog,
       measuredAudio: [{
         requestId: 'tts-1',
         assetId: 'audio-1',
@@ -297,7 +320,7 @@ describe('override and task provenance contracts', () => {
     const base = {
       id: 'override-1',
       sourceDirectorPlanHash: HASH,
-      targetPath: '/scenes/0/shots/0/cameraIntent',
+      targetPath: '/cameraIntents/0/type',
       reason: 'Composition review',
       createdBy: 'reviewer',
       createdAt: '2026-08-10T00:00:00.000Z',
@@ -305,6 +328,7 @@ describe('override and task provenance contracts', () => {
     expect(DirectorOverrideSchema.safeParse({...base, operation: 'replace'}).success).toBe(false);
     expect(DirectorOverrideSchema.safeParse({...base, operation: 'replace', value: 'pan-right'}).success).toBe(true);
     expect(DirectorOverrideSchema.safeParse({...base, operation: 'remove', value: 'bad'}).success).toBe(false);
+    expect(DirectorOverrideSchema.safeParse({...base, targetPath: '/characters/0/role', operation: 'replace', value: 'lead'}).success).toBe(false);
   });
 
   it('changes cache identity when the producing tool version changes', () => {

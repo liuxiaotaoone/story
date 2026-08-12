@@ -1,6 +1,6 @@
-import type {JsonValue} from '@pose-clip/schemas';
+import {DIRECTOR_OVERRIDE_TARGET_ROOTS, type JsonValue} from '@pose-clip/schemas';
 
-const ALLOWED_ROOTS = new Set(['actions', 'cameraIntents', 'narration', 'blockingIntents', 'shots']);
+const ALLOWED_ROOTS = new Set<string>(DIRECTOR_OVERRIDE_TARGET_ROOTS);
 
 function decodeSegment(segment: string): string {
   return segment.replaceAll('~1', '/').replaceAll('~0', '~');

@@ -1,12 +1,24 @@
 import {z} from 'zod';
 import {ContentHashSchema, IdSchema, IsoDateTimeSchema, JsonValueSchema} from './common.js';
 
-const forbiddenPathSegment = /(?:^|\/)(?:assets?|renderPlan|renderState|timeline|poseClips?|frames?|pixels?|groundLock|pixi)(?:\/|$)/iu;
+export const DIRECTOR_OVERRIDE_TARGET_ROOTS = [
+  'actions',
+  'cameraIntents',
+  'narration',
+  'blockingIntents',
+  'shots',
+] as const;
+
+const targetRootPattern = new RegExp(`^/(?:${DIRECTOR_OVERRIDE_TARGET_ROOTS.join('|')})/[^/]+(?:/[^/]+)*$`, 'u');
+export const DirectorOverrideTargetPathSchema = z.string().refine(
+  path => targetRootPattern.test(path),
+  'Override path must target an allowed DirectorPlan semantic collection',
+);
 
 export const DirectorOverrideSchema = z.object({
   id: IdSchema,
   sourceDirectorPlanHash: ContentHashSchema,
-  targetPath: z.string().startsWith('/').refine(path => !forbiddenPathSegment.test(path), 'Override path crosses the DirectorPlan boundary'),
+  targetPath: DirectorOverrideTargetPathSchema,
   operation: z.enum(['replace', 'remove', 'insert']),
   value: JsonValueSchema.optional(),
   reason: z.string().trim().min(1),

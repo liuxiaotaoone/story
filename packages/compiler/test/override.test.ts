@@ -25,5 +25,10 @@ describe('DirectorOverride application', () => {
       id: 'bad', sourceDirectorPlanHash: '0'.repeat(64), targetPath: '/timeline/entityTracks/0',
       operation: 'replace', value: {}, reason: 'bad boundary', createdBy: 'reviewer', createdAt: '2026-08-12T00:00:00.000Z',
     }).success).toBe(false);
+    expect(DirectorOverrideSchema.safeParse({
+      id: 'bad-character', sourceDirectorPlanHash: '0'.repeat(64), targetPath: '/characters/0/role',
+      operation: 'replace', value: 'lead', reason: 'outside allowed semantic roots',
+      createdBy: 'reviewer', createdAt: '2026-08-12T00:00:00.000Z',
+    }).success).toBe(false);
   });
 });

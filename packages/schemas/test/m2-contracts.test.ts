@@ -13,6 +13,7 @@ const minimalDirectorPlan = {
   schemaVersion: '1.0.0',
   projectId: 'project-1',
   storyId: 'story-1',
+  sourceStoryHash: HASH,
   storyBible: {title: 'A Story', summary: 'A short story.', styleGuideId: 'paper-cut'},
   characters: [{
     characterId: 'farmer', entityType: 'farmer', role: 'observer',
@@ -53,10 +54,30 @@ describe('M2 semantic boundary contracts', () => {
   it('defines Preflight as compile input rather than a second Timeline', () => {
     const preflight = {
       schemaVersion: '1.0.0', effectiveDirectorPlanHash: HASH,
+      capabilityCatalogVersion: '1.0.0', capabilityCatalogHash: HASH,
       narrationSegments: [], ttsRequests: [], assetRequirements: [], expandedActions: [], diagnostics: [],
     };
     expect(PreflightCompileResultSchema.safeParse(preflight).success).toBe(true);
     expect(PreflightCompileResultSchema.safeParse({...preflight, timeline: {}}).success).toBe(false);
+  });
+
+  it('requires unique blocking targets and sequential action slots per shot', () => {
+    const action = {
+      id: 'action-1', sceneId: 'scene-1', shotId: 'shot-1', actorId: 'farmer',
+      action: 'wait', sequence: 0, priority: 'required', enabled: true,
+    };
+    const blocking = {
+      id: 'blocking-1', sceneId: 'scene-1', shotId: 'shot-1', characterId: 'farmer',
+      blocking: {horizontal: 'left', depth: 'ground'},
+    };
+    expect(DirectorPlanSchema.safeParse({
+      ...minimalDirectorPlan,
+      actions: [action, {...action, id: 'action-2'}],
+    }).success).toBe(false);
+    expect(DirectorPlanSchema.safeParse({
+      ...minimalDirectorPlan,
+      blockingIntents: [blocking, {...blocking, id: 'blocking-2'}],
+    }).success).toBe(false);
   });
 
   it('derives audio duration from integer sampleLength/sampleRate only', () => {

@@ -17,9 +17,10 @@ describe('Preflight Compiler', () => {
     const withoutHashes = {
       ...first,
       effectiveDirectorPlanHash: undefined,
+      capabilityCatalogHash: undefined,
       ttsRequests: first.ttsRequests.map(({inputHash: _inputHash, ...request}) => request),
     };
-    const {effectiveDirectorPlanHash: _effectiveHash, ...projection} = withoutHashes;
+    const {effectiveDirectorPlanHash: _effectiveHash, capabilityCatalogHash: _catalogHash, ...projection} = withoutHashes;
     expect(projection).toEqual(golden);
   });
 

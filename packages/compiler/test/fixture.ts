@@ -1,9 +1,35 @@
-import {DirectorPlanSchema, type CapabilityCatalog, type DirectorPlan} from '@pose-clip/schemas';
+import {
+  DirectorPlanSchema,
+  StorySchema,
+  canonicalHash,
+  type CapabilityCatalog,
+  type DirectorPlan,
+} from '@pose-clip/schemas';
+
+export const sourceStory = StorySchema.parse({
+  schemaVersion: '1.0.0',
+  id: 'story.waiting-rabbit',
+  title: 'Waiting by the Tree',
+  language: 'en-US',
+  domain: 'fable',
+  synopsis: 'A rabbit runs into an old tree and a farmer notices it.',
+  characters: [
+    {id: 'farmer', entityType: 'farmer', description: 'A farmer working by the field.', traits: ['observant']},
+    {id: 'rabbit', entityType: 'rabbit', description: 'A fast-running rabbit.', traits: ['hurried']},
+  ],
+  beats: [
+    {id: 'beat-run', summary: 'The rabbit runs across the field.', participantIds: ['rabbit']},
+    {id: 'beat-hit', summary: 'The rabbit hits the tree and the farmer notices.', participantIds: ['rabbit', 'farmer']},
+  ],
+});
+
+const sourceStoryHash = await canonicalHash('story-v1', sourceStory);
 
 export const storyDirectorPlan: DirectorPlan = DirectorPlanSchema.parse({
   schemaVersion: '1.0.0',
   projectId: 'waiting-rabbit-m2',
   storyId: 'story.waiting-rabbit',
+  sourceStoryHash,
   storyBible: {
     title: 'Waiting by the Tree',
     summary: 'A farmer notices a rabbit after it runs into an old tree.',
@@ -23,8 +49,8 @@ export const storyDirectorPlan: DirectorPlan = DirectorPlanSchema.parse({
     text: 'A rabbit ran quickly. It hit the old tree!', voiceId: 'narrator', language: 'en-US', speed: 1,
   }],
   actions: [
-    {id: 'action-run', sceneId: 'scene-field', shotId: 'shot-run', actorId: 'rabbit', action: 'run', direction: 'left', priority: 'required', enabled: true},
-    {id: 'action-dance', sceneId: 'scene-field', shotId: 'shot-notice', actorId: 'farmer', action: 'dance', direction: 'right', priority: 'required', enabled: true},
+    {id: 'action-run', sceneId: 'scene-field', shotId: 'shot-run', actorId: 'rabbit', action: 'run', sequence: 0, direction: 'left', priority: 'required', enabled: true, durationPreference: {preferredSeconds: 4}},
+    {id: 'action-dance', sceneId: 'scene-field', shotId: 'shot-notice', actorId: 'farmer', action: 'dance', sequence: 0, direction: 'right', priority: 'required', enabled: true},
   ],
   cameraIntents: [
     {id: 'camera-run', sceneId: 'scene-field', shotId: 'shot-run', type: 'follow', focusEntityId: 'rabbit'},
@@ -41,11 +67,11 @@ export const capabilityCatalog: CapabilityCatalog = {
   catalogVersion: '1.0.0',
   entityCapabilities: [
     {
-      entityType: 'rabbit', poseClips: ['rabbit.run-left'], attachmentSlots: [],
+      entityType: 'rabbit', visualAssetKind: 'animal-frame', poseClips: ['rabbit.run-left'], attachmentSlots: [],
       actions: [{action: 'run', requiredPoseClips: ['rabbit.run-left'], minDurationFrames: 12, supportsDirections: ['left']}],
     },
     {
-      entityType: 'farmer', poseClips: ['farmer.notice-right'], attachmentSlots: [],
+      entityType: 'farmer', visualAssetKind: 'character-frame', poseClips: ['farmer.notice-right'], attachmentSlots: [],
       actions: [{action: 'notice', requiredPoseClips: ['farmer.notice-right'], minDurationFrames: 15, supportsDirections: ['right']}],
     },
   ],

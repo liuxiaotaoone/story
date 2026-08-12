@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {IdSchema} from './common.js';
+import {ContentHashSchema, IdSchema} from './common.js';
 import {DirectionSchema} from './pose-clip.js';
 
 export const CameraIntentSchema = z.enum([
@@ -66,6 +66,7 @@ export const ActionIntentSchema = z.object({
   shotId: IdSchema,
   actorId: IdSchema,
   action: IdSchema,
+  sequence: z.number().int().nonnegative(),
   targetId: IdSchema.optional(),
   direction: DirectionSchema.optional(),
   priority: z.enum(['required', 'optional']),
@@ -109,6 +110,7 @@ export const DirectorPlanSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
   projectId: IdSchema,
   storyId: IdSchema,
+  sourceStoryHash: ContentHashSchema,
   storyBible: StoryBibleSchema,
   characters: z.array(DirectorCharacterIntentSchema).min(1),
   scenes: z.array(DirectorSceneSchema).min(1),
@@ -154,6 +156,30 @@ export const DirectorPlanSchema = z.object({
   for (const [index, blocking] of plan.blockingIntents.entries()) {
     checkShot(blocking, 'blockingIntents', index);
     if (!characterIds.has(blocking.characterId)) context.addIssue({code: 'custom', message: `Unknown blocking character: ${blocking.characterId}`, path: ['blockingIntents', index, 'characterId']});
+  }
+  const blockingKeys = new Set<string>();
+  for (const [index, blocking] of plan.blockingIntents.entries()) {
+    const key = `${blocking.shotId}\u0000${blocking.characterId}`;
+    if (blockingKeys.has(key)) {
+      context.addIssue({
+        code: 'custom',
+        message: `Character ${blocking.characterId} has multiple blocking intents in shot ${blocking.shotId}`,
+        path: ['blockingIntents', index],
+      });
+    }
+    blockingKeys.add(key);
+  }
+  const actionSequenceKeys = new Set<string>();
+  for (const [index, action] of plan.actions.entries()) {
+    const key = `${action.shotId}\u0000${action.sequence}`;
+    if (actionSequenceKeys.has(key)) {
+      context.addIssue({
+        code: 'custom',
+        message: `Shot ${action.shotId} has duplicate action sequence ${action.sequence}`,
+        path: ['actions', index, 'sequence'],
+      });
+    }
+    actionSequenceKeys.add(key);
   }
   for (const shotId of shotIds) {
     if (plan.cameraIntents.filter(intent => intent.shotId === shotId).length !== 1) {

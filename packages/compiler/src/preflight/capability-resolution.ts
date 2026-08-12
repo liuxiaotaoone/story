@@ -26,6 +26,7 @@ export function resolveActions(
   actions: readonly ActionIntent[],
   characterTypes: ReadonlyMap<string, string>,
   catalog: CapabilityCatalog,
+  shotIdsInOrder?: readonly string[],
 ): ActionResolution {
   const expandedActions: ExpandedAction[] = [];
   const diagnostics: CompileDiagnostic[] = [];
@@ -91,11 +92,19 @@ export function resolveActions(
     }
     expandedActions.push({
       id: `expanded.${action.id}`, sourceActionId: action.id, sceneId: action.sceneId, shotId: action.shotId,
-      actorId: action.actorId, action: actionName, ...(action.targetId === undefined ? {} : {targetId: action.targetId}),
+      actorId: action.actorId, action: actionName, sequence: action.sequence,
+      ...(action.targetId === undefined ? {} : {targetId: action.targetId}),
+      ...(action.durationPreference === undefined ? {} : {durationPreference: action.durationPreference}),
       direction, priority: action.priority, minDurationFrames: capability.minDurationFrames,
       requiredPoseClipIds: capability.requiredPoseClips, ...(rewrite === undefined ? {} : {rewrite}),
     });
   }
+  const shotOrder = new Map((shotIdsInOrder ?? [...new Set(actions.map(action => action.shotId))].sort()).map((shotId, index) => [shotId, index]));
+  expandedActions.sort((left, right) =>
+    (shotOrder.get(left.shotId)! - shotOrder.get(right.shotId)!)
+    || (left.sequence - right.sequence)
+    || left.id.localeCompare(right.id),
+  );
   return {expandedActions, diagnostics};
 }
 

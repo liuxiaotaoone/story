@@ -1,7 +1,8 @@
 import {z} from 'zod';
 import {AssetKindSchema} from './asset.js';
 import {CompileDiagnosticSchema} from './compile-diagnostics.js';
-import {ContentHashSchema, IdSchema} from './common.js';
+import {ContentHashSchema, IdSchema, SemverSchema} from './common.js';
+import {DurationPreferenceSchema} from './director-plan.js';
 import {DirectionSchema} from './pose-clip.js';
 import {NarrationSegmentSchema, TtsRequestSchema} from './tts-request.js';
 
@@ -13,7 +14,13 @@ export const AssetRequirementSchema = z.object({
   direction: DirectionSchema.optional(),
   environmentIntent: z.string().trim().min(1).optional(),
   required: z.boolean(),
-}).strict();
+  requestedByActionIds: z.array(IdSchema).optional(),
+}).strict().superRefine((requirement, context) => {
+  const requestedBy = requirement.requestedByActionIds ?? [];
+  if (new Set(requestedBy).size !== requestedBy.length) {
+    context.addIssue({code: 'custom', message: 'requestedByActionIds must be unique', path: ['requestedByActionIds']});
+  }
+});
 
 export const ExpandedActionSchema = z.object({
   id: IdSchema,
@@ -22,9 +29,11 @@ export const ExpandedActionSchema = z.object({
   shotId: IdSchema,
   actorId: IdSchema,
   action: IdSchema,
+  sequence: z.number().int().nonnegative(),
   targetId: IdSchema.optional(),
   direction: DirectionSchema,
   priority: z.enum(['required', 'optional']),
+  durationPreference: DurationPreferenceSchema.optional(),
   minDurationFrames: z.number().int().nonnegative(),
   requiredPoseClipIds: z.array(IdSchema),
   rewrite: z.object({
@@ -36,6 +45,8 @@ export const ExpandedActionSchema = z.object({
 export const PreflightCompileResultSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
   effectiveDirectorPlanHash: ContentHashSchema,
+  capabilityCatalogVersion: SemverSchema,
+  capabilityCatalogHash: ContentHashSchema,
   narrationSegments: z.array(NarrationSegmentSchema),
   ttsRequests: z.array(TtsRequestSchema),
   assetRequirements: z.array(AssetRequirementSchema),
