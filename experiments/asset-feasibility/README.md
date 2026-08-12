@@ -39,6 +39,6 @@ The Gate is PASS only after Farmer 8+ states, Walk/Run clips, Rabbit package, fo
 
 Current decision: **Feasibility PASS / not Production-ready**. Automated Structural QA is separate from Human Visual Review. The compiled asset package reports `productionReady=false` until anchor review and continuity warnings are closed.
 
-M1 v0.2 adds policy-driven whole-sprite normalization (translate + uniform scale only), character-scoped anchor namespaces, a persistent Anchor Approve API, explicit Anchor Review Sheets, truthful SHA-256 provenance, experiment/production import modes, whole-sprite anticipation, clearer collision staging, and `farmer.notice-right` without modifying the frozen Engine or Renderer.
+M1 v0.2.1 adds policy-driven whole-sprite normalization (translate + uniform scale only), character-scoped anchor namespaces, a persistent Anchor Approve API, explicit Anchor Review Sheets, truthful SHA-256 provenance, experiment/production import modes, whole-sprite anticipation, clearer collision staging, and `farmer.notice-right` without modifying the frozen Engine or Renderer. The Farmer ground track is constant for all 300 frames; the 5.5–8 second visual transfer comes only from Camera Pan, so no static Pose performs locomotion.
 
 Current decision: **M1 High-quality Visual Demo PASS / Frozen**. This freezes the visual feasibility demo, not the asset package for production: unresolved Walk/Run continuity and non-key anchor reviews intentionally keep `productionReady=false`.

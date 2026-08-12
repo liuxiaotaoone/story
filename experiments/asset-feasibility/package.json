@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
-    "test": "node ../../node_modules/vitest/vitest.mjs run test/asset-package-importer.test.ts && python test/test_asset_qa.py",
+    "test": "node ../../node_modules/vitest/vitest.mjs run test && python test/test_asset_qa.py",
     "qa": "python scripts/run_asset_qa.py --workspace .",
     "package": "python scripts/run_asset_qa.py --workspace . && python scripts/build_asset_package.py --workspace .",
     "demo": "node scripts/run-demo.mjs"
