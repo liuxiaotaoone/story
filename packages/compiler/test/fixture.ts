@@ -36,8 +36,8 @@ export const storyDirectorPlan: DirectorPlan = DirectorPlanSchema.parse({
     styleGuideId: 'warm-paper-cut',
   },
   characters: [
-    {characterId: 'farmer', entityType: 'farmer', role: 'observer', initialBlocking: {horizontal: 'left', depth: 'ground', facing: 'right'}},
-    {characterId: 'rabbit', entityType: 'rabbit', role: 'runner', initialBlocking: {horizontal: 'far-right', depth: 'ground', facing: 'left'}},
+    {characterId: 'farmer', entityType: 'farmer', role: 'observer', initialBlocking: {horizontal: 'left', depth: 'ground'}},
+    {characterId: 'rabbit', entityType: 'rabbit', role: 'runner', initialBlocking: {horizontal: 'far-right', depth: 'ground'}},
   ],
   scenes: [{id: 'scene-field', sourceBeatIds: ['beat-run', 'beat-hit'], environmentIntent: 'pastoral-field', summary: 'An old tree at the edge of a field.'}],
   shots: [
@@ -57,8 +57,8 @@ export const storyDirectorPlan: DirectorPlan = DirectorPlanSchema.parse({
     {id: 'camera-notice', sceneId: 'scene-field', shotId: 'shot-notice', type: 'pan-left', focusEntityId: 'farmer'},
   ],
   blockingIntents: [
-    {id: 'blocking-rabbit', sceneId: 'scene-field', shotId: 'shot-run', characterId: 'rabbit', blocking: {horizontal: 'far-right', depth: 'ground', facing: 'left'}},
-    {id: 'blocking-farmer', sceneId: 'scene-field', shotId: 'shot-notice', characterId: 'farmer', blocking: {horizontal: 'left', depth: 'ground', facing: 'right'}},
+    {id: 'blocking-rabbit', sceneId: 'scene-field', shotId: 'shot-run', characterId: 'rabbit', blocking: {horizontal: 'far-right', depth: 'ground'}},
+    {id: 'blocking-farmer', sceneId: 'scene-field', shotId: 'shot-notice', characterId: 'farmer', blocking: {horizontal: 'left', depth: 'ground'}},
   ],
 });
 
@@ -71,7 +71,7 @@ export const capabilityCatalog: CapabilityCatalog = {
       actions: [{
         action: 'run', requiredPoseClips: ['rabbit.run-left'],
         poseBindings: [{direction: 'left', poseClipId: 'rabbit.run-left'}],
-        minDurationFrames: 12, supportsDirections: ['left'],
+        minDurationFrames: 12, supportsDirections: ['left'], defaultDirection: 'left',
         completionPolicy: 'return-default', spatialMode: 'locomotion',
       }],
     },
@@ -80,7 +80,7 @@ export const capabilityCatalog: CapabilityCatalog = {
       actions: [{
         action: 'notice', requiredPoseClips: ['farmer.notice-right'],
         poseBindings: [{direction: 'right', poseClipId: 'farmer.notice-right'}],
-        minDurationFrames: 15, supportsDirections: ['right'],
+        minDurationFrames: 15, supportsDirections: ['right'], defaultDirection: 'right',
         completionPolicy: 'hold', spatialMode: 'stationary',
       }],
     },

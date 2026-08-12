@@ -26,6 +26,7 @@ export const ActionCapabilitySchema = z.object({
   targetTypes: z.array(IdSchema).optional(),
   minDurationFrames: z.number().int().positive(),
   supportsDirections: z.array(DirectionSchema).min(1),
+  defaultDirection: DirectionSchema,
   completionPolicy: z.enum(['hold', 'return-default']),
   spatialMode: z.enum(['stationary', 'locomotion']),
   attachmentMode: AttachmentModeSchema.optional(),
@@ -34,6 +35,10 @@ export const ActionCapabilitySchema = z.object({
   addDuplicateIssues(action.supportsDirections, context, 'supportsDirections');
   addDuplicateIssues(action.poseBindings.map(binding => binding.direction), context, 'poseBindings');
   if (action.targetTypes !== undefined) addDuplicateIssues(action.targetTypes, context, 'targetTypes');
+  if (!action.supportsDirections.includes(action.defaultDirection)) context.addIssue({
+    code: 'custom', message: `defaultDirection ${action.defaultDirection} is not supported by the action`,
+    path: ['defaultDirection'],
+  });
   for (const [index, binding] of action.poseBindings.entries()) {
     if (!action.supportsDirections.includes(binding.direction)) context.addIssue({
       code: 'custom', message: `Pose binding direction ${binding.direction} is not supported by the action`,

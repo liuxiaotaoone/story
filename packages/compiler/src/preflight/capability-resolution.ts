@@ -3,6 +3,7 @@ import type {
   ActionIntent,
   CapabilityCatalog,
   CameraIntentDefinition,
+  BlockingIntent,
   CharacterBlockingIntent,
   CompileDiagnostic,
   DirectorPlan,
@@ -81,7 +82,7 @@ export function resolveActions(
         continue;
       }
     }
-    const direction = action.direction ?? capability.supportsDirections[0]!;
+    const direction = action.direction ?? capability.defaultDirection;
     if (!capability.supportsDirections.includes(direction)) {
       diagnostics.push({
         id: `diagnostic.${action.id}.direction`, severity: 'error', code: 'UNSUPPORTED_CAPABILITY',
@@ -112,6 +113,14 @@ export function resolveActions(
         id: `diagnostic.${action.id}.stationary-destination`, severity: 'error', code: 'BLOCKING_UNRESOLVABLE',
         message: `Stationary action ${actionName} cannot consume destinationBlocking`,
         sourceId: action.id, path: `/actions/${action.id}/destinationBlocking`, recoverable: false,
+      });
+      continue;
+    }
+    if (action.destinationBlocking?.facing !== undefined && action.destinationBlocking.facing !== direction) {
+      diagnostics.push({
+        id: `diagnostic.${action.id}.destination-facing`, severity: 'error', code: 'BLOCKING_UNRESOLVABLE',
+        message: `Locomotion destination facing ${action.destinationBlocking.facing} conflicts with action direction ${direction}`,
+        sourceId: action.id, path: `/actions/${action.id}/destinationBlocking/facing`, recoverable: false,
       });
       continue;
     }
@@ -157,32 +166,56 @@ function validateCameras(
   });
 }
 
-function validateBlocking(
-  blockingIntents: readonly CharacterBlockingIntent[],
-  plan: DirectorPlan,
-  catalog: CapabilityCatalog,
-): CompileDiagnostic[] {
+function validateCharacterPlacement(input: {
+  environmentId: string;
+  entityType: string;
+  blocking: BlockingIntent;
+  sourceId: string;
+  path: string;
+  diagnosticId: string;
+  catalog: CapabilityCatalog;
+}): CompileDiagnostic[] {
+  const environment = input.catalog.environmentCapabilities.find(candidate => candidate.environmentId === input.environmentId);
+  if (environment === undefined) return [{
+    id: `${input.diagnosticId}.environment`, severity: 'error', code: 'UNSUPPORTED_CAPABILITY',
+    message: `Environment ${input.environmentId} is not in the Capability Catalog`,
+    sourceId: input.sourceId, path: input.path, recoverable: false,
+  }];
+  if (!environment.allowedEntityTypes.includes(input.entityType)
+    || !environment.supportedDepthIntents.includes(input.blocking.depth)) return [{
+    id: `${input.diagnosticId}.blocking`, severity: 'error', code: 'BLOCKING_UNRESOLVABLE',
+    message: `Environment ${input.environmentId} cannot place ${input.entityType} at ${input.blocking.depth}`,
+    sourceId: input.sourceId, path: input.path, recoverable: false,
+  }];
+  return [];
+}
+
+function validatePlacements(plan: DirectorPlan, catalog: CapabilityCatalog): CompileDiagnostic[] {
   const characterTypes = new Map(plan.characters.map(character => [character.characterId, character.entityType]));
+  const sceneEnvironment = new Map(plan.scenes.map(scene => [scene.id, scene.environmentIntent]));
   const diagnostics: CompileDiagnostic[] = [];
-  for (const blocking of blockingIntents) {
-    const scene = plan.scenes.find(candidate => candidate.id === blocking.sceneId)!;
-    const environment = catalog.environmentCapabilities.find(candidate => candidate.environmentId === scene.environmentIntent);
-    const entityType = characterTypes.get(blocking.characterId)!;
-    if (environment === undefined) {
-      diagnostics.push({
-        id: `diagnostic.${blocking.id}.environment`, severity: 'error' as const, code: 'UNSUPPORTED_CAPABILITY' as const,
-        message: `Environment ${scene.environmentIntent} is not in the Capability Catalog`,
-        sourceId: blocking.id, path: `/scenes/${scene.id}/environmentIntent`, recoverable: false,
-      });
-      continue;
-    }
-    if (!environment.allowedEntityTypes.includes(entityType) || !environment.supportedDepthIntents.includes(blocking.blocking.depth)) {
-      diagnostics.push({
-        id: `diagnostic.${blocking.id}.blocking`, severity: 'error' as const, code: 'BLOCKING_UNRESOLVABLE' as const,
-        message: `Environment ${scene.environmentIntent} cannot place ${entityType} at ${blocking.blocking.depth}`,
-        sourceId: blocking.id, path: `/blockingIntents/${blocking.id}`, recoverable: false,
-      });
-    }
+  const environmentIds = [...new Set(plan.scenes.map(scene => scene.environmentIntent))];
+  for (const character of plan.characters) {
+    for (const environmentId of environmentIds) diagnostics.push(...validateCharacterPlacement({
+      environmentId, entityType: character.entityType, blocking: character.initialBlocking,
+      sourceId: character.characterId, path: `/characters/${character.characterId}/initialBlocking`,
+      diagnosticId: `diagnostic.${character.characterId}.initial.${environmentId}`, catalog,
+    }));
+  }
+  for (const blocking of plan.blockingIntents) diagnostics.push(...validateCharacterPlacement({
+    environmentId: sceneEnvironment.get(blocking.sceneId)!,
+    entityType: characterTypes.get(blocking.characterId)!, blocking: blocking.blocking,
+    sourceId: blocking.id, path: `/blockingIntents/${blocking.id}`,
+    diagnosticId: `diagnostic.${blocking.id}`, catalog,
+  }));
+  for (const action of plan.actions) {
+    if (!action.enabled || action.destinationBlocking === undefined) continue;
+    diagnostics.push(...validateCharacterPlacement({
+      environmentId: sceneEnvironment.get(action.sceneId)!,
+      entityType: characterTypes.get(action.actorId)!, blocking: action.destinationBlocking,
+      sourceId: action.id, path: `/actions/${action.id}/destinationBlocking`,
+      diagnosticId: `diagnostic.${action.id}.destination`, catalog,
+    }));
   }
   return diagnostics;
 }
@@ -199,6 +232,6 @@ export function validatePlanCapabilities(plan: DirectorPlan, catalog: Capability
     }
   }
   diagnostics.push(...validateCameras(plan.cameraIntents, plan, catalog));
-  diagnostics.push(...validateBlocking(plan.blockingIntents, plan, catalog));
+  diagnostics.push(...validatePlacements(plan, catalog));
   return {diagnostics};
 }

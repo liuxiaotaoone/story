@@ -19,7 +19,7 @@ const minimalDirectorPlan = {
   storyBible: {title: 'A Story', summary: 'A short story.', styleGuideId: 'paper-cut'},
   characters: [{
     characterId: 'farmer', entityType: 'farmer', role: 'observer',
-    initialBlocking: {horizontal: 'left', depth: 'ground', facing: 'right'},
+    initialBlocking: {horizontal: 'left', depth: 'ground'},
   }],
   scenes: [{id: 'scene-1', sourceBeatIds: ['beat-1'], environmentIntent: 'field', summary: 'A field.'}],
   shots: [{id: 'shot-1', sceneId: 'scene-1', shotType: 'wide', focusEntityId: 'farmer'}],
@@ -33,7 +33,7 @@ describe('M2 semantic boundary contracts', () => {
   it('rejects zero-duration required action capability and expansion', () => {
     expect(ActionCapabilitySchema.safeParse({
       action: 'impact', requiredPoseClips: [], poseBindings: [], minDurationFrames: 0, supportsDirections: ['front'],
-      completionPolicy: 'hold', spatialMode: 'stationary',
+      defaultDirection: 'front', completionPolicy: 'hold', spatialMode: 'stationary',
     }).success).toBe(false);
     expect(ExpandedActionSchema.safeParse({
       id: 'expanded-impact', sourceActionId: 'impact', sceneId: 'scene-1', shotId: 'shot-1',
@@ -90,6 +90,29 @@ describe('M2 semantic boundary contracts', () => {
     expect(DirectorPlanSchema.safeParse({
       ...minimalDirectorPlan,
       cameraIntents: [{id: 'camera-follow', sceneId: 'scene-1', shotId: 'shot-1', type: 'follow'}],
+    }).success).toBe(false);
+  });
+
+  it('rejects non-action facing and invalid defaultDirection declarations', () => {
+    expect(DirectorPlanSchema.safeParse({
+      ...minimalDirectorPlan,
+      characters: [{
+        ...minimalDirectorPlan.characters[0],
+        initialBlocking: {...minimalDirectorPlan.characters[0]!.initialBlocking, facing: 'right'},
+      }],
+    }).success).toBe(false);
+    expect(DirectorPlanSchema.safeParse({
+      ...minimalDirectorPlan,
+      blockingIntents: [{
+        id: 'blocking-facing', sceneId: 'scene-1', shotId: 'shot-1', characterId: 'farmer',
+        blocking: {horizontal: 'left', depth: 'ground', facing: 'right'},
+      }],
+    }).success).toBe(false);
+    expect(ActionCapabilitySchema.safeParse({
+      action: 'run', requiredPoseClips: ['run-left'],
+      poseBindings: [{direction: 'left', poseClipId: 'run-left'}],
+      minDurationFrames: 10, supportsDirections: ['left'], defaultDirection: 'right',
+      completionPolicy: 'return-default', spatialMode: 'locomotion',
     }).success).toBe(false);
   });
 

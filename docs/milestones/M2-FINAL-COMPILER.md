@@ -18,6 +18,9 @@ Final Compiler 现在执行：
 - Required Action Timing 与明确 `poseClipId` 到 PoseEvent/Cut PoseTransition
 - `completionPolicy` 使 Action 结束帧真正结束 Pose；相邻 Action 同帧直接切换，不插入默认 Pose
 - `spatialMode=locomotion` 要求 `destinationBlocking`，并把动作区间编译为 GroundPosition 位移
+- Initial、Shot 与 Destination Placement 统一通过 Environment Capability Gate
+- Action 使用显式 `defaultDirection`，不依赖 supportsDirections 数组顺序
+- M2 的 facing 仅用于 Locomotion Destination，并且必须与解析后的 Action direction 一致
 - Camera Intent 到显式 CameraTrack
 - Follow Camera 必须绑定 focusEntityId，并从目标 EntityTrack 经 Ground Projection 生成 CameraTrack
 - Narration Timing 到 NarrationCue 与 SubtitleCue
@@ -30,6 +33,7 @@ Final Compiler 现在执行：
 ## 暂不支持
 
 - 多 Scene
+- Initial/Shot Blocking 的 facing 驱动 Pose（M2 Schema 明确拒绝该字段）
 - 复杂 Ownership
 - 多角色并行动作
 - Optional Action placement

@@ -43,7 +43,13 @@ export const DirectorCharacterIntentSchema = z.object({
   entityType: IdSchema,
   role: z.string().trim().min(1),
   initialBlocking: BlockingIntentSchema,
-}).strict();
+}).strict().superRefine((character, context) => {
+  if (character.initialBlocking.facing !== undefined) context.addIssue({
+    code: 'custom',
+    message: 'M2 initialBlocking cannot declare facing; Pose direction is action-controlled',
+    path: ['initialBlocking', 'facing'],
+  });
+});
 
 export const DirectorSceneSchema = z.object({
   id: IdSchema,
@@ -104,7 +110,13 @@ export const CharacterBlockingIntentSchema = z.object({
   shotId: IdSchema,
   characterId: IdSchema,
   blocking: BlockingIntentSchema,
-}).strict();
+}).strict().superRefine((intent, context) => {
+  if (intent.blocking.facing !== undefined) context.addIssue({
+    code: 'custom',
+    message: 'M2 shot blocking cannot declare facing; Pose direction is action-controlled',
+    path: ['blocking', 'facing'],
+  });
+});
 
 export const StoryBibleSchema = z.object({
   title: z.string().trim().min(1),

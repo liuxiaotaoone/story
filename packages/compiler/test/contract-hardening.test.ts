@@ -13,6 +13,7 @@ import {
   compilePreflight,
   createEffectiveDirectorPlan,
   hashResolvedAssetCatalogPayload,
+  resolveActions,
   validateDirectorPlanAgainstStory,
 } from '../src/index.js';
 import {capabilityCatalog, sourceStory, storyDirectorPlan} from './fixture.js';
@@ -184,5 +185,70 @@ describe('M2 contract hardening', () => {
     const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: plan, overrides: []});
     const preflight = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
     expect(preflight.expandedActions.filter(action => action.shotId === 'shot-run').map(action => action.sequence)).toEqual([0, 1]);
+  });
+
+  it('validates initial, shot and locomotion-destination placements against Environment Capability', async () => {
+    for (const plan of [
+      DirectorPlanSchema.parse({
+        ...storyDirectorPlan,
+        characters: storyDirectorPlan.characters.map(character => character.characterId === 'rabbit'
+          ? {...character, initialBlocking: {...character.initialBlocking, depth: 'foreground' as const}}
+          : character),
+      }),
+      DirectorPlanSchema.parse({
+        ...storyDirectorPlan,
+        blockingIntents: storyDirectorPlan.blockingIntents.map(blocking => blocking.characterId === 'rabbit'
+          ? {...blocking, blocking: {...blocking.blocking, depth: 'foreground' as const}}
+          : blocking),
+      }),
+      DirectorPlanSchema.parse({
+        ...storyDirectorPlan,
+        actions: storyDirectorPlan.actions.map(action => action.id === 'action-run'
+          ? {...action, destinationBlocking: {...action.destinationBlocking!, depth: 'foreground' as const}}
+          : action),
+      }),
+    ]) {
+      const effective = await createEffectiveDirectorPlan({story: sourceStory, directorPlan: plan, overrides: []});
+      const preflight = await compilePreflight({effectiveDirectorPlan: effective, capabilityCatalog});
+      expect(preflight.diagnostics).toContainEqual(expect.objectContaining({
+        code: 'BLOCKING_UNRESOLVABLE', severity: 'error',
+      }));
+    }
+  });
+
+  it('uses explicit defaultDirection independent of arrays and rejects destination-facing conflicts', () => {
+    const rabbit = capabilityCatalog.entityCapabilities[0]!;
+    const run = rabbit.actions[0]!;
+    const catalog = CapabilityCatalogSchema.parse({
+      ...capabilityCatalog,
+      entityCapabilities: [{
+        ...rabbit,
+        poseClips: ['rabbit.run-left', 'rabbit.run-right'],
+        actions: [{
+          ...run,
+          supportsDirections: ['right', 'left'],
+          defaultDirection: 'left',
+          requiredPoseClips: ['rabbit.run-left', 'rabbit.run-right'],
+          poseBindings: [
+            {direction: 'right', poseClipId: 'rabbit.run-right'},
+            {direction: 'left', poseClipId: 'rabbit.run-left'},
+          ],
+        }],
+      }, capabilityCatalog.entityCapabilities[1]!],
+    });
+    const {direction: _direction, ...withoutDirection} = storyDirectorPlan.actions[0]!;
+    const resolved = resolveActions([withoutDirection], new Map([['rabbit', 'rabbit']]), catalog);
+    expect(resolved.expandedActions[0]).toEqual(expect.objectContaining({
+      direction: 'left', poseClipId: 'rabbit.run-left',
+    }));
+
+    const conflicting = resolveActions([{
+      ...storyDirectorPlan.actions[0]!, direction: 'left',
+      destinationBlocking: {horizontal: 'left', depth: 'ground', facing: 'right'},
+    }], new Map([['rabbit', 'rabbit']]), catalog);
+    expect(conflicting.expandedActions).toEqual([]);
+    expect(conflicting.diagnostics).toContainEqual(expect.objectContaining({
+      code: 'BLOCKING_UNRESOLVABLE', path: '/actions/action-run/destinationBlocking/facing',
+    }));
   });
 });
