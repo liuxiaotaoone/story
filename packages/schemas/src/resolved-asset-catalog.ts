@@ -10,6 +10,16 @@ export const CharacterAssetBindingSchema = z.object({
   entityDefinitionId: z.string().trim().min(1),
 }).strict();
 
+export const LandmarkAssetBindingSchema = z.object({
+  landmarkType: z.string().trim().min(1),
+  entityDefinitionId: z.string().trim().min(1),
+}).strict();
+
+export const EffectAssetBindingSchema = z.object({
+  effectType: z.string().trim().min(1),
+  entityDefinitionId: z.string().trim().min(1),
+}).strict();
+
 export const ResolvedAssetCatalogSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
   mode: z.enum(['experiment', 'production']),
@@ -20,6 +30,8 @@ export const ResolvedAssetCatalogSchema = z.object({
   environments: z.array(EnvironmentDefinitionSchema),
   entityDefinitions: z.array(EntityDefinitionSchema),
   characterBindings: z.array(CharacterAssetBindingSchema),
+  landmarkBindings: z.array(LandmarkAssetBindingSchema).optional(),
+  effectBindings: z.array(EffectAssetBindingSchema).optional(),
 }).strict().superRefine((catalog, context) => {
   if (catalog.mode === 'production' && !catalog.productionReady) {
     context.addIssue({code: 'custom', message: 'Production asset catalogs must be productionReady', path: ['productionReady']});
@@ -41,6 +53,8 @@ export const ResolvedAssetCatalogSchema = z.object({
     });
     characterIds.add(binding.characterId);
   }
+  uniqueIds((catalog.landmarkBindings ?? []).map(binding => ({id: binding.landmarkType})), 'landmarkBindings');
+  uniqueIds((catalog.effectBindings ?? []).map(binding => ({id: binding.effectType})), 'effectBindings');
   const assetIds = new Set(catalog.assets.assets.map(asset => asset.id));
   for (const [clipIndex, clip] of catalog.poseClips.entries()) {
     for (const [frameIndex, frame] of clip.frames.entries()) {
@@ -79,7 +93,17 @@ export const ResolvedAssetCatalogSchema = z.object({
       path: ['characterBindings', index, 'entityDefinitionId'],
     });
   }
+  for (const [index, binding] of (catalog.landmarkBindings ?? []).entries()) {
+    if (!definitionIds.has(binding.entityDefinitionId)) context.addIssue({code: 'custom', message: `Landmark binding references unknown EntityDefinition ${binding.entityDefinitionId}`, path: ['landmarkBindings', index, 'entityDefinitionId']});
+    else if (catalog.entityDefinitions.find(definition => definition.id === binding.entityDefinitionId)?.entityType !== binding.landmarkType) context.addIssue({code: 'custom', message: `Landmark binding ${binding.landmarkType} has a mismatched EntityDefinition type`, path: ['landmarkBindings', index, 'entityDefinitionId']});
+  }
+  for (const [index, binding] of (catalog.effectBindings ?? []).entries()) {
+    if (!definitionIds.has(binding.entityDefinitionId)) context.addIssue({code: 'custom', message: `Effect binding references unknown EntityDefinition ${binding.entityDefinitionId}`, path: ['effectBindings', index, 'entityDefinitionId']});
+    else if (catalog.entityDefinitions.find(definition => definition.id === binding.entityDefinitionId)?.entityType !== binding.effectType) context.addIssue({code: 'custom', message: `Effect binding ${binding.effectType} has a mismatched EntityDefinition type`, path: ['effectBindings', index, 'entityDefinitionId']});
+  }
 });
 
 export type ResolvedAssetCatalog = z.infer<typeof ResolvedAssetCatalogSchema>;
 export type CharacterAssetBinding = z.infer<typeof CharacterAssetBindingSchema>;
+export type LandmarkAssetBinding = z.infer<typeof LandmarkAssetBindingSchema>;
+export type EffectAssetBinding = z.infer<typeof EffectAssetBindingSchema>;

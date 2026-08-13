@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {ContentHashSchema, IdSchema} from './common.js';
+import {ContentHashSchema, IdSchema, UnitIntervalSchema} from './common.js';
 import {DirectionSchema} from './pose-clip.js';
 
 export const CameraIntentSchema = z.enum([
@@ -58,11 +58,28 @@ export const DirectorSceneSchema = z.object({
   summary: z.string().trim().min(1),
 }).strict();
 
+export const LandmarkIntentSchema = z.object({
+  id: IdSchema,
+  sceneId: IdSchema,
+  landmarkType: IdSchema,
+  blocking: BlockingIntentSchema,
+}).strict();
+
+export const CameraCompositionSchema = z.object({
+  subjectScreenX: UnitIntervalSchema,
+  subjectScreenY: UnitIntervalSchema,
+  leadRoom: z.enum(['left', 'right', 'center']),
+}).strict().superRefine((composition, context) => {
+  if (composition.leadRoom === 'left' && composition.subjectScreenX < 0.5) context.addIssue({code: 'custom', message: 'Left lead room places the subject on the right half of frame', path: ['subjectScreenX']});
+  if (composition.leadRoom === 'right' && composition.subjectScreenX > 0.5) context.addIssue({code: 'custom', message: 'Right lead room places the subject on the left half of frame', path: ['subjectScreenX']});
+});
+
 export const DirectorShotSchema = z.object({
   id: IdSchema,
   sceneId: IdSchema,
   shotType: ShotTypeSchema,
   focusEntityId: IdSchema.optional(),
+  composition: CameraCompositionSchema.optional(),
   durationPreference: DurationPreferenceSchema.optional(),
 }).strict();
 
@@ -132,6 +149,7 @@ export const DirectorPlanSchema = z.object({
   storyBible: StoryBibleSchema,
   characters: z.array(DirectorCharacterIntentSchema).min(1),
   scenes: z.array(DirectorSceneSchema).min(1),
+  landmarks: z.array(LandmarkIntentSchema).optional(),
   shots: z.array(DirectorShotSchema).min(1),
   narration: z.array(NarrationIntentSchema),
   actions: z.array(ActionIntentSchema),
@@ -147,8 +165,11 @@ export const DirectorPlanSchema = z.object({
     return ids;
   };
   const characterIds = new Set(plan.characters.map(character => character.characterId));
+  const landmarkIds = new Set((plan.landmarks ?? []).map(landmark => landmark.id));
+  const directorEntityIds = new Set([...characterIds, ...landmarkIds]);
   if (characterIds.size !== plan.characters.length) context.addIssue({code: 'custom', message: 'Director character ids must be unique', path: ['characters']});
   const sceneIds = uniqueIds(plan.scenes, 'scenes');
+  uniqueIds(plan.landmarks ?? [], 'landmarks');
   const shotIds = uniqueIds(plan.shots, 'shots');
   uniqueIds(plan.narration, 'narration');
   uniqueIds(plan.actions, 'actions');
@@ -162,18 +183,21 @@ export const DirectorPlanSchema = z.object({
   };
   for (const [index, shot] of plan.shots.entries()) {
     if (!sceneIds.has(shot.sceneId)) context.addIssue({code: 'custom', message: `Unknown scene: ${shot.sceneId}`, path: ['shots', index, 'sceneId']});
-    if (shot.focusEntityId !== undefined && !characterIds.has(shot.focusEntityId)) context.addIssue({code: 'custom', message: `Unknown focus character: ${shot.focusEntityId}`, path: ['shots', index, 'focusEntityId']});
+    if (shot.focusEntityId !== undefined && !directorEntityIds.has(shot.focusEntityId)) context.addIssue({code: 'custom', message: `Unknown focus entity: ${shot.focusEntityId}`, path: ['shots', index, 'focusEntityId']});
+  }
+  for (const [index, landmark] of (plan.landmarks ?? []).entries()) {
+    if (!sceneIds.has(landmark.sceneId)) context.addIssue({code: 'custom', message: `Unknown scene: ${landmark.sceneId}`, path: ['landmarks', index, 'sceneId']});
   }
   for (const [index, narration] of plan.narration.entries()) checkShot(narration, 'narration', index);
   for (const [index, action] of plan.actions.entries()) {
     checkShot(action, 'actions', index);
     if (!characterIds.has(action.actorId)) context.addIssue({code: 'custom', message: `Unknown action actor: ${action.actorId}`, path: ['actions', index, 'actorId']});
-    if (action.targetId !== undefined && !characterIds.has(action.targetId)) context.addIssue({code: 'custom', message: `Unknown action target: ${action.targetId}`, path: ['actions', index, 'targetId']});
+    if (action.targetId !== undefined && !directorEntityIds.has(action.targetId)) context.addIssue({code: 'custom', message: `Unknown action target: ${action.targetId}`, path: ['actions', index, 'targetId']});
   }
   for (const [index, camera] of plan.cameraIntents.entries()) {
     checkShot(camera, 'cameraIntents', index);
-    if (camera.focusEntityId !== undefined && !characterIds.has(camera.focusEntityId)) {
-      context.addIssue({code: 'custom', message: `Unknown camera focus character: ${camera.focusEntityId}`, path: ['cameraIntents', index, 'focusEntityId']});
+    if (camera.focusEntityId !== undefined && !directorEntityIds.has(camera.focusEntityId)) {
+      context.addIssue({code: 'custom', message: `Unknown camera focus entity: ${camera.focusEntityId}`, path: ['cameraIntents', index, 'focusEntityId']});
     }
   }
   for (const [index, blocking] of plan.blockingIntents.entries()) {
@@ -228,6 +252,8 @@ export type BlockingIntent = z.infer<typeof BlockingIntentSchema>;
 export type DurationPreference = z.infer<typeof DurationPreferenceSchema>;
 export type DirectorCharacterIntent = z.infer<typeof DirectorCharacterIntentSchema>;
 export type DirectorScene = z.infer<typeof DirectorSceneSchema>;
+export type LandmarkIntent = z.infer<typeof LandmarkIntentSchema>;
+export type CameraComposition = z.infer<typeof CameraCompositionSchema>;
 export type DirectorShot = z.infer<typeof DirectorShotSchema>;
 export type ActionIntent = z.infer<typeof ActionIntentSchema>;
 export type NarrationIntent = z.infer<typeof NarrationIntentSchema>;

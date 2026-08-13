@@ -21,6 +21,11 @@ export function resolveAssetRequirements(
     const key = `environment-layer|${scene.environmentIntent}`;
     add(key, {id: `asset.environment.${scene.environmentIntent}`, kind: 'environment-layer', environmentIntent: scene.environmentIntent, required: true});
   }
+  for (const landmark of plan.landmarks ?? []) {
+    add(`prop|${landmark.landmarkType}`, {
+      id: `asset.prop.${landmark.landmarkType}`, kind: 'prop', entityType: landmark.landmarkType, required: true,
+    });
+  }
   const types = new Map(plan.characters.map(character => [character.characterId, character.entityType]));
   const assetKinds = new Map(catalog.entityCapabilities.map(entity => [entity.entityType, entity.visualAssetKind]));
   for (const action of actions) {
@@ -31,6 +36,12 @@ export function resolveAssetRequirements(
       id: `asset.${kind}.${entityType}.${action.action}.${action.direction}`,
       kind, entityType, action: action.action, direction: action.direction, required: action.priority === 'required',
     }, action.sourceActionId);
+    if (action.interaction?.effect !== undefined) {
+      const effectType = action.interaction.effect.effectType;
+      add(`effect|${effectType}`, {
+        id: `asset.effect.${effectType}`, kind: 'effect', entityType: effectType, required: action.priority === 'required',
+      }, action.sourceActionId);
+    }
   }
   return [...requirements.values()];
 }

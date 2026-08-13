@@ -133,6 +133,7 @@ export function resolveActions(
       poseClipId: poseBinding.poseClipId, requiredPoseClipIds: [poseBinding.poseClipId],
       completionPolicy: capability.completionPolicy, spatialMode: capability.spatialMode,
       ...(action.destinationBlocking === undefined ? {} : {destinationBlocking: action.destinationBlocking}),
+      ...(capability.interaction === undefined ? {} : {interaction: capability.interaction}),
       ...(rewrite === undefined ? {} : {rewrite}),
     });
   }
@@ -191,7 +192,10 @@ function validateCharacterPlacement(input: {
 }
 
 function validatePlacements(plan: DirectorPlan, catalog: CapabilityCatalog): CompileDiagnostic[] {
-  const characterTypes = new Map(plan.characters.map(character => [character.characterId, character.entityType]));
+  const entityTypes = new Map([
+    ...plan.characters.map(character => [character.characterId, character.entityType] as const),
+    ...(plan.landmarks ?? []).map(landmark => [landmark.id, landmark.landmarkType] as const),
+  ]);
   const sceneEnvironment = new Map(plan.scenes.map(scene => [scene.id, scene.environmentIntent]));
   const diagnostics: CompileDiagnostic[] = [];
   const environmentIds = [...new Set(plan.scenes.map(scene => scene.environmentIntent))];
@@ -202,9 +206,13 @@ function validatePlacements(plan: DirectorPlan, catalog: CapabilityCatalog): Com
       diagnosticId: `diagnostic.${character.characterId}.initial.${environmentId}`, catalog,
     }));
   }
+  for (const landmark of plan.landmarks ?? []) diagnostics.push(...validateCharacterPlacement({
+    environmentId: sceneEnvironment.get(landmark.sceneId)!, entityType: landmark.landmarkType, blocking: landmark.blocking,
+    sourceId: landmark.id, path: `/landmarks/${landmark.id}/blocking`, diagnosticId: `diagnostic.${landmark.id}`, catalog,
+  }));
   for (const blocking of plan.blockingIntents) diagnostics.push(...validateCharacterPlacement({
     environmentId: sceneEnvironment.get(blocking.sceneId)!,
-    entityType: characterTypes.get(blocking.characterId)!, blocking: blocking.blocking,
+      entityType: entityTypes.get(blocking.characterId)!, blocking: blocking.blocking,
     sourceId: blocking.id, path: `/blockingIntents/${blocking.id}`,
     diagnosticId: `diagnostic.${blocking.id}`, catalog,
   }));
@@ -212,7 +220,7 @@ function validatePlacements(plan: DirectorPlan, catalog: CapabilityCatalog): Com
     if (!action.enabled || action.destinationBlocking === undefined) continue;
     diagnostics.push(...validateCharacterPlacement({
       environmentId: sceneEnvironment.get(action.sceneId)!,
-      entityType: characterTypes.get(action.actorId)!, blocking: action.destinationBlocking,
+      entityType: entityTypes.get(action.actorId)!, blocking: action.destinationBlocking,
       sourceId: action.id, path: `/actions/${action.id}/destinationBlocking`,
       diagnosticId: `diagnostic.${action.id}.destination`, catalog,
     }));

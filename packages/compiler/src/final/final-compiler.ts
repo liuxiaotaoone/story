@@ -11,6 +11,7 @@ import {solveDurations} from '../timing/duration-solver.js';
 import {CompileIntegrityError} from '../integrity/hash-integrity.js';
 import {optionalActionDropDiagnostics} from './optional-action-policy.js';
 import {buildCanonicalTimeline} from './timeline-builder.js';
+import {compileSupplementalInstances} from './visual-planning-compiler.js';
 
 function warningProjection(diagnostic: CompileDiagnostic) {
   return {
@@ -48,6 +49,12 @@ export async function compileFinal(input: FinalCompileInput): Promise<RenderPlan
     timing: duration.timing,
     catalog: parsed.assetCatalog,
   });
+  const supplementalInstances = compileSupplementalInstances({
+    effective: parsed.effectiveDirectorPlan,
+    preflight: parsed.preflight,
+    catalog: parsed.assetCatalog,
+    durationFrames: timeline.durationFrames,
+  });
   const renderPlan = RenderPlanSchema.parse({
     schemaVersion: '1.0.0',
     project: {
@@ -64,7 +71,7 @@ export async function compileFinal(input: FinalCompileInput): Promise<RenderPlan
     environments: parsed.assetCatalog.environments.filter(environment =>
       parsed.effectiveDirectorPlan.plan.scenes.some(scene => scene.environmentIntent === environment.id)),
     entities: parsed.assetCatalog.entityDefinitions,
-    instances: parsed.effectiveDirectorPlan.plan.characters.map(character => {
+    instances: [...parsed.effectiveDirectorPlan.plan.characters.map(character => {
       const binding = parsed.assetCatalog.characterBindings.find(candidate => candidate.characterId === character.characterId)!;
       return {
         id: character.characterId,
@@ -73,7 +80,7 @@ export async function compileFinal(input: FinalCompileInput): Promise<RenderPlan
         activeRange: {startFrame: 0, endFrame: timeline.durationFrames},
         initialOwner: {kind: 'world' as const, environmentId: parsed.effectiveDirectorPlan.plan.scenes[0]!.environmentIntent},
       };
-    }),
+    }), ...supplementalInstances],
     poseClips: parsed.assetCatalog.poseClips,
     timeline,
     provenance: {

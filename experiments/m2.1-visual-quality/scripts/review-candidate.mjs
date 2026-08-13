@@ -1,6 +1,7 @@
 import {copyFile, mkdir, readFile, writeFile} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {assertCandidateCanBeReviewed, createVisualReview, sha256File} from '../src/visual-review.mjs';
+import {sealFrozenEvidence} from '../src/frozen-integrity.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const candidate = join(root, 'candidate');
@@ -37,6 +38,7 @@ if (decision === 'approved') {
     visualReview: {status: review.status, reviewer: review.reviewer, artifactSha256: review.artifactSha256},
   }, null, 2)}\n`);
   await writeFile(join(frozen, 'FROZEN'), `M2.1 Visual Acceptance PASS / Frozen\n${review.reviewedAt}\n${artifactSha256}\n`);
+  await sealFrozenEvidence(frozen);
   process.stdout.write(`M2.1 Visual Acceptance approved and frozen: ${frozen}\n`);
 } else {
   process.stdout.write(`M2.1 candidate rejected; frozen artifacts unchanged: ${candidate}\n`);

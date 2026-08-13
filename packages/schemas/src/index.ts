@@ -12,6 +12,7 @@ export * from './entity.js';
 export * from './environment.js';
 export * from './hash.js';
 export * from './integrity.js';
+export * from './interaction.js';
 export * from './measured-audio.js';
 export * from './ownership-integrity.js';
 export * from './pose-clip.js';

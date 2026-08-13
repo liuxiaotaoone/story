@@ -14,5 +14,19 @@
     "status": "approved",
     "reviewer": "User M2.1 Final Visual Acceptance",
     "artifactSha256": "582c364e8f2adb85954363a6446ea08c824dc8a09d1876fb7b63faecd3013c85"
+  },
+  "integrity": {
+    "algorithm": "sha256",
+    "manifestSelfExcluded": "artifact-manifest.json",
+    "files": {
+      "FROZEN": "15b9642b59ff28ffc4d02d4e2ecaee1f1c3367938f86b93474d061d1e8dafa05",
+      "director-plan.golden.json": "23211fd160a74513c243f0cc8f59224637e6fd5e04b20cfe33d53853551d1c91",
+      "m21-visual-acceptance.mp4": "582c364e8f2adb85954363a6446ea08c824dc8a09d1876fb7b63faecd3013c85",
+      "preflight.golden.json": "8e6a1b684e400130ec3f50922c5cf01117b659338584c57c53f62e885f0dcb94",
+      "render-plan.golden.json": "c259dd376ef7f8552f5b20438f994be745011e3b7fe4c06fedd20ef538a52f3c",
+      "subtitles.ass": "91dea1defe097cc91794a905fa7480e37979d63bcd0630ced4f793e7123074ae",
+      "technical-gate-report.json": "85a92f5581c7ba4cb6714c27ccf28949cebf744fa31d30a6e989a8a8f59959ea",
+      "visual-review.json": "0264ed708a96cc0c5c2b5bbdd08329336c73058ebe0d58fffd308caf9bdbe37f"
+    }
   }
 }

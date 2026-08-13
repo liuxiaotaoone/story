@@ -4,6 +4,7 @@ import {CompileDiagnosticSchema} from './compile-diagnostics.js';
 import {ContentHashSchema, IdSchema, SemverSchema} from './common.js';
 import {BlockingIntentSchema, DurationPreferenceSchema} from './director-plan.js';
 import {DirectionSchema} from './pose-clip.js';
+import {ActionInteractionSchema} from './interaction.js';
 import {NarrationSegmentSchema, TtsRequestSchema} from './tts-request.js';
 
 export const AssetRequirementSchema = z.object({
@@ -40,6 +41,7 @@ export const ExpandedActionSchema = z.object({
   completionPolicy: z.enum(['hold', 'return-default']),
   spatialMode: z.enum(['stationary', 'locomotion']),
   destinationBlocking: BlockingIntentSchema.optional(),
+  interaction: ActionInteractionSchema.optional(),
   rewrite: z.object({
     fromAction: IdSchema,
     ruleReason: z.string().trim().min(1),

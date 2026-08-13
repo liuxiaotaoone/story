@@ -3,6 +3,7 @@ import {AttachmentModeSchema} from './attachment.js';
 import {IdSchema, SemverSchema} from './common.js';
 import {CameraIntentSchema, DepthIntentSchema, ShotTypeSchema} from './director-plan.js';
 import {DirectionSchema} from './pose-clip.js';
+import {ActionInteractionSchema} from './interaction.js';
 
 function addDuplicateIssues(
   values: readonly string[],
@@ -30,6 +31,7 @@ export const ActionCapabilitySchema = z.object({
   completionPolicy: z.enum(['hold', 'return-default']),
   spatialMode: z.enum(['stationary', 'locomotion']),
   attachmentMode: AttachmentModeSchema.optional(),
+  interaction: ActionInteractionSchema.optional(),
 }).strict().superRefine((action, context) => {
   addDuplicateIssues(action.requiredPoseClips, context, 'requiredPoseClips');
   addDuplicateIssues(action.supportsDirections, context, 'supportsDirections');
@@ -55,6 +57,12 @@ export const ActionCapabilitySchema = z.object({
       path: ['supportsDirections', index],
     });
   }
+  if (action.interaction !== undefined && action.targetTypes === undefined) context.addIssue({
+    code: 'custom', message: 'Interactive action requires targetTypes', path: ['targetTypes'],
+  });
+  if (action.interaction?.ownership !== undefined && action.attachmentMode !== 'baked') context.addIssue({
+    code: 'custom', message: 'Baked ownership interaction requires attachmentMode=baked', path: ['attachmentMode'],
+  });
 });
 
 export const EntityCapabilitySchema = z.object({

@@ -41,6 +41,16 @@ export function assertAssetRequirementsResolved(
       if (poseClip === undefined) {
         throw new CompileIntegrityError(`Required PoseClip ${requirement.entityType}/${requirement.action}/${requirement.direction} was not resolved`);
       }
+      continue;
+    }
+    if (requirement.kind === 'prop') {
+      if (!catalog.landmarkBindings?.some(binding => binding.landmarkType === requirement.entityType)) {
+        throw new CompileIntegrityError(`Required landmark ${requirement.entityType} was not resolved`);
+      }
+      continue;
+    }
+    if (requirement.kind === 'effect' && !catalog.effectBindings?.some(binding => binding.effectType === requirement.entityType)) {
+      throw new CompileIntegrityError(`Required effect ${requirement.entityType} was not resolved`);
     }
   }
 }

@@ -6,14 +6,17 @@ settings:
 
 importers:
 
-  experiments/m2.1-visual-quality:
+  .:
+    devDependencies:
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(vite@8.2.1)
+
+  experiments/asset-feasibility:
     dependencies:
-      '@pose-clip/audio':
-        specifier: workspace:*
-        version: link:../../packages/audio
-      '@pose-clip/compiler':
-        specifier: workspace:*
-        version: link:../../packages/compiler
       '@pose-clip/paper-engine':
         specifier: workspace:*
         version: link:../../packages/paper-engine
@@ -56,17 +59,14 @@ importers:
         specifier: 8.2.1
         version: 8.2.1
 
-  .:
-    devDependencies:
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
-      vitest:
-        specifier: ^4.1.10
-        version: 4.1.10(vite@8.2.1)
-
-  experiments/asset-feasibility:
+  experiments/m2.1-visual-quality:
     dependencies:
+      '@pose-clip/audio':
+        specifier: workspace:*
+        version: link:../../packages/audio
+      '@pose-clip/compiler':
+        specifier: workspace:*
+        version: link:../../packages/compiler
       '@pose-clip/paper-engine':
         specifier: workspace:*
         version: link:../../packages/paper-engine
@@ -141,6 +141,12 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+
+  packages/visual-qa:
+    dependencies:
+      '@pose-clip/schemas':
+        specifier: workspace:*
+        version: link:../schemas
 
 packages:
 

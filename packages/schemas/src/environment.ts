@@ -56,6 +56,20 @@ export const GroundSurfaceSchema = z.object({
   {message: 'nearScale must be greater than or equal to farScale', path: ['nearScale']},
 );
 
+export const CameraSafeBoundsSchema = z.object({
+  minX: FiniteNumberSchema,
+  maxX: FiniteNumberSchema,
+  minY: FiniteNumberSchema,
+  maxY: FiniteNumberSchema,
+}).strict().refine(bounds => bounds.minX < bounds.maxX && bounds.minY < bounds.maxY, {
+  message: 'Camera safe bounds require min values below max values',
+});
+
+export const EnvironmentCoverageContractSchema = z.object({
+  overscanScale: FiniteNumberSchema.min(1),
+  minimumPixelCoverage: UnitIntervalSchema,
+}).strict();
+
 export const EnvironmentDefinitionSchema = z.object({
   id: IdSchema,
   name: z.string().trim().min(1),
@@ -64,6 +78,8 @@ export const EnvironmentDefinitionSchema = z.object({
   ground: GroundSurfaceSchema,
   occlusionZones: z.array(PolygonSchema),
   safeSubtitleZone: PolygonSchema.optional(),
+  cameraSafeBounds: CameraSafeBoundsSchema.optional(),
+  coverageContract: EnvironmentCoverageContractSchema.optional(),
 }).strict().superRefine((environment, context) => {
   const layerIds = new Set<string>();
   for (const [index, layer] of environment.layers.entries()) {
@@ -75,6 +91,10 @@ export const EnvironmentDefinitionSchema = z.object({
       });
     }
     layerIds.add(layer.id);
+    if (environment.coverageContract !== undefined
+      && (layer.transform.scale.x < environment.coverageContract.overscanScale || layer.transform.scale.y < environment.coverageContract.overscanScale)) {
+      context.addIssue({code: 'custom', message: `Environment layer ${layer.id} does not satisfy overscanScale`, path: ['layers', index, 'transform', 'scale']});
+    }
   }
 });
 

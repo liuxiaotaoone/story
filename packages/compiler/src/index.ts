@@ -8,6 +8,7 @@ export * from './final/optional-action-policy.js';
 export * from './final/blocking-compiler.js';
 export * from './final/camera-compiler.js';
 export * from './final/timeline-builder.js';
+export * from './final/visual-planning-compiler.js';
 export * from './final/final-compiler.js';
 export * from './integrity/story-director-integrity.js';
 export * from './preflight/asset-requirements.js';

@@ -2,13 +2,16 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M2.1 Visual Acceptance — PASS / Frozen**。M2 技术闭环与 M2.1 可观看闭环均已冻结；下一阶段是 M3。M3 Commit 0 先将已验证的 Visual Recovery 能力归位到 Director / Preflight / Final Compiler / Asset Catalog / Visual QA 的单一编译链，不将 `applyVisualRecovery()` 作为生产管线；随后才进入 ComfyUI / Flux.2 资产生产。
+当前里程碑：**M3 Commit 0 — Visual Recovery Productization**。M2 技术闭环与 M2.1 可观看闭环均已冻结；M2.1 的已验证能力已归位到 Director / Preflight / Final Compiler / Asset Catalog / Audio / Visual QA 的单一编译链。生产路径不使用 `applyVisualRecovery()` 二次修改 RenderPlan；下一步是 M3 Action Package Contract。
 
 ## 已冻结的实现边界
 
 - `packages/schemas`：唯一的跨模块数据契约，包含严格 SHA-256 Hash、PoseClip/Composite Slot、Ownership、Timeline、RenderPlan/RenderState 和 Task Graph。
 - `packages/paper-engine`：纯 TypeScript、无副作用、无逐帧历史依赖的确定性求值器。
 - `packages/paper-pixi`：只消费 `RenderState` 的 PixiJS v8 Adapter，负责 Application、Texture Cache、Sprite Registry、Canonical Camera Transform 与 PNG Frame Export。
+- `packages/compiler` v0.2：在唯一 Final Compile 中生成 Landmark、Interaction Contact、Effect Cue、Baked Ownership、Composition Camera 和 Canonical Timeline。
+- `packages/audio` v0.2：正式 `ITtsProvider` 与 Qwen3 provider，声音绑定 `TtsRequest.voiceId`，raw cache 绑定模型、Speaker、Instruct、Seed、Text 和 Language。
+- `packages/visual-qa`：已产品化的 Final-frame Meaningful Motion 与 Visual Event Cadence 判定。
 - `experiments/renderer-feasibility`：真实 Chrome/WebGL → 300 PNG → FFmpeg → 10 秒 MP4 的 M0 Renderer Gate，并对关键帧执行 Preview/Final 精确 RGBA 比较。
 - `prepareRenderPlan(input)`：一次性执行 Schema、跨引用与 Ownership Timeline 校验，冻结计划并建立运行时不可写索引。
 - `evaluate(prepared, frame)`：任意顺序直接求值，输出已稳定排序且可交给 Renderer 的 `RenderState`。

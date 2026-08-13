@@ -9,6 +9,7 @@ import {
 import {compileBlockingIntent} from './blocking-compiler.js';
 import {compileCameraTrack} from './camera-compiler.js';
 import type {SolvedTimingPlan} from '../timing/types.js';
+import {compileInteractionTimeline} from './visual-planning-compiler.js';
 
 export function compileActionPoseEvents(input: {
   effective: EffectiveDirectorPlan;
@@ -95,9 +96,10 @@ export function compileEntityTracks(
   effective: EffectiveDirectorPlan,
   preflight: PreflightCompileResult,
   timing: SolvedTimingPlan,
+  catalog?: ResolvedAssetCatalog,
 ): Timeline['entityTracks'] {
   const expandedActions = new Map(preflight.expandedActions.map(action => [action.id, action]));
-  return effective.plan.characters.map(character => {
+  const characterTracks = effective.plan.characters.map(character => {
     const points: NonNullable<Timeline['entityTracks'][number]['groundPosition']> = [];
     const upsert = (frame: number, value: ReturnType<typeof compileBlockingIntent>, easing: 'hold' | 'linear'): void => {
       const index = points.findIndex(point => point.frame === frame);
@@ -123,6 +125,13 @@ export function compileEntityTracks(
     }
     return {entityId: character.characterId, groundPosition: points};
   });
+  const landmarkTracks: Timeline['entityTracks'] = (effective.plan.landmarks ?? []).map(landmark => {
+    if (catalog !== undefined && !catalog.landmarkBindings?.some(binding => binding.landmarkType === landmark.landmarkType)) {
+      throw new Error(`No resolved landmark binding for ${landmark.landmarkType}`);
+    }
+    return {entityId: landmark.id, groundPosition: [{frame: 0, value: compileBlockingIntent(landmark.blocking), easing: 'hold'}]};
+  });
+  return [...characterTracks, ...landmarkTracks];
 }
 
 function narrationCues(input: {
@@ -161,7 +170,12 @@ export function buildCanonicalTimeline(input: {
   const cameraIntents = new Map(input.effective.plan.cameraIntents.map(intent => [intent.shotId, intent]));
   const actionOutput = compileActionPoseEvents(input);
   const narrationOutput = narrationCues(input);
-  const compiledEntityTracks = compileEntityTracks(input.effective, input.preflight, input.timing);
+  const baseEntityTracks = compileEntityTracks(input.effective, input.preflight, input.timing, input.catalog);
+  const interactionOutput = compileInteractionTimeline({
+    effective: input.effective, preflight: input.preflight, timing: input.timing,
+    catalog: input.catalog, baseTracks: baseEntityTracks,
+  });
+  const compiledEntityTracks = interactionOutput.entityTracks;
   return TimelineSchema.parse({
     schemaVersion: '1.0.0', fps: 30, durationFrames: input.timing.durationFrames,
     shots: input.timing.shots.map(timing => {
@@ -183,12 +197,15 @@ export function buildCanonicalTimeline(input: {
         : compiledEntityTracks.find(track => track.entityId === intent.focusEntityId);
       return compileCameraTrack({
         intent, shotType: shot.shotType, timing,
+        ...(shot.composition === undefined ? {} : {composition: shot.composition}),
         ...(focusEntityTrack === undefined ? {} : {focusEntityTrack}),
         environment: input.catalog.environments.find(environment => environment.id === scene.environmentIntent)!,
       });
     }),
     ...actionOutput,
-    ownershipEvents: [], visibilityEvents: [], effectEvents: [],
+    ownershipEvents: interactionOutput.ownershipEvents,
+    visibilityEvents: interactionOutput.visibilityEvents,
+    effectEvents: interactionOutput.effectEvents,
     ...narrationOutput,
     sfx: [],
     transitions: input.timing.shots.slice(1).map((timing, index) => ({
@@ -198,6 +215,6 @@ export function buildCanonicalTimeline(input: {
       type: 'cut' as const,
       frame: timing.startFrame,
     })),
-    markers: [],
+    markers: interactionOutput.markers,
   });
 }

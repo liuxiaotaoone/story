@@ -37,9 +37,12 @@ export async function compilePreflight(input: {
       }),
     });
   }
-  const characterTypes = new Map(plan.characters.map(character => [character.characterId, character.entityType]));
+  const entityTypes = new Map([
+    ...plan.characters.map(character => [character.characterId, character.entityType] as const),
+    ...(plan.landmarks ?? []).map(landmark => [landmark.id, landmark.landmarkType] as const),
+  ]);
   const capabilityValidation = validatePlanCapabilities(plan, catalog);
-  const actionResolution = resolveActions(plan.actions, characterTypes, catalog, plan.shots.map(shot => shot.id));
+  const actionResolution = resolveActions(plan.actions, entityTypes, catalog, plan.shots.map(shot => shot.id));
   const assetRequirements = resolveAssetRequirements(plan, actionResolution.expandedActions, catalog);
   const payload: PreflightCompileResultPayload = {
     schemaVersion: '1.0.0', effectiveDirectorPlanHash: effective.effectivePlanHash,
