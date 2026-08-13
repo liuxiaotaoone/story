@@ -6,6 +6,31 @@ settings:
 
 importers:
 
+  experiments/m2-vertical-slice:
+    dependencies:
+      '@pose-clip/audio':
+        specifier: workspace:*
+        version: link:../../packages/audio
+      '@pose-clip/compiler':
+        specifier: workspace:*
+        version: link:../../packages/compiler
+      '@pose-clip/paper-engine':
+        specifier: workspace:*
+        version: link:../../packages/paper-engine
+      '@pose-clip/paper-pixi':
+        specifier: workspace:*
+        version: link:../../packages/paper-pixi
+      '@pose-clip/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
+      playwright-core:
+        specifier: 1.62.1
+        version: 1.62.1
+    devDependencies:
+      vite:
+        specifier: 8.2.1
+        version: 8.2.1
+
   .:
     devDependencies:
       typescript:

@@ -4,6 +4,7 @@ dist/
 coverage/
 .vite/
 experiments/**/output/
+experiments/m2-vertical-slice/generated/
 experiments/asset-feasibility/generated/
 experiments/asset-feasibility/processed/
 experiments/asset-feasibility/normalized/
