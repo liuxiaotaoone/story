@@ -1,0 +1,18 @@
+{
+  "status": "frozen",
+  "artifact": "m21-visual-acceptance.mp4",
+  "artifactSha256": "582c364e8f2adb85954363a6446ea08c824dc8a09d1876fb7b63faecd3013c85",
+  "renderPlanSemanticHash": "4d96dc159f81b0b516f31560d2f277b324b0d30e3dff8ff2d5923c4a208d35ae",
+  "preflightHash": "25f5d9f1b64f72d882a0d9f0cfacdd4ccddc4bb5c8f59fb5229a606cebc7acac",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "frames": 600,
+  "durationSeconds": 20,
+  "frozenAt": "2026-08-13T07:34:11.439Z",
+  "visualReview": {
+    "status": "approved",
+    "reviewer": "User M2.1 Final Visual Acceptance",
+    "artifactSha256": "582c364e8f2adb85954363a6446ea08c824dc8a09d1876fb7b63faecd3013c85"
+  }
+}

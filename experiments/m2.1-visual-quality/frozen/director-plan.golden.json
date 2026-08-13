@@ -1,0 +1,366 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "waiting-rabbit-m21-visual",
+  "storyId": "story.waiting-rabbit.m21",
+  "sourceStoryHash": "df67d5053054efdf6ac8900ca883bbf6c30e69340e98f3ea7f8d1f9ebd284e07",
+  "storyBible": {
+    "title": "守株待兔",
+    "summary": "兔子撞上树桩倒地，农夫发现后走近并抱起它。",
+    "styleGuideId": "warm-paper-cut"
+  },
+  "characters": [
+    {
+      "characterId": "farmer",
+      "entityType": "farmer",
+      "role": "observer-and-helper",
+      "initialBlocking": {
+        "horizontal": "left",
+        "depth": "ground"
+      }
+    },
+    {
+      "characterId": "rabbit",
+      "entityType": "rabbit",
+      "role": "runner",
+      "initialBlocking": {
+        "horizontal": "far-right",
+        "depth": "ground"
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene-field",
+      "sourceBeatIds": [
+        "beat-collision",
+        "beat-notice",
+        "beat-approach",
+        "beat-pickup"
+      ],
+      "environmentIntent": "pastoral-field",
+      "summary": "田野、农舍与清晰可见的树桩。"
+    }
+  ],
+  "shots": [
+    {
+      "id": "shot-collision",
+      "sceneId": "scene-field",
+      "shotType": "wide",
+      "focusEntityId": "rabbit",
+      "durationPreference": {
+        "preferredSeconds": 6,
+        "maxSeconds": 7
+      }
+    },
+    {
+      "id": "shot-notice",
+      "sceneId": "scene-field",
+      "shotType": "wide",
+      "focusEntityId": "farmer",
+      "durationPreference": {
+        "preferredSeconds": 4,
+        "maxSeconds": 5
+      }
+    },
+    {
+      "id": "shot-approach",
+      "sceneId": "scene-field",
+      "shotType": "wide",
+      "focusEntityId": "farmer",
+      "durationPreference": {
+        "preferredSeconds": 4.5,
+        "maxSeconds": 5
+      }
+    },
+    {
+      "id": "shot-pickup",
+      "sceneId": "scene-field",
+      "shotType": "medium",
+      "focusEntityId": "farmer",
+      "durationPreference": {
+        "preferredSeconds": 5,
+        "maxSeconds": 5.5
+      }
+    }
+  ],
+  "narration": [
+    {
+      "id": "narration-collision",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "sequence": 0,
+      "text": "一只兔子慌忙穿过田野，砰的一声撞上了树桩。",
+      "voiceId": "qwen3:Serena",
+      "language": "zh-CN",
+      "speed": 1
+    },
+    {
+      "id": "narration-notice",
+      "sceneId": "scene-field",
+      "shotId": "shot-notice",
+      "sequence": 0,
+      "text": "兔子倒在地上。农夫听见响声，转身看去。",
+      "voiceId": "qwen3:Serena",
+      "language": "zh-CN",
+      "speed": 1
+    },
+    {
+      "id": "narration-approach",
+      "sceneId": "scene-field",
+      "shotId": "shot-approach",
+      "sequence": 0,
+      "text": "他快步走到树桩旁，弯下腰仔细查看。",
+      "voiceId": "qwen3:Serena",
+      "language": "zh-CN",
+      "speed": 1
+    },
+    {
+      "id": "narration-pickup",
+      "sceneId": "scene-field",
+      "shotId": "shot-pickup",
+      "sequence": 0,
+      "text": "农夫伸手抱起兔子，把它稳稳搂在怀里。",
+      "voiceId": "qwen3:Serena",
+      "language": "zh-CN",
+      "speed": 1
+    }
+  ],
+  "actions": [
+    {
+      "id": "action-run",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "actorId": "rabbit",
+      "action": "run",
+      "sequence": 0,
+      "direction": "left",
+      "priority": "required",
+      "enabled": true,
+      "durationPreference": {
+        "preferredSeconds": 3
+      },
+      "destinationBlocking": {
+        "horizontal": "right",
+        "depth": "ground",
+        "facing": "left"
+      }
+    },
+    {
+      "id": "action-collision",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "actorId": "rabbit",
+      "action": "collision",
+      "sequence": 1,
+      "direction": "left",
+      "priority": "required",
+      "enabled": true,
+      "durationPreference": {
+        "preferredSeconds": 0.8
+      }
+    },
+    {
+      "id": "action-lying",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "actorId": "rabbit",
+      "action": "lying",
+      "sequence": 2,
+      "direction": "left",
+      "priority": "required",
+      "enabled": true,
+      "durationPreference": {
+        "preferredSeconds": 1.2
+      }
+    },
+    {
+      "id": "action-notice",
+      "sceneId": "scene-field",
+      "shotId": "shot-notice",
+      "actorId": "farmer",
+      "action": "notice",
+      "sequence": 0,
+      "direction": "right",
+      "priority": "required",
+      "enabled": true,
+      "durationPreference": {
+        "preferredSeconds": 1.2
+      }
+    },
+    {
+      "id": "action-walk",
+      "sceneId": "scene-field",
+      "shotId": "shot-approach",
+      "actorId": "farmer",
+      "action": "walk",
+      "sequence": 0,
+      "direction": "right",
+      "priority": "required",
+      "enabled": true,
+      "durationPreference": {
+        "preferredSeconds": 3
+      },
+      "destinationBlocking": {
+        "horizontal": "right",
+        "depth": "ground",
+        "facing": "right"
+      }
+    },
+    {
+      "id": "action-bend",
+      "sceneId": "scene-field",
+      "shotId": "shot-approach",
+      "actorId": "farmer",
+      "action": "bend",
+      "sequence": 1,
+      "direction": "right",
+      "priority": "required",
+      "enabled": true,
+      "durationPreference": {
+        "preferredSeconds": 1.2
+      }
+    },
+    {
+      "id": "action-pickup",
+      "sceneId": "scene-field",
+      "shotId": "shot-pickup",
+      "actorId": "farmer",
+      "action": "pickup",
+      "sequence": 0,
+      "targetId": "rabbit",
+      "direction": "right",
+      "priority": "required",
+      "enabled": true,
+      "durationPreference": {
+        "preferredSeconds": 1.3
+      }
+    },
+    {
+      "id": "action-hold",
+      "sceneId": "scene-field",
+      "shotId": "shot-pickup",
+      "actorId": "farmer",
+      "action": "hold",
+      "sequence": 1,
+      "targetId": "rabbit",
+      "direction": "right",
+      "priority": "required",
+      "enabled": true,
+      "durationPreference": {
+        "preferredSeconds": 2.5
+      }
+    }
+  ],
+  "cameraIntents": [
+    {
+      "id": "camera-collision",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "type": "follow",
+      "focusEntityId": "rabbit"
+    },
+    {
+      "id": "camera-notice",
+      "sceneId": "scene-field",
+      "shotId": "shot-notice",
+      "type": "slow-push-in",
+      "focusEntityId": "farmer"
+    },
+    {
+      "id": "camera-approach",
+      "sceneId": "scene-field",
+      "shotId": "shot-approach",
+      "type": "follow",
+      "focusEntityId": "farmer"
+    },
+    {
+      "id": "camera-pickup",
+      "sceneId": "scene-field",
+      "shotId": "shot-pickup",
+      "type": "slow-push-in",
+      "focusEntityId": "farmer"
+    }
+  ],
+  "blockingIntents": [
+    {
+      "id": "block-rabbit-collision",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "characterId": "rabbit",
+      "blocking": {
+        "horizontal": "far-right",
+        "depth": "ground"
+      }
+    },
+    {
+      "id": "block-farmer-collision",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "characterId": "farmer",
+      "blocking": {
+        "horizontal": "left",
+        "depth": "ground"
+      }
+    },
+    {
+      "id": "block-rabbit-notice",
+      "sceneId": "scene-field",
+      "shotId": "shot-notice",
+      "characterId": "rabbit",
+      "blocking": {
+        "horizontal": "right",
+        "depth": "ground"
+      }
+    },
+    {
+      "id": "block-farmer-notice",
+      "sceneId": "scene-field",
+      "shotId": "shot-notice",
+      "characterId": "farmer",
+      "blocking": {
+        "horizontal": "left",
+        "depth": "ground"
+      }
+    },
+    {
+      "id": "block-rabbit-approach",
+      "sceneId": "scene-field",
+      "shotId": "shot-approach",
+      "characterId": "rabbit",
+      "blocking": {
+        "horizontal": "right",
+        "depth": "ground"
+      }
+    },
+    {
+      "id": "block-farmer-approach",
+      "sceneId": "scene-field",
+      "shotId": "shot-approach",
+      "characterId": "farmer",
+      "blocking": {
+        "horizontal": "left",
+        "depth": "ground"
+      }
+    },
+    {
+      "id": "block-rabbit-pickup",
+      "sceneId": "scene-field",
+      "shotId": "shot-pickup",
+      "characterId": "rabbit",
+      "blocking": {
+        "horizontal": "right",
+        "depth": "ground"
+      }
+    },
+    {
+      "id": "block-farmer-pickup",
+      "sceneId": "scene-field",
+      "shotId": "shot-pickup",
+      "characterId": "farmer",
+      "blocking": {
+        "horizontal": "right",
+        "depth": "ground"
+      }
+    }
+  ]
+}

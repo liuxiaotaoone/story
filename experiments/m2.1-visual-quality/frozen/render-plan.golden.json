@@ -1,0 +1,2802 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "waiting-rabbit-m21-visual",
+    "title": "守株待兔",
+    "fps": 30,
+    "resolution": {
+      "width": 1280,
+      "height": 720
+    },
+    "sampleRate": 48000,
+    "seed": 20260813,
+    "styleGuideId": "warm-paper-cut",
+    "capabilityCatalogVersion": "1.0.0"
+  },
+  "assets": {
+    "schemaVersion": "1.0.0",
+    "assets": [
+      {
+        "id": "environment-far",
+        "uri": "/asset-source/processed/environment/far.png",
+        "contentHash": "30ad4ba8a1c78ef74413225e2f9171ed689db721e741d0cd49ba8b258e4301e1",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+          "modelId": "openai-built-in-imagegen",
+          "modelVersion": "unreported-by-tool",
+          "workflowVersion": "1.1.0",
+          "producer": {
+            "name": "asset-feasibility-pipeline",
+            "version": "0.2.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "environment-layer",
+        "width": 1280,
+        "height": 720,
+        "alphaMode": "opaque"
+      },
+      {
+        "id": "environment-mid",
+        "uri": "/asset-source/processed/environment/mid.png",
+        "contentHash": "05a0f5099706855a5fdf918422dc30da44a74779a18a522c398e483d3788f3ee",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+          "modelId": "openai-built-in-imagegen",
+          "modelVersion": "unreported-by-tool",
+          "workflowVersion": "1.1.0",
+          "producer": {
+            "name": "asset-feasibility-pipeline",
+            "version": "0.2.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "environment-layer",
+        "width": 1280,
+        "height": 720,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "environment-ground",
+        "uri": "/asset-source/processed/environment/ground.png",
+        "contentHash": "8c17244a931f9b740237937c6ed223756c872277f75683ceef635d573e3678ab",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+          "modelId": "openai-built-in-imagegen",
+          "modelVersion": "unreported-by-tool",
+          "workflowVersion": "1.1.0",
+          "producer": {
+            "name": "asset-feasibility-pipeline",
+            "version": "0.2.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "environment-layer",
+        "width": 1280,
+        "height": 720,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "environment-foreground",
+        "uri": "/asset-source/processed/environment/foreground.png",
+        "contentHash": "bc39f2e66cc8b502d7da8be74b077dd1114737e8ed9d9de8f9e4fddbfc9bbff1",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+          "modelId": "openai-built-in-imagegen",
+          "modelVersion": "unreported-by-tool",
+          "workflowVersion": "1.1.0",
+          "producer": {
+            "name": "asset-feasibility-pipeline",
+            "version": "0.2.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "environment-layer",
+        "width": 1280,
+        "height": 720,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-idle",
+        "uri": "/artifacts/visual/farmer-idle.png",
+        "contentHash": "e6642398433e3e2692b2c9fc3c2863b0de9aafa832048d53a0f14be2ea8d326a",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "d9475d1be6f9037c4aceaf74bdcedcc3925d26bd031f1e35a7828c0c50562d47",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-notice",
+        "uri": "/artifacts/visual/farmer-notice.png",
+        "contentHash": "d246da7281d78277c5f80b46ede25f0d3598aed2bd77fd9621420c4fc8c6cb6e",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "086ba305773c8615c63faf63f3c2c20a3a52d708da60b4fadf6ab46b04cb2580",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-walk-1",
+        "uri": "/artifacts/visual/farmer-walk-1.png",
+        "contentHash": "c9fa1d07097ab4f6d0e6e14ff1a81637aeeb13adfdb1dcb5fe2c400315247eb5",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e83498b4f5619a5888c163c7c4d943651fb8b36a0486b6e991e1b31963f75a65",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-walk-2",
+        "uri": "/artifacts/visual/farmer-walk-2.png",
+        "contentHash": "53c83832645b23a63132a76ddecdad81b4b11c2bffb0afe3d47a4844017bd0d1",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "aee0cab94c75136f71cd43c5a76de023559d475accc86c4e536ab58036491127",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-walk-3",
+        "uri": "/artifacts/visual/farmer-walk-3.png",
+        "contentHash": "de5ab20d6b58b2fae2017fac7b2455e6c50a1651b741b47c1c580c4c404dc813",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "80e30b414d48fe0245322f346c10d537030e752349b90f0928290bf26f7f9a17",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-walk-4",
+        "uri": "/artifacts/visual/farmer-walk-4.png",
+        "contentHash": "ab24696fee38144cf4ea38299f9a1f71458c4d5c9c97296c0ee0eb69f9f2a99d",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "7ea0c2589ef8899669b0e3d71c1fd1600e62e6dc804d2fa29cdc524e99e924cb",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-bend",
+        "uri": "/artifacts/visual/farmer-bend.png",
+        "contentHash": "0a5eb457e59798c433626d613c11f88f60b4c099fdcfd4676769a3a80be8d573",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "5e25366361326c7c53cc46bb0624bf708ce8073956e4439817abdd343a15e0ef",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-pickup-rabbit-1",
+        "uri": "/artifacts/visual/farmer-pickup-rabbit-1.png",
+        "contentHash": "bf24f572bcadcf4235fa688cb285969dd97e1bf1a4f60ea62ce1ebc43d944fcc",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "a899cdeb72b31c061576d60f40cf54b5725fcbe8c072956927c0aef3cf0eb2ac",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-pickup-rabbit-2",
+        "uri": "/artifacts/visual/farmer-pickup-rabbit-2.png",
+        "contentHash": "6836e30c318975843d948650d3030b7bcfd517ca97aef58153739542fe0892e2",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "a083a3de9d8c63e2d33cae16ca620f09896d8d5885aa10d640592a8faf9a5906",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-pickup-rabbit-3",
+        "uri": "/artifacts/visual/farmer-pickup-rabbit-3.png",
+        "contentHash": "e3e9ac43038f3a5fcc508966852c5ee108af5d8700d08009af8ab09a01a82fd4",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "3aa619453258c292bfd778489249c3879c961a08bced392231b51a334619ee21",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-pickup-rabbit-4",
+        "uri": "/artifacts/visual/farmer-pickup-rabbit-4.png",
+        "contentHash": "9af7698867de987e19a5fc72fceddd62de4adf5343b22a3c71106b5004e39432",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "f214390bdc169da876f61db6dca2d3e69a43f81eeec6da00d9b48465091b2d82",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-hold-rabbit",
+        "uri": "/artifacts/visual/farmer-hold-rabbit.png",
+        "contentHash": "067daf3d5815bef446b94267e2090744b080ebb0b3989db9c418099e426cf35d",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "67cdf79a383c3868811cea0b00256340de0248c230f11a6160d07468a24f0416",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-run-1",
+        "uri": "/artifacts/visual/rabbit-run-1.png",
+        "contentHash": "80fb7e45ebdc6a4888011384f93931c835daa21c30cb52aa52223dea5a0c8449",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "6853b36843bb167fea5df81a951f2e8415a266236ab98a2f3b583b36f6e99312",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 140,
+        "height": 112,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-run-2",
+        "uri": "/artifacts/visual/rabbit-run-2.png",
+        "contentHash": "f71b9ff0b9fd3dea8906624e10a557647bd809fb07d82ac9bbca139e7e0ebc08",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "28f9bfe3536f1e318d81fc0a8629f036d2f0504e086c18db117974237008cbfc",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 140,
+        "height": 112,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-run-3",
+        "uri": "/artifacts/visual/rabbit-run-3.png",
+        "contentHash": "464c22eee73afc3c273cb397b8cc4706655d4738232277f7346b0bd5a6593c75",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "aed3e81a7e0d2ba04340971f032cf0ee941089fa8f5c160aab07239b42be1dbe",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 140,
+        "height": 112,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-run-4",
+        "uri": "/artifacts/visual/rabbit-run-4.png",
+        "contentHash": "3add6c57a4ac52fcf32ccd77d7d0cd562bf9d0321f421c9b7f279bdb79ad2e4c",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "587cd33ead7d88ec41641db72e49d9c9d9b656a5979d88f8cbcda576afcf4bd0",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 140,
+        "height": 112,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-collision",
+        "uri": "/artifacts/visual/rabbit-collision.png",
+        "contentHash": "ec28b8b7c90a8ca600cfcab91fa85e4861bef7679a408f1470de8ca8bd004618",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "beab8711121630d34d12ab57c2219ee71cc4efe395703bc9622380f0fee648c1",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 140,
+        "height": 112,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-lying",
+        "uri": "/artifacts/visual/rabbit-lying.png",
+        "contentHash": "77e2c119d9095ccacd638f81452f40224d0ae48fda272d35a3e2416ad7062f69",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "26d83697b47f4a4436a4bb7bcb383c668864a4be7bc574b10b9961705e9aa459",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 140,
+        "height": 112,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "impact-burst",
+        "uri": "/artifacts/visual/impact-burst.png",
+        "contentHash": "08d833cc3596e333651f2f0aabbf5bad7af0cab4cb3a487ccc12be0a76024574",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "89ee2af292b256d325edb8a314a0225a8700594a85dd5aaee03bb0976a6f4587",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "prop",
+        "width": 314,
+        "height": 314,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "stump-prop",
+        "uri": "/artifacts/visual/stump-prop.png",
+        "contentHash": "10ca14373d8714c2a5bc4a68699bab8b1cb952edc100fe4955232129ba5e9950",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "c7f4dd2de7962212318a524e54966cfacb8859c21a272ae5fa463720a3aa5634",
+          "producer": {
+            "name": "m21-canonical-scale-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "prop",
+        "width": 234,
+        "height": 132,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "audio.tts.narration-collision.segment.1",
+        "uri": "artifacts/tts/tts.narration-collision.segment.1.wav",
+        "contentHash": "361ef849915f0af486632e8b50f2558e90a449dde12fcdfe46eb5530657235b6",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "69754452db26cfe781bf6392cafad8beb0d74c166d3c0b1d5f6bbbe2f538e57d",
+          "modelId": "qwen3-tts-12hz-1.7b-customvoice",
+          "modelVersion": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+          "producer": {
+            "name": "qwen3-tts-local-provider",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "audio"
+      },
+      {
+        "id": "audio.tts.narration-notice.segment.1",
+        "uri": "artifacts/tts/tts.narration-notice.segment.1.wav",
+        "contentHash": "4538c431a024bc32295a6a5a6038443f8d1dfa7692eacb818fc1f003189cb33a",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "36c47e8820518995e874830d48733de8c41de0fe290e4b83ffa41209b839a2f6",
+          "modelId": "qwen3-tts-12hz-1.7b-customvoice",
+          "modelVersion": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+          "producer": {
+            "name": "qwen3-tts-local-provider",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "audio"
+      },
+      {
+        "id": "audio.tts.narration-notice.segment.2",
+        "uri": "artifacts/tts/tts.narration-notice.segment.2.wav",
+        "contentHash": "7dba13935f917747d94b94feb79482655f1a4da0029f9703a30f8d1809b91dca",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "1af5c64e1956d965c14d0a3d6588e6562000e6c65309be7a801252facd8c3605",
+          "modelId": "qwen3-tts-12hz-1.7b-customvoice",
+          "modelVersion": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+          "producer": {
+            "name": "qwen3-tts-local-provider",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "audio"
+      },
+      {
+        "id": "audio.tts.narration-approach.segment.1",
+        "uri": "artifacts/tts/tts.narration-approach.segment.1.wav",
+        "contentHash": "40d9a904774990b84766dd470ee5f66e4b1b8dd14e3f588946849666e8f21c3f",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "5a1ea6501a046fb3b85e1f683e5e219276797f9ca714be96127553a2b21527f4",
+          "modelId": "qwen3-tts-12hz-1.7b-customvoice",
+          "modelVersion": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+          "producer": {
+            "name": "qwen3-tts-local-provider",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "audio"
+      },
+      {
+        "id": "audio.tts.narration-pickup.segment.1",
+        "uri": "artifacts/tts/tts.narration-pickup.segment.1.wav",
+        "contentHash": "0d55fb0cb054fb806b29b6e6bb3c750e4629fa2b792f4f8d2d1f6bdadaebb200",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "b21c569820a36b629d296300a78ba2e7cac7417e45808e7d5b40628b4f0080ae",
+          "modelId": "qwen3-tts-12hz-1.7b-customvoice",
+          "modelVersion": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+          "producer": {
+            "name": "qwen3-tts-local-provider",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-13T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "audio"
+      }
+    ]
+  },
+  "environments": [
+    {
+      "id": "pastoral-field",
+      "name": "Pastoral Field Overscan",
+      "referenceResolution": {
+        "width": 1280,
+        "height": 720
+      },
+      "layers": [
+        {
+          "id": "far",
+          "assetId": "environment-far",
+          "renderLayer": "far",
+          "zIndex": 0,
+          "parallaxFactor": 0.1,
+          "transform": {
+            "position": {
+              "x": -320,
+              "y": -180
+            },
+            "scale": {
+              "x": 1.5,
+              "y": 1.5
+            },
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "id": "mid",
+          "assetId": "environment-mid",
+          "renderLayer": "mid",
+          "zIndex": 0,
+          "parallaxFactor": 0.35,
+          "transform": {
+            "position": {
+              "x": -320,
+              "y": -180
+            },
+            "scale": {
+              "x": 1.5,
+              "y": 1.5
+            },
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "id": "ground",
+          "assetId": "environment-ground",
+          "renderLayer": "ground",
+          "zIndex": 0,
+          "parallaxFactor": 0.7,
+          "transform": {
+            "position": {
+              "x": -320,
+              "y": -180
+            },
+            "scale": {
+              "x": 1.5,
+              "y": 1.5
+            },
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "id": "foreground",
+          "assetId": "environment-foreground",
+          "renderLayer": "foreground",
+          "zIndex": 0,
+          "parallaxFactor": 1.15,
+          "transform": {
+            "position": {
+              "x": -320,
+              "y": -180
+            },
+            "scale": {
+              "x": 1.5,
+              "y": 1.5
+            },
+            "rotation": 0,
+            "opacity": 1
+          }
+        }
+      ],
+      "ground": {
+        "farLeft": {
+          "x": 0.05,
+          "y": 0.58
+        },
+        "farRight": {
+          "x": 0.95,
+          "y": 0.58
+        },
+        "nearLeft": {
+          "x": 0,
+          "y": 0.96
+        },
+        "nearRight": {
+          "x": 1,
+          "y": 0.96
+        },
+        "farScale": 0.55,
+        "nearScale": 1,
+        "depthEasing": "linear",
+        "walkableZones": []
+      },
+      "occlusionZones": []
+    }
+  ],
+  "entities": [
+    {
+      "id": "rabbit-definition",
+      "entityType": "rabbit",
+      "displayName": "Rabbit",
+      "poseClipIds": [
+        "rabbit.run-left",
+        "rabbit.collision",
+        "rabbit.lying"
+      ],
+      "defaultPoseClipId": "rabbit.run-left",
+      "attachmentSlots": [],
+      "tags": [
+        "canonical-relative-scale-0.35"
+      ]
+    },
+    {
+      "id": "farmer-definition",
+      "entityType": "farmer",
+      "displayName": "Farmer",
+      "poseClipIds": [
+        "farmer.idle",
+        "farmer.notice-right",
+        "farmer.walk-right",
+        "farmer.bend",
+        "farmer.pickup-rabbit",
+        "farmer.hold-rabbit"
+      ],
+      "defaultPoseClipId": "farmer.idle",
+      "attachmentSlots": [
+        {
+          "id": "baked-rabbit",
+          "ownerAnchor": "center"
+        }
+      ],
+      "tags": [
+        "canonical-scale-1.0"
+      ]
+    },
+    {
+      "id": "stump-definition",
+      "entityType": "landmark",
+      "displayName": "Collision Stump",
+      "poseClipIds": [
+        "stump.idle"
+      ],
+      "defaultPoseClipId": "stump.idle",
+      "attachmentSlots": [],
+      "tags": [
+        "landmark"
+      ]
+    },
+    {
+      "id": "impact-definition",
+      "entityType": "effect",
+      "displayName": "Impact Burst",
+      "poseClipIds": [
+        "impact.idle"
+      ],
+      "defaultPoseClipId": "impact.idle",
+      "attachmentSlots": []
+    }
+  ],
+  "instances": [
+    {
+      "id": "farmer",
+      "definitionId": "farmer-definition",
+      "sceneId": "scene-field",
+      "activeRange": {
+        "startFrame": 0,
+        "endFrame": 600
+      },
+      "initialOwner": {
+        "kind": "world",
+        "environmentId": "pastoral-field"
+      }
+    },
+    {
+      "id": "rabbit",
+      "definitionId": "rabbit-definition",
+      "sceneId": "scene-field",
+      "activeRange": {
+        "startFrame": 0,
+        "endFrame": 600
+      },
+      "initialOwner": {
+        "kind": "world",
+        "environmentId": "pastoral-field"
+      }
+    },
+    {
+      "id": "stump",
+      "definitionId": "stump-definition",
+      "sceneId": "scene-field",
+      "activeRange": {
+        "startFrame": 0,
+        "endFrame": 600
+      },
+      "initialOwner": {
+        "kind": "world",
+        "environmentId": "pastoral-field"
+      }
+    },
+    {
+      "id": "impact",
+      "definitionId": "impact-definition",
+      "sceneId": "scene-field",
+      "activeRange": {
+        "startFrame": 0,
+        "endFrame": 600
+      },
+      "initialOwner": {
+        "kind": "world",
+        "environmentId": "pastoral-field"
+      }
+    }
+  ],
+  "poseClips": [
+    {
+      "id": "rabbit.run-left",
+      "entityType": "rabbit",
+      "action": "run",
+      "loop": true,
+      "direction": "left",
+      "frames": [
+        {
+          "assetId": "rabbit-run-1",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4195,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5805,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5205
+            },
+            "leftHand": {
+              "x": 0.2988,
+              "y": 0.5205
+            },
+            "rightHand": {
+              "x": 0.7012,
+              "y": 0.5205
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "left-foot"
+          },
+          "referenceFoot": "left-foot"
+        },
+        {
+          "assetId": "rabbit-run-2",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4368,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5633,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "leftHand": {
+              "x": 0.3419,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.6582,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "right-foot"
+          },
+          "referenceFoot": "right-foot"
+        },
+        {
+          "assetId": "rabbit-run-3",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4056,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5944,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "leftHand": {
+              "x": 0.264,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.736,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "left-foot"
+          },
+          "referenceFoot": "left-foot"
+        },
+        {
+          "assetId": "rabbit-run-4",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4318,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5682,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5205
+            },
+            "leftHand": {
+              "x": 0.3295,
+              "y": 0.5205
+            },
+            "rightHand": {
+              "x": 0.6705,
+              "y": 0.5205
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "right-foot"
+          },
+          "referenceFoot": "right-foot"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "contact-only",
+        "maxCorrectionPx": 24
+      }
+    },
+    {
+      "id": "rabbit.collision",
+      "entityType": "rabbit",
+      "action": "collision",
+      "loop": true,
+      "direction": "left",
+      "frames": [
+        {
+          "assetId": "rabbit-collision",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4144,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5856,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "leftHand": {
+              "x": 0.286,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.714,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      }
+    },
+    {
+      "id": "rabbit.lying",
+      "entityType": "rabbit",
+      "action": "lying",
+      "loop": true,
+      "direction": "left",
+      "frames": [
+        {
+          "assetId": "rabbit-lying",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.4779,
+              "y": 0.7906
+            },
+            "leftFoot": {
+              "x": 0.3963,
+              "y": 0.7906
+            },
+            "rightFoot": {
+              "x": 0.5595,
+              "y": 0.7906
+            },
+            "center": {
+              "x": 0.4779,
+              "y": 0.529
+            },
+            "leftHand": {
+              "x": 0.2739,
+              "y": 0.529
+            },
+            "rightHand": {
+              "x": 0.6819,
+              "y": 0.529
+            },
+            "head": {
+              "x": 0.4779,
+              "y": 0.3459
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      }
+    },
+    {
+      "id": "farmer.idle",
+      "entityType": "farmer",
+      "action": "idle",
+      "loop": true,
+      "direction": "front",
+      "frames": [
+        {
+          "assetId": "farmer-idle",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4494,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5505,
+              "y": 0.96
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "leftHand": {
+              "x": 0.3735,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6264,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      }
+    },
+    {
+      "id": "farmer.notice-right",
+      "entityType": "farmer",
+      "action": "notice",
+      "loop": true,
+      "direction": "right",
+      "frames": [
+        {
+          "assetId": "farmer-notice",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4431,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5569,
+              "y": 0.96
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4952
+            },
+            "leftHand": {
+              "x": 0.3577,
+              "y": 0.4952
+            },
+            "rightHand": {
+              "x": 0.6424,
+              "y": 0.4952
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      }
+    },
+    {
+      "id": "farmer.walk-right",
+      "entityType": "farmer",
+      "action": "walk",
+      "loop": true,
+      "direction": "right",
+      "frames": [
+        {
+          "assetId": "farmer-walk-1",
+          "durationFrames": 5,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4376,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5623,
+              "y": 0.96
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4952
+            },
+            "leftHand": {
+              "x": 0.3439,
+              "y": 0.4952
+            },
+            "rightHand": {
+              "x": 0.656,
+              "y": 0.4952
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          },
+          "contact": {
+            "type": "left-foot"
+          },
+          "referenceFoot": "left-foot"
+        },
+        {
+          "assetId": "farmer-walk-2",
+          "durationFrames": 5,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4443,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5557,
+              "y": 0.96
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "leftHand": {
+              "x": 0.3608,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6392,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          },
+          "contact": {
+            "type": "right-foot"
+          },
+          "referenceFoot": "right-foot"
+        },
+        {
+          "assetId": "farmer-walk-3",
+          "durationFrames": 5,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4378,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5621,
+              "y": 0.96
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "leftHand": {
+              "x": 0.3447,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6553,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          },
+          "contact": {
+            "type": "left-foot"
+          },
+          "referenceFoot": "left-foot"
+        },
+        {
+          "assetId": "farmer-walk-4",
+          "durationFrames": 5,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4442,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5558,
+              "y": 0.96
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "leftHand": {
+              "x": 0.3605,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6395,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          },
+          "contact": {
+            "type": "right-foot"
+          },
+          "referenceFoot": "right-foot"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "contact-only",
+        "maxCorrectionPx": 40
+      }
+    },
+    {
+      "id": "farmer.bend",
+      "entityType": "farmer",
+      "action": "bend",
+      "loop": true,
+      "direction": "right",
+      "frames": [
+        {
+          "assetId": "farmer-bend",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5088,
+              "y": 0.9219
+            },
+            "leftFoot": {
+              "x": 0.4369,
+              "y": 0.9219
+            },
+            "rightFoot": {
+              "x": 0.5807,
+              "y": 0.9219
+            },
+            "center": {
+              "x": 0.5088,
+              "y": 0.5091
+            },
+            "leftHand": {
+              "x": 0.3291,
+              "y": 0.5091
+            },
+            "rightHand": {
+              "x": 0.6885,
+              "y": 0.5091
+            },
+            "head": {
+              "x": 0.5088,
+              "y": 0.2202
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      }
+    },
+    {
+      "id": "farmer.pickup-rabbit",
+      "entityType": "farmer",
+      "action": "pickup",
+      "loop": false,
+      "direction": "right",
+      "frames": [
+        {
+          "assetId": "farmer-pickup-rabbit-1",
+          "durationFrames": 10,
+          "anchors": {
+            "foot": {
+              "x": 0.4794921875,
+              "y": 0.7923177083333334
+            },
+            "leftFoot": {
+              "x": 0.4294921875,
+              "y": 0.7923177083333334
+            },
+            "rightFoot": {
+              "x": 0.5294921875,
+              "y": 0.7923177083333334
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.52
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.31
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        },
+        {
+          "assetId": "farmer-pickup-rabbit-2",
+          "durationFrames": 10,
+          "anchors": {
+            "foot": {
+              "x": 0.47705078125,
+              "y": 0.9029947916666666
+            },
+            "leftFoot": {
+              "x": 0.42705078125,
+              "y": 0.9029947916666666
+            },
+            "rightFoot": {
+              "x": 0.52705078125,
+              "y": 0.9029947916666666
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.52
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.22
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        },
+        {
+          "assetId": "farmer-pickup-rabbit-3",
+          "durationFrames": 10,
+          "anchors": {
+            "foot": {
+              "x": 0.5009765625,
+              "y": 0.93359375
+            },
+            "leftFoot": {
+              "x": 0.4509765625,
+              "y": 0.93359375
+            },
+            "rightFoot": {
+              "x": 0.5509765625,
+              "y": 0.93359375
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.52
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.22
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        },
+        {
+          "assetId": "farmer-pickup-rabbit-4",
+          "durationFrames": 10,
+          "anchors": {
+            "foot": {
+              "x": 0.50732421875,
+              "y": 0.9602864583333334
+            },
+            "leftFoot": {
+              "x": 0.45732421875,
+              "y": 0.9602864583333334
+            },
+            "rightFoot": {
+              "x": 0.55732421875,
+              "y": 0.9602864583333334
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.52
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.22
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      },
+      "compositeSlots": [
+        {
+          "id": "rabbit",
+          "entityType": "rabbit"
+        }
+      ]
+    },
+    {
+      "id": "farmer.hold-rabbit",
+      "entityType": "farmer",
+      "action": "hold",
+      "loop": true,
+      "direction": "right",
+      "frames": [
+        {
+          "assetId": "farmer-hold-rabbit",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5083,
+              "y": 0.9629
+            },
+            "leftFoot": {
+              "x": 0.4607,
+              "y": 0.9629
+            },
+            "rightFoot": {
+              "x": 0.5559,
+              "y": 0.9629
+            },
+            "center": {
+              "x": 0.5083,
+              "y": 0.4958
+            },
+            "leftHand": {
+              "x": 0.3894,
+              "y": 0.4958
+            },
+            "rightHand": {
+              "x": 0.6272,
+              "y": 0.4958
+            },
+            "head": {
+              "x": 0.5083,
+              "y": 0.1688
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      },
+      "compositeSlots": [
+        {
+          "id": "rabbit",
+          "entityType": "rabbit"
+        }
+      ]
+    },
+    {
+      "id": "stump.idle",
+      "entityType": "landmark",
+      "action": "idle",
+      "loop": true,
+      "direction": "front",
+      "frames": [
+        {
+          "assetId": "stump-prop",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.93
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.55
+            }
+          },
+          "contact": {
+            "type": "none"
+          }
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "none",
+        "maxCorrectionPx": 0
+      }
+    },
+    {
+      "id": "impact.idle",
+      "entityType": "effect",
+      "action": "impact",
+      "loop": true,
+      "direction": "front",
+      "frames": [
+        {
+          "assetId": "impact-burst",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.5
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5
+            }
+          },
+          "contact": {
+            "type": "none"
+          }
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "none",
+        "maxCorrectionPx": 0
+      }
+    }
+  ],
+  "timeline": {
+    "schemaVersion": "1.0.0",
+    "fps": 30,
+    "durationFrames": 600,
+    "shots": [
+      {
+        "id": "shot-collision",
+        "sceneId": "scene-field",
+        "environmentId": "pastoral-field",
+        "range": {
+          "startFrame": 0,
+          "endFrame": 180
+        },
+        "focusEntityId": "rabbit"
+      },
+      {
+        "id": "shot-notice",
+        "sceneId": "scene-field",
+        "environmentId": "pastoral-field",
+        "range": {
+          "startFrame": 180,
+          "endFrame": 315
+        },
+        "focusEntityId": "farmer"
+      },
+      {
+        "id": "shot-approach",
+        "sceneId": "scene-field",
+        "environmentId": "pastoral-field",
+        "range": {
+          "startFrame": 315,
+          "endFrame": 450
+        },
+        "focusEntityId": "farmer"
+      },
+      {
+        "id": "shot-pickup",
+        "sceneId": "scene-field",
+        "environmentId": "pastoral-field",
+        "range": {
+          "startFrame": 450,
+          "endFrame": 600
+        },
+        "focusEntityId": "farmer"
+      }
+    ],
+    "entityTracks": [
+      {
+        "entityId": "farmer",
+        "groundPosition": [
+          {
+            "frame": 0,
+            "value": {
+              "u": 0.28,
+              "v": 0.65
+            },
+            "easing": "hold"
+          },
+          {
+            "frame": 315,
+            "value": {
+              "u": 0.28,
+              "v": 0.65
+            },
+            "easing": "linear"
+          },
+          {
+            "frame": 405,
+            "value": {
+              "u": 0.63,
+              "v": 0.67
+            },
+            "easing": "hold"
+          },
+          {
+            "frame": 599,
+            "value": {
+              "u": 0.63,
+              "v": 0.67
+            },
+            "easing": "hold"
+          }
+        ],
+        "rotation": [
+          {
+            "frame": 0,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 15,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 30,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 45,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 60,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 75,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 90,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 105,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 120,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 135,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 150,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 165,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 180,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 195,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 210,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 225,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 240,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 255,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 270,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 285,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 300,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 315,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 330,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 345,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 360,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 375,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 390,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 405,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 420,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 435,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 450,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 465,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 480,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 495,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 510,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 525,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 540,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 555,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 570,
+            "value": -0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 585,
+            "value": 0.004,
+            "easing": "linear"
+          },
+          {
+            "frame": 599,
+            "value": 0,
+            "easing": "hold"
+          }
+        ]
+      },
+      {
+        "entityId": "rabbit",
+        "groundPosition": [
+          {
+            "frame": 0,
+            "value": {
+              "u": 0.9,
+              "v": 0.6
+            },
+            "easing": "linear"
+          },
+          {
+            "frame": 90,
+            "value": {
+              "u": 0.7,
+              "v": 0.66
+            },
+            "easing": "hold"
+          },
+          {
+            "frame": 114,
+            "value": {
+              "u": 0.69,
+              "v": 0.67
+            },
+            "easing": "hold"
+          },
+          {
+            "frame": 599,
+            "value": {
+              "u": 0.69,
+              "v": 0.67
+            },
+            "easing": "hold"
+          }
+        ],
+        "rotation": [
+          {
+            "frame": 0,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 15,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 30,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 45,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 60,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 75,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 90,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 105,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 120,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 135,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 150,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 165,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 180,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 195,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 210,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 225,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 240,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 255,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 270,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 285,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 300,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 315,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 330,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 345,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 360,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 375,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 390,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 405,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 420,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 435,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 450,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 465,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 480,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 495,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 510,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 525,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 540,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 555,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 570,
+            "value": -0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 585,
+            "value": 0.003,
+            "easing": "linear"
+          },
+          {
+            "frame": 599,
+            "value": 0,
+            "easing": "hold"
+          }
+        ]
+      },
+      {
+        "entityId": "stump",
+        "groundPosition": [
+          {
+            "frame": 0,
+            "value": {
+              "u": 0.76,
+              "v": 0.66
+            },
+            "easing": "hold"
+          }
+        ]
+      },
+      {
+        "entityId": "impact",
+        "groundPosition": [
+          {
+            "frame": 0,
+            "value": {
+              "u": 0.715,
+              "v": 0.67
+            },
+            "easing": "hold"
+          }
+        ],
+        "scale": [
+          {
+            "frame": 0,
+            "value": {
+              "x": 0.75,
+              "y": 0.75
+            },
+            "easing": "linear"
+          },
+          {
+            "frame": 90,
+            "value": {
+              "x": 0.75,
+              "y": 0.75
+            },
+            "easing": "linear"
+          },
+          {
+            "frame": 99,
+            "value": {
+              "x": 1.15,
+              "y": 1.15
+            },
+            "easing": "hold"
+          }
+        ]
+      }
+    ],
+    "cameraTracks": [
+      {
+        "shotId": "shot-collision",
+        "position": [
+          {
+            "frame": 0,
+            "value": {
+              "x": 900,
+              "y": 360
+            },
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 90,
+            "value": {
+              "x": 707.2959999999998,
+              "y": 360
+            },
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 114,
+            "value": {
+              "x": 695.1743999999999,
+              "y": 360
+            },
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 179,
+            "value": {
+              "x": 695.1743999999999,
+              "y": 360
+            },
+            "easing": "hold"
+          }
+        ],
+        "zoom": [
+          {
+            "frame": 0,
+            "value": 1.04,
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 179,
+            "value": 1.14,
+            "easing": "hold"
+          }
+        ]
+      },
+      {
+        "shotId": "shot-notice",
+        "position": [
+          {
+            "frame": 180,
+            "value": {
+              "x": 528.2560000000001,
+              "y": 360
+            },
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 314,
+            "value": {
+              "x": 528.2560000000001,
+              "y": 360
+            },
+            "easing": "hold"
+          }
+        ],
+        "zoom": [
+          {
+            "frame": 180,
+            "value": 1.04,
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 314,
+            "value": 1.15,
+            "easing": "hold"
+          }
+        ]
+      },
+      {
+        "shotId": "shot-approach",
+        "position": [
+          {
+            "frame": 315,
+            "value": {
+              "x": 508.2560000000001,
+              "y": 360
+            },
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 405,
+            "value": {
+              "x": 900,
+              "y": 360
+            },
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 449,
+            "value": {
+              "x": 900,
+              "y": 360
+            },
+            "easing": "hold"
+          }
+        ],
+        "zoom": [
+          {
+            "frame": 315,
+            "value": 1.04,
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 449,
+            "value": 1.14,
+            "easing": "hold"
+          }
+        ]
+      },
+      {
+        "shotId": "shot-pickup",
+        "position": [
+          {
+            "frame": 450,
+            "value": {
+              "x": 880.9087999999999,
+              "y": 360
+            },
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 599,
+            "value": {
+              "x": 880.9087999999999,
+              "y": 360
+            },
+            "easing": "hold"
+          }
+        ],
+        "zoom": [
+          {
+            "frame": 450,
+            "value": 1.04,
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 564,
+            "value": 1.14,
+            "easing": "ease-in-out"
+          },
+          {
+            "frame": 599,
+            "value": 1.12,
+            "easing": "hold"
+          }
+        ]
+      }
+    ],
+    "poseEvents": [
+      {
+        "id": "pose.expanded.action-run",
+        "frame": 0,
+        "entityId": "rabbit",
+        "poseClipId": "rabbit.run-left",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose.expanded.action-collision",
+        "frame": 90,
+        "entityId": "rabbit",
+        "poseClipId": "rabbit.collision",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose.expanded.action-lying",
+        "frame": 114,
+        "entityId": "rabbit",
+        "poseClipId": "rabbit.lying",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose.expanded.action-notice",
+        "frame": 180,
+        "entityId": "farmer",
+        "poseClipId": "farmer.notice-right",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose.expanded.action-walk",
+        "frame": 315,
+        "entityId": "farmer",
+        "poseClipId": "farmer.walk-right",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose.expanded.action-bend",
+        "frame": 405,
+        "entityId": "farmer",
+        "poseClipId": "farmer.bend",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose.expanded.action-pickup",
+        "frame": 450,
+        "entityId": "farmer",
+        "poseClipId": "farmer.pickup-rabbit",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose.expanded.action-hold",
+        "frame": 489,
+        "entityId": "farmer",
+        "poseClipId": "farmer.hold-rabbit",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      }
+    ],
+    "poseTransitions": [
+      {
+        "id": "pose-transition.expanded.action-collision",
+        "entityId": "rabbit",
+        "fromPoseClipId": "rabbit.run-left",
+        "toPoseClipId": "rabbit.collision",
+        "startFrame": 90,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      },
+      {
+        "id": "pose-transition.expanded.action-lying",
+        "entityId": "rabbit",
+        "fromPoseClipId": "rabbit.collision",
+        "toPoseClipId": "rabbit.lying",
+        "startFrame": 114,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      },
+      {
+        "id": "pose-transition.expanded.action-notice",
+        "entityId": "farmer",
+        "fromPoseClipId": "farmer.idle",
+        "toPoseClipId": "farmer.notice-right",
+        "startFrame": 180,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      },
+      {
+        "id": "pose-transition.expanded.action-walk",
+        "entityId": "farmer",
+        "fromPoseClipId": "farmer.notice-right",
+        "toPoseClipId": "farmer.walk-right",
+        "startFrame": 315,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      },
+      {
+        "id": "pose-transition.expanded.action-bend",
+        "entityId": "farmer",
+        "fromPoseClipId": "farmer.walk-right",
+        "toPoseClipId": "farmer.bend",
+        "startFrame": 405,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      },
+      {
+        "id": "pose-transition.expanded.action-pickup",
+        "entityId": "farmer",
+        "fromPoseClipId": "farmer.bend",
+        "toPoseClipId": "farmer.pickup-rabbit",
+        "startFrame": 450,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      },
+      {
+        "id": "pose-transition.expanded.action-hold",
+        "entityId": "farmer",
+        "fromPoseClipId": "farmer.pickup-rabbit",
+        "toPoseClipId": "farmer.hold-rabbit",
+        "startFrame": 489,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      }
+    ],
+    "ownershipEvents": [
+      {
+        "id": "m21-rabbit-baked-pickup",
+        "frame": 450,
+        "type": "attach",
+        "entityId": "rabbit",
+        "from": {
+          "kind": "world",
+          "environmentId": "pastoral-field"
+        },
+        "to": {
+          "kind": "entity",
+          "entityId": "farmer",
+          "slot": "baked-rabbit"
+        },
+        "mode": "baked",
+        "preserveWorldTransform": false,
+        "bakedBinding": {
+          "ownerEntityId": "farmer",
+          "childEntityId": "rabbit",
+          "compositeSlotId": "rabbit"
+        }
+      }
+    ],
+    "visibilityEvents": [
+      {
+        "id": "m21-impact-hidden-start",
+        "frame": 0,
+        "entityId": "impact",
+        "visible": false
+      },
+      {
+        "id": "m21-impact-show",
+        "frame": 90,
+        "entityId": "impact",
+        "visible": true
+      },
+      {
+        "id": "m21-impact-hide",
+        "frame": 100,
+        "entityId": "impact",
+        "visible": false
+      }
+    ],
+    "effectEvents": [],
+    "narration": [
+      {
+        "id": "narration.narration-collision.segment.1",
+        "range": {
+          "startFrame": 0,
+          "endFrame": 140
+        },
+        "assetId": "audio.tts.narration-collision.segment.1",
+        "text": "一只兔子慌忙穿过田野，砰的一声撞上了树桩。",
+        "sampleStart": 0,
+        "sampleLength": 222720
+      },
+      {
+        "id": "narration.narration-notice.segment.1",
+        "range": {
+          "startFrame": 180,
+          "endFrame": 221
+        },
+        "assetId": "audio.tts.narration-notice.segment.1",
+        "text": "兔子倒在地上。",
+        "sampleStart": 0,
+        "sampleLength": 65280
+      },
+      {
+        "id": "narration.narration-notice.segment.2",
+        "range": {
+          "startFrame": 221,
+          "endFrame": 315
+        },
+        "assetId": "audio.tts.narration-notice.segment.2",
+        "text": "农夫听见响声，转身看去。",
+        "sampleStart": 0,
+        "sampleLength": 149760
+      },
+      {
+        "id": "narration.narration-approach.segment.1",
+        "range": {
+          "startFrame": 315,
+          "endFrame": 428
+        },
+        "assetId": "audio.tts.narration-approach.segment.1",
+        "text": "他快步走到树桩旁，弯下腰仔细查看。",
+        "sampleStart": 0,
+        "sampleLength": 180480
+      },
+      {
+        "id": "narration.narration-pickup.segment.1",
+        "range": {
+          "startFrame": 450,
+          "endFrame": 566
+        },
+        "assetId": "audio.tts.narration-pickup.segment.1",
+        "text": "农夫伸手抱起兔子，把它稳稳搂在怀里。",
+        "sampleStart": 0,
+        "sampleLength": 184320
+      }
+    ],
+    "subtitles": [
+      {
+        "id": "subtitle.narration-collision.segment.1",
+        "range": {
+          "startFrame": 0,
+          "endFrame": 140
+        },
+        "text": "一只兔子慌忙穿过田野，砰的一声撞上了树桩。",
+        "styleId": "subtitle.default"
+      },
+      {
+        "id": "subtitle.narration-notice.segment.1",
+        "range": {
+          "startFrame": 180,
+          "endFrame": 221
+        },
+        "text": "兔子倒在地上。",
+        "styleId": "subtitle.default"
+      },
+      {
+        "id": "subtitle.narration-notice.segment.2",
+        "range": {
+          "startFrame": 221,
+          "endFrame": 315
+        },
+        "text": "农夫听见响声，转身看去。",
+        "styleId": "subtitle.default"
+      },
+      {
+        "id": "subtitle.narration-approach.segment.1",
+        "range": {
+          "startFrame": 315,
+          "endFrame": 428
+        },
+        "text": "他快步走到树桩旁，弯下腰仔细查看。",
+        "styleId": "subtitle.default"
+      },
+      {
+        "id": "subtitle.narration-pickup.segment.1",
+        "range": {
+          "startFrame": 450,
+          "endFrame": 566
+        },
+        "text": "农夫伸手抱起兔子，把它稳稳搂在怀里。",
+        "styleId": "subtitle.default"
+      }
+    ],
+    "sfx": [],
+    "transitions": [
+      {
+        "id": "shot-transition.shot-notice",
+        "fromShotId": "shot-collision",
+        "toShotId": "shot-notice",
+        "type": "cut",
+        "frame": 180
+      },
+      {
+        "id": "shot-transition.shot-approach",
+        "fromShotId": "shot-notice",
+        "toShotId": "shot-approach",
+        "type": "cut",
+        "frame": 315
+      },
+      {
+        "id": "shot-transition.shot-pickup",
+        "fromShotId": "shot-approach",
+        "toShotId": "shot-pickup",
+        "type": "cut",
+        "frame": 450
+      }
+    ],
+    "markers": [
+      {
+        "id": "m21-marker-collision",
+        "frame": 90,
+        "type": "collision",
+        "entityIds": [
+          "rabbit",
+          "stump"
+        ]
+      },
+      {
+        "id": "m21-marker-pickup-contact",
+        "frame": 450,
+        "type": "pickup",
+        "entityIds": [
+          "farmer",
+          "rabbit"
+        ]
+      },
+      {
+        "id": "m21-marker-pickup-complete",
+        "frame": 489,
+        "type": "pickup-complete",
+        "entityIds": [
+          "farmer",
+          "rabbit"
+        ]
+      },
+      {
+        "id": "m21-marker-hold-settle",
+        "frame": 564,
+        "type": "camera-settle",
+        "entityIds": [
+          "farmer"
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "compilerVersion": "0.1.0",
+    "sourceDirectorPlanHash": "d16176d0395be2da740a6d086642c4ac2736fa48c06d20c3ecd2251ae8be913c",
+    "effectiveDirectorPlanHash": "2ff484d35632d82e0b1bec545466f97b3e0c54e17a7293eb6e6144387d40ae0a",
+    "directorOverrideIds": [],
+    "capabilityCatalogVersion": "1.0.0",
+    "compiledAt": "2026-08-13T00:00:00.000Z",
+    "warnings": [
+      {
+        "code": "SHOT_EXPANDED_FOR_CONTENT",
+        "message": "Shot shot-notice expanded from preferred 120 to 135 frames",
+        "path": "/shots/shot-notice/durationPreference"
+      }
+    ]
+  }
+}

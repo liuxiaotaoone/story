@@ -27,9 +27,15 @@ await writeFile(join(candidate, 'visual-review.json'), `${JSON.stringify(review,
 
 if (decision === 'approved') {
   await mkdir(frozen, {recursive: true});
-  for (const filename of ['m21-visual-acceptance.mp4', 'render-plan.golden.json', 'director-plan.golden.json', 'preflight.golden.json', 'subtitles.ass', 'technical-gate-report.json', 'artifact-manifest.json', 'visual-review.json']) {
+  for (const filename of ['m21-visual-acceptance.mp4', 'render-plan.golden.json', 'director-plan.golden.json', 'preflight.golden.json', 'subtitles.ass', 'technical-gate-report.json', 'visual-review.json']) {
     await copyFile(join(candidate, filename), join(frozen, filename));
   }
+  await writeFile(join(frozen, 'artifact-manifest.json'), `${JSON.stringify({
+    ...manifest,
+    status: 'frozen',
+    frozenAt: review.reviewedAt,
+    visualReview: {status: review.status, reviewer: review.reviewer, artifactSha256: review.artifactSha256},
+  }, null, 2)}\n`);
   await writeFile(join(frozen, 'FROZEN'), `M2.1 Visual Acceptance PASS / Frozen\n${review.reviewedAt}\n${artifactSha256}\n`);
   process.stdout.write(`M2.1 Visual Acceptance approved and frozen: ${frozen}\n`);
 } else {

@@ -1,0 +1,18 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Microsoft YaHei,42,&H00FFFFFF,&H000000FF,&H001A120A,&H80000000,-1,0,0,0,100,100,0,0,1,2.5,0,2,80,80,42,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:04.67,Default,,0,0,0,,一只兔子慌忙穿过田野，砰的一声撞上了树桩。
+Dialogue: 0,0:00:06.00,0:00:07.37,Default,,0,0,0,,兔子倒在地上。
+Dialogue: 0,0:00:07.37,0:00:10.50,Default,,0,0,0,,农夫听见响声，转身看去。
+Dialogue: 0,0:00:10.50,0:00:14.27,Default,,0,0,0,,他快步走到树桩旁，弯下腰仔细查看。
+Dialogue: 0,0:00:15.00,0:00:18.87,Default,,0,0,0,,农夫伸手抱起兔子，把它稳稳搂在怀里。

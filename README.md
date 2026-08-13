@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M2.1 Visual Quality Recovery**。M2 技术闭环保持 PASS / Frozen；M2.1 在不修改 Compiler、Canonical Timeline、Paper Engine 或 Pixi RenderState 契约的前提下，恢复完整故事动作、环境 Overscan、Camera Composition、角色比例、真实中文 TTS、ASS 烧录字幕，以及 Coverage/Freeze/Visual Cadence Gate。M2.1 达到可观看闭环并通过人工 Visual Acceptance 后，再进入 M3。
+当前里程碑：**M2.1 Visual Acceptance — PASS / Frozen**。M2 技术闭环与 M2.1 可观看闭环均已冻结；下一阶段是 M3。M3 Commit 0 先将已验证的 Visual Recovery 能力归位到 Director / Preflight / Final Compiler / Asset Catalog / Visual QA 的单一编译链，不将 `applyVisualRecovery()` 作为生产管线；随后才进入 ComfyUI / Flux.2 资产生产。
 
 ## 已冻结的实现边界
 

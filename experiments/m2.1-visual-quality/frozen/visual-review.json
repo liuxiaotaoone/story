@@ -1,0 +1,7 @@
+{
+  "status": "approved",
+  "artifactSha256": "582c364e8f2adb85954363a6446ea08c824dc8a09d1876fb7b63faecd3013c85",
+  "reviewer": "User M2.1 Final Visual Acceptance",
+  "notes": "PASS：Pickup 连续性、树桩碰撞接触、20 秒节奏与 Qwen voice/cache contract 均通过；接受剩余非阻塞视觉细节，结束 M2.1，不再重做视频。",
+  "reviewedAt": "2026-08-13T07:34:11.439Z"
+}

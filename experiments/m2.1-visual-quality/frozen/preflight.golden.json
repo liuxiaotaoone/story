@@ -1,0 +1,375 @@
+{
+  "schemaVersion": "1.0.0",
+  "effectiveDirectorPlanHash": "2ff484d35632d82e0b1bec545466f97b3e0c54e17a7293eb6e6144387d40ae0a",
+  "capabilityCatalogVersion": "1.0.0",
+  "capabilityCatalogHash": "602a7beb5a678bcba17bb33572f58aedf7a086d50b01a1852e5e72a76e39a76f",
+  "narrationSegments": [
+    {
+      "id": "narration-collision.segment.1",
+      "narrationIntentId": "narration-collision",
+      "shotId": "shot-collision",
+      "sequence": 0,
+      "text": "一只兔子慌忙穿过田野，砰的一声撞上了树桩。",
+      "language": "zh-CN"
+    },
+    {
+      "id": "narration-notice.segment.1",
+      "narrationIntentId": "narration-notice",
+      "shotId": "shot-notice",
+      "sequence": 0,
+      "text": "兔子倒在地上。",
+      "language": "zh-CN"
+    },
+    {
+      "id": "narration-notice.segment.2",
+      "narrationIntentId": "narration-notice",
+      "shotId": "shot-notice",
+      "sequence": 1,
+      "text": "农夫听见响声，转身看去。",
+      "language": "zh-CN"
+    },
+    {
+      "id": "narration-approach.segment.1",
+      "narrationIntentId": "narration-approach",
+      "shotId": "shot-approach",
+      "sequence": 0,
+      "text": "他快步走到树桩旁，弯下腰仔细查看。",
+      "language": "zh-CN"
+    },
+    {
+      "id": "narration-pickup.segment.1",
+      "narrationIntentId": "narration-pickup",
+      "shotId": "shot-pickup",
+      "sequence": 0,
+      "text": "农夫伸手抱起兔子，把它稳稳搂在怀里。",
+      "language": "zh-CN"
+    }
+  ],
+  "ttsRequests": [
+    {
+      "id": "tts.narration-collision.segment.1",
+      "segmentId": "narration-collision.segment.1",
+      "text": "一只兔子慌忙穿过田野，砰的一声撞上了树桩。",
+      "voiceId": "qwen3:Serena",
+      "speed": 1,
+      "language": "zh-CN",
+      "inputHash": "69754452db26cfe781bf6392cafad8beb0d74c166d3c0b1d5f6bbbe2f538e57d"
+    },
+    {
+      "id": "tts.narration-notice.segment.1",
+      "segmentId": "narration-notice.segment.1",
+      "text": "兔子倒在地上。",
+      "voiceId": "qwen3:Serena",
+      "speed": 1,
+      "language": "zh-CN",
+      "inputHash": "36c47e8820518995e874830d48733de8c41de0fe290e4b83ffa41209b839a2f6"
+    },
+    {
+      "id": "tts.narration-notice.segment.2",
+      "segmentId": "narration-notice.segment.2",
+      "text": "农夫听见响声，转身看去。",
+      "voiceId": "qwen3:Serena",
+      "speed": 1,
+      "language": "zh-CN",
+      "inputHash": "1af5c64e1956d965c14d0a3d6588e6562000e6c65309be7a801252facd8c3605"
+    },
+    {
+      "id": "tts.narration-approach.segment.1",
+      "segmentId": "narration-approach.segment.1",
+      "text": "他快步走到树桩旁，弯下腰仔细查看。",
+      "voiceId": "qwen3:Serena",
+      "speed": 1,
+      "language": "zh-CN",
+      "inputHash": "5a1ea6501a046fb3b85e1f683e5e219276797f9ca714be96127553a2b21527f4"
+    },
+    {
+      "id": "tts.narration-pickup.segment.1",
+      "segmentId": "narration-pickup.segment.1",
+      "text": "农夫伸手抱起兔子，把它稳稳搂在怀里。",
+      "voiceId": "qwen3:Serena",
+      "speed": 1,
+      "language": "zh-CN",
+      "inputHash": "b21c569820a36b629d296300a78ba2e7cac7417e45808e7d5b40628b4f0080ae"
+    }
+  ],
+  "assetRequirements": [
+    {
+      "id": "asset.environment.pastoral-field",
+      "kind": "environment-layer",
+      "environmentIntent": "pastoral-field",
+      "required": true
+    },
+    {
+      "id": "asset.animal-frame.rabbit.run.left",
+      "kind": "animal-frame",
+      "entityType": "rabbit",
+      "action": "run",
+      "direction": "left",
+      "required": true,
+      "requestedByActionIds": [
+        "action-run"
+      ]
+    },
+    {
+      "id": "asset.animal-frame.rabbit.collision.left",
+      "kind": "animal-frame",
+      "entityType": "rabbit",
+      "action": "collision",
+      "direction": "left",
+      "required": true,
+      "requestedByActionIds": [
+        "action-collision"
+      ]
+    },
+    {
+      "id": "asset.animal-frame.rabbit.lying.left",
+      "kind": "animal-frame",
+      "entityType": "rabbit",
+      "action": "lying",
+      "direction": "left",
+      "required": true,
+      "requestedByActionIds": [
+        "action-lying"
+      ]
+    },
+    {
+      "id": "asset.character-frame.farmer.notice.right",
+      "kind": "character-frame",
+      "entityType": "farmer",
+      "action": "notice",
+      "direction": "right",
+      "required": true,
+      "requestedByActionIds": [
+        "action-notice"
+      ]
+    },
+    {
+      "id": "asset.character-frame.farmer.walk.right",
+      "kind": "character-frame",
+      "entityType": "farmer",
+      "action": "walk",
+      "direction": "right",
+      "required": true,
+      "requestedByActionIds": [
+        "action-walk"
+      ]
+    },
+    {
+      "id": "asset.character-frame.farmer.bend.right",
+      "kind": "character-frame",
+      "entityType": "farmer",
+      "action": "bend",
+      "direction": "right",
+      "required": true,
+      "requestedByActionIds": [
+        "action-bend"
+      ]
+    },
+    {
+      "id": "asset.character-frame.farmer.pickup.right",
+      "kind": "character-frame",
+      "entityType": "farmer",
+      "action": "pickup",
+      "direction": "right",
+      "required": true,
+      "requestedByActionIds": [
+        "action-pickup"
+      ]
+    },
+    {
+      "id": "asset.character-frame.farmer.hold.right",
+      "kind": "character-frame",
+      "entityType": "farmer",
+      "action": "hold",
+      "direction": "right",
+      "required": true,
+      "requestedByActionIds": [
+        "action-hold"
+      ]
+    }
+  ],
+  "expandedActions": [
+    {
+      "id": "expanded.action-run",
+      "sourceActionId": "action-run",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "actorId": "rabbit",
+      "action": "run",
+      "sequence": 0,
+      "direction": "left",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 3
+      },
+      "minDurationFrames": 30,
+      "poseClipId": "rabbit.run-left",
+      "requiredPoseClipIds": [
+        "rabbit.run-left"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "locomotion",
+      "destinationBlocking": {
+        "horizontal": "right",
+        "depth": "ground",
+        "facing": "left"
+      }
+    },
+    {
+      "id": "expanded.action-collision",
+      "sourceActionId": "action-collision",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "actorId": "rabbit",
+      "action": "collision",
+      "sequence": 1,
+      "direction": "left",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 0.8
+      },
+      "minDurationFrames": 12,
+      "poseClipId": "rabbit.collision",
+      "requiredPoseClipIds": [
+        "rabbit.collision"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "stationary"
+    },
+    {
+      "id": "expanded.action-lying",
+      "sourceActionId": "action-lying",
+      "sceneId": "scene-field",
+      "shotId": "shot-collision",
+      "actorId": "rabbit",
+      "action": "lying",
+      "sequence": 2,
+      "direction": "left",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 1.2
+      },
+      "minDurationFrames": 18,
+      "poseClipId": "rabbit.lying",
+      "requiredPoseClipIds": [
+        "rabbit.lying"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "stationary"
+    },
+    {
+      "id": "expanded.action-notice",
+      "sourceActionId": "action-notice",
+      "sceneId": "scene-field",
+      "shotId": "shot-notice",
+      "actorId": "farmer",
+      "action": "notice",
+      "sequence": 0,
+      "direction": "right",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 1.2
+      },
+      "minDurationFrames": 18,
+      "poseClipId": "farmer.notice-right",
+      "requiredPoseClipIds": [
+        "farmer.notice-right"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "stationary"
+    },
+    {
+      "id": "expanded.action-walk",
+      "sourceActionId": "action-walk",
+      "sceneId": "scene-field",
+      "shotId": "shot-approach",
+      "actorId": "farmer",
+      "action": "walk",
+      "sequence": 0,
+      "direction": "right",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 3
+      },
+      "minDurationFrames": 30,
+      "poseClipId": "farmer.walk-right",
+      "requiredPoseClipIds": [
+        "farmer.walk-right"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "locomotion",
+      "destinationBlocking": {
+        "horizontal": "right",
+        "depth": "ground",
+        "facing": "right"
+      }
+    },
+    {
+      "id": "expanded.action-bend",
+      "sourceActionId": "action-bend",
+      "sceneId": "scene-field",
+      "shotId": "shot-approach",
+      "actorId": "farmer",
+      "action": "bend",
+      "sequence": 1,
+      "direction": "right",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 1.2
+      },
+      "minDurationFrames": 18,
+      "poseClipId": "farmer.bend",
+      "requiredPoseClipIds": [
+        "farmer.bend"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "stationary"
+    },
+    {
+      "id": "expanded.action-pickup",
+      "sourceActionId": "action-pickup",
+      "sceneId": "scene-field",
+      "shotId": "shot-pickup",
+      "actorId": "farmer",
+      "action": "pickup",
+      "sequence": 0,
+      "targetId": "rabbit",
+      "direction": "right",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 1.3
+      },
+      "minDurationFrames": 18,
+      "poseClipId": "farmer.pickup-rabbit",
+      "requiredPoseClipIds": [
+        "farmer.pickup-rabbit"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "stationary"
+    },
+    {
+      "id": "expanded.action-hold",
+      "sourceActionId": "action-hold",
+      "sceneId": "scene-field",
+      "shotId": "shot-pickup",
+      "actorId": "farmer",
+      "action": "hold",
+      "sequence": 1,
+      "targetId": "rabbit",
+      "direction": "right",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 2.5
+      },
+      "minDurationFrames": 30,
+      "poseClipId": "farmer.hold-rabbit",
+      "requiredPoseClipIds": [
+        "farmer.hold-rabbit"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "stationary"
+    }
+  ],
+  "diagnostics": [],
+  "preflightHash": "25f5d9f1b64f72d882a0d9f0cfacdd4ccddc4bb5c8f59fb5229a606cebc7acac"
+}

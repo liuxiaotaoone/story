@@ -1,6 +1,6 @@
 # M2.1 Visual Quality Recovery
 
-状态：Gate Hardening 实现完成，等待本机 Qwen3-TTS 完整渲染与人工 Visual Acceptance。
+状态：**PASS / Frozen**。2026-08-13 完成 Technical Gate 与人工 Visual Acceptance；冻结产物位于 `frozen/`。
 
 本实验不修改 Frozen 的 Compiler、Canonical Timeline、Paper Engine、GroundLock、Pixi RenderState 或 Ownership 合同。Final Compiler 先生成基础 RenderPlan，确定性的 Visual Recovery Planner 仅负责：
 
@@ -39,4 +39,4 @@ node scripts/review-candidate.mjs --approve --reviewer "姓名" --notes "十项�
 
 若不通过则执行 `--reject`。只有 technical report、candidate MP4 SHA-256 和人工 `visual-review.json` 三者一致且状态为 `approved` 时，才晋级 `frozen/`。
 
-只有技术 Gate 与人工观感审核都通过后，才能标记 `M2.1 Visual Acceptance = PASS`。
+本轮技术 Gate 与人工观感审核均已通过，`M2.1 Visual Acceptance = PASS / Frozen`。`applyVisualRecovery()` 仍是已冻结的实验成果，不是未来 Production Pipeline；其能力归位属于 M3 Commit 0。
