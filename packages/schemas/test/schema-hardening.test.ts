@@ -5,6 +5,7 @@ import {
   ContentHashSchema,
   EnvironmentDefinitionSchema,
   OwnershipEventSchema,
+  RenderPlanSchema,
   RenderStateSchema,
   ShotTransitionSchema,
   TimelineSchema,
@@ -245,6 +246,19 @@ describe('canonical hashing and render-plan integrity', () => {
     const result = validateRenderPlanIntegrity(invalid);
     expect(result.valid).toBe(false);
     expect(result.issues.some(({code}) => code === 'MISSING_ASSET')).toBe(true);
+  });
+
+  it('rejects duplicate EntityInstance IDs at both Schema and Integrity boundaries', () => {
+    const duplicate = renderPlan();
+    duplicate.instances.push({...structuredClone(duplicate.instances[0]), definitionId: 'farmer-def'});
+    expect(RenderPlanSchema.safeParse(duplicate).success).toBe(false);
+    const integrity = validateRenderPlanIntegrity(duplicate);
+    expect(integrity.valid).toBe(false);
+    expect(integrity.issues).toContainEqual(expect.objectContaining({
+      code: 'SCHEMA_INVALID',
+      message: 'Duplicate EntityInstance id: farmer',
+      path: 'instances.1.id',
+    }));
   });
 
   it('keeps semantic RenderPlan identity stable across audit-only changes', async () => {

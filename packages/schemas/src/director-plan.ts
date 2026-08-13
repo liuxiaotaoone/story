@@ -164,12 +164,26 @@ export const DirectorPlanSchema = z.object({
     }
     return ids;
   };
-  const characterIds = new Set(plan.characters.map(character => character.characterId));
-  const landmarkIds = new Set((plan.landmarks ?? []).map(landmark => landmark.id));
-  const directorEntityIds = new Set([...characterIds, ...landmarkIds]);
-  if (characterIds.size !== plan.characters.length) context.addIssue({code: 'custom', message: 'Director character ids must be unique', path: ['characters']});
+  const directorEntityIds = new Set<string>();
+  const characterIds = new Set<string>();
+  for (const [index, character] of plan.characters.entries()) {
+    if (directorEntityIds.has(character.characterId)) context.addIssue({
+      code: 'custom',
+      message: `Duplicate director entity id: ${character.characterId}`,
+      path: ['characters', index, 'characterId'],
+    });
+    directorEntityIds.add(character.characterId);
+    characterIds.add(character.characterId);
+  }
+  for (const [index, landmark] of (plan.landmarks ?? []).entries()) {
+    if (directorEntityIds.has(landmark.id)) context.addIssue({
+      code: 'custom',
+      message: `Duplicate director entity id: ${landmark.id}`,
+      path: ['landmarks', index, 'id'],
+    });
+    directorEntityIds.add(landmark.id);
+  }
   const sceneIds = uniqueIds(plan.scenes, 'scenes');
-  uniqueIds(plan.landmarks ?? [], 'landmarks');
   const shotIds = uniqueIds(plan.shots, 'shots');
   uniqueIds(plan.narration, 'narration');
   uniqueIds(plan.actions, 'actions');

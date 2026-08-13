@@ -57,7 +57,17 @@ export const RenderPlanSchema = z.object({
   poseClips: z.array(PoseClipSchema),
   timeline: TimelineSchema,
   provenance: CompileProvenanceSchema,
-}).strict();
+}).strict().superRefine((plan, context) => {
+  const instanceIds = new Set<string>();
+  for (const [index, instance] of plan.instances.entries()) {
+    if (instanceIds.has(instance.id)) context.addIssue({
+      code: 'custom',
+      message: `Duplicate EntityInstance id: ${instance.id}`,
+      path: ['instances', index, 'id'],
+    });
+    instanceIds.add(instance.id);
+  }
+});
 
 export const PoseTransitionRenderRefSchema = z.object({
   transitionId: IdSchema,

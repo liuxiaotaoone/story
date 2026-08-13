@@ -1,6 +1,6 @@
 # M3 Commit 0 — Visual Recovery Productization
 
-状态：**PASS / Frozen**（Commit 0.1 Contract Hardening 已完成）
+状态：**PASS / Frozen**（Commit 0.1 Contract Hardening 与 Commit 0.2 Entity Namespace Integrity 已完成）
 
 ## 决策
 
@@ -46,6 +46,13 @@ Final Compiler 不再输出供 Visual Recovery 二次修改的中间 RenderPlan�
 - Supplemental Effect Instance 只由 `SolvedTimingPlan` 中实际调度的 Action 产生；Optional Action 仍然按 `OPTIONAL_ACTION_DROPPED` 结束，缺少 Optional Effect Binding 不会使 Final Compile 失败。
 - `Shot.focusEntityId` 是 Camera 编译的唯一 Focus Source。兼容期 `CameraIntent.focusEntityId` 仅用于一致性验证；Composition 必须有 Shot Focus，Follow 必须两者一致。
 - Visual Cadence 按 Paper Engine 的 easing 语义判定：`hold` 区间不生成中间运动事件，只在终点记录跳变；连续 easing 才按间隔采样。
+
+## Commit 0.2 Entity Namespace Integrity
+
+- Director 的 Character 与 Landmark 共享同一个 Entity ID namespace；跨集合或集合内部重复均由 `DirectorPlanSchema` 拒绝。
+- `RenderPlanSchema` 明确要求所有 `EntityInstance.id` 全局唯一；`validateRenderPlanIntegrity()` 同时保留独立的重复 ID 防线，禁止任何 `Map` 构造发生静默覆盖。
+- Compiler-generated Effect 与 Director Entity 撞 ID 时，Final Compile 会在 Canonical Timeline/RenderPlan 形成前 fail-fast，不会产出含歧义的计划。
+- Compiler 保留命名空间（例如 `__compiler.*`）留作后续 P2 ADR，本提交不做 ID 格式 Breaking Change。
 
 ## 下一步
 

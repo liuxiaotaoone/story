@@ -69,6 +69,20 @@ describe('M3 visual productization contracts', () => {
     })).toThrow(/composition requires Shot.focusEntityId/);
   });
 
+  it('uses one Director entity ID namespace for characters and landmarks', () => {
+    expect(() => DirectorPlanSchema.parse({
+      schemaVersion: '1.0.0', projectId: 'project', storyId: 'story', sourceStoryHash: HASH,
+      storyBible: {title: 'Story', summary: 'Summary', styleGuideId: 'paper'},
+      characters: [{characterId: 'stump', entityType: 'rabbit', role: 'runner', initialBlocking: {horizontal: 'left', depth: 'ground'}}],
+      scenes: [{id: 'scene', sourceBeatIds: ['beat'], environmentIntent: 'field', summary: 'Field'}],
+      landmarks: [{id: 'stump', sceneId: 'scene', landmarkType: 'stump', blocking: {horizontal: 'right', depth: 'ground'}}],
+      shots: [{id: 'shot', sceneId: 'scene', shotType: 'wide'}],
+      narration: [], actions: [],
+      cameraIntents: [{id: 'camera', sceneId: 'scene', shotId: 'shot', type: 'static'}],
+      blockingIntents: [],
+    })).toThrow(/Duplicate director entity id: stump/);
+  });
+
   it('binds overscan and safe bounds to the Environment contract', () => {
     const environment = {
       id: 'field', name: 'Field', referenceResolution: {width: 1280, height: 720},

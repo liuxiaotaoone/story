@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {
   DirectorPlanSchema,
   assertRenderPlanIntegrity,
+  canonicalHash,
   semanticRenderPlanHash,
   type FinalCompileInput,
   type MeasuredAudio,
@@ -306,5 +307,50 @@ describe('M3 Visual Recovery Productization', () => {
     expect(plan.provenance.compilerVersion).toBe('0.2.0');
     expect(assertRenderPlanIntegrity(plan)).toEqual(plan);
     expect(prepareRenderPlan(plan).plan).toEqual(plan);
+
+    const collidingEntityId = 'effect.expanded.action-collision';
+    const collidingDirectorPlan = DirectorPlanSchema.parse({
+      ...directorPlan,
+      characters: [...directorPlan.characters, {
+        characterId: collidingEntityId,
+        entityType: 'farmer',
+        role: 'collision-id-sentinel',
+        initialBlocking: {horizontal: 'far-left', depth: 'ground'},
+      }],
+    });
+    const collidingSourceDirectorPlanHash = await canonicalHash('director-plan-v1', collidingDirectorPlan);
+    const collidingEffectiveDirectorPlan = {
+      sourceDirectorPlanHash: collidingSourceDirectorPlanHash,
+      overrideIds: [],
+      plan: collidingDirectorPlan,
+      effectivePlanHash: await canonicalHash('effective-director-plan-v1', {
+        sourceDirectorPlanHash: collidingSourceDirectorPlanHash,
+        overrideIds: [],
+        plan: collidingDirectorPlan,
+      }),
+    };
+    const collidingPreflight = await compilePreflight({
+      effectiveDirectorPlan: collidingEffectiveDirectorPlan,
+      capabilityCatalog: m3Capabilities,
+    });
+    const collidingCatalogPayload = {
+      ...assetCatalogPayload,
+      characterBindings: [...assetCatalogPayload.characterBindings, {
+        characterId: collidingEntityId,
+        entityDefinitionId: 'farmer-definition',
+      }],
+    };
+    const collidingCatalog = {
+      ...collidingCatalogPayload,
+      catalogHash: await hashResolvedAssetCatalogPayload(collidingCatalogPayload),
+    };
+    await expect(compileFinal({
+      effectiveDirectorPlan: collidingEffectiveDirectorPlan,
+      preflight: collidingPreflight,
+      measuredAudio,
+      capabilityCatalog: m3Capabilities,
+      assetCatalog: collidingCatalog,
+      context: {seed: 43, compilerVersion: '0.2.0', compiledAt: '2026-08-13T00:00:00.000Z'},
+    })).rejects.toThrow(/Duplicate EntityTrack for effect\.expanded\.action-collision/);
   });
 });

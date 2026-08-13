@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 0 / 0.1 — PASS / Frozen**。Visual Recovery Productization 与合同加固已完成；Interactive Target、Optional Drop、Camera Focus 和 easing-aware Visual Cadence 边界已锁定。生产路径不使用 `applyVisualRecovery()` 二次修改 RenderPlan；下一步是 M3 Commit 1 — Action Package Contract。
+当前里程碑：**M3 Commit 0 / 0.1 / 0.2 — PASS / Frozen**。Visual Recovery Productization、合同加固与 Entity Namespace Integrity 已完成；Director Entity 与 RenderPlan Instance 的全局唯一性已经锁定。生产路径不使用 `applyVisualRecovery()` 二次修改 RenderPlan；下一步是 M3 Commit 1 — Action Package Contract。
 
 ## 已冻结的实现边界
 
