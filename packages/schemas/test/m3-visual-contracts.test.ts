@@ -46,6 +46,29 @@ describe('M3 visual productization contracts', () => {
     })).toThrow(/attachmentMode=baked/);
   });
 
+  it('makes Shot.focusEntityId the single camera focus source', () => {
+    const base = {
+      schemaVersion: '1.0.0', projectId: 'project', storyId: 'story', sourceStoryHash: HASH,
+      storyBible: {title: 'Story', summary: 'Summary', styleGuideId: 'paper'},
+      characters: [
+        {characterId: 'rabbit', entityType: 'rabbit', role: 'runner', initialBlocking: {horizontal: 'left', depth: 'ground'}},
+        {characterId: 'farmer', entityType: 'farmer', role: 'observer', initialBlocking: {horizontal: 'right', depth: 'ground'}},
+      ],
+      scenes: [{id: 'scene', sourceBeatIds: ['beat'], environmentIntent: 'field', summary: 'Field'}],
+      narration: [], actions: [], blockingIntents: [],
+    };
+    expect(() => DirectorPlanSchema.parse({
+      ...base,
+      shots: [{id: 'shot', sceneId: 'scene', shotType: 'wide', focusEntityId: 'rabbit'}],
+      cameraIntents: [{id: 'camera', sceneId: 'scene', shotId: 'shot', type: 'follow', focusEntityId: 'farmer'}],
+    })).toThrow(/must match Shot focus/);
+    expect(() => DirectorPlanSchema.parse({
+      ...base,
+      shots: [{id: 'shot', sceneId: 'scene', shotType: 'wide', composition: {subjectScreenX: 0.5, subjectScreenY: 0.7, leadRoom: 'center'}}],
+      cameraIntents: [{id: 'camera', sceneId: 'scene', shotId: 'shot', type: 'static'}],
+    })).toThrow(/composition requires Shot.focusEntityId/);
+  });
+
   it('binds overscan and safe bounds to the Environment contract', () => {
     const environment = {
       id: 'field', name: 'Field', referenceResolution: {width: 1280, height: 720},

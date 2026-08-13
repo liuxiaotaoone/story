@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {PreflightCompileResultSchema} from '@pose-clip/schemas';
-import {compilePreflight, createEffectiveDirectorPlan} from '../src/index.js';
+import {compilePreflight, createEffectiveDirectorPlan, resolveActions} from '../src/index.js';
 import {capabilityCatalog, sourceStory, storyDirectorPlan} from './fixture.js';
 import golden from './golden/preflight-waiting-rabbit.json' with {type: 'json'};
 
@@ -55,6 +55,20 @@ describe('Preflight Compiler', () => {
       expect.objectContaining({code: 'CAMERA_UNRESOLVABLE', severity: 'error'}),
       expect.objectContaining({code: 'BLOCKING_UNRESOLVABLE', severity: 'error'}),
     ]));
+  });
+
+  it('rejects an interactive action without targetId during Preflight resolution', () => {
+    const interactiveCatalog = structuredClone(capabilityCatalog);
+    interactiveCatalog.entityCapabilities[0]!.actions[0]!.targetTypes = ['stump'];
+    interactiveCatalog.entityCapabilities[0]!.actions[0]!.interaction = {
+      contact: {targetAnchorId: 'impact'}, effect: {effectType: 'impact', trigger: 'action-start', durationFrames: 10},
+    };
+    const action = {...storyDirectorPlan.actions[0]!, targetId: undefined};
+    const result = resolveActions([action], new Map([['rabbit', 'rabbit']]), interactiveCatalog, ['shot-run']);
+    expect(result.expandedActions).toEqual([]);
+    expect(result.diagnostics).toEqual([expect.objectContaining({
+      severity: 'error', code: 'INTERACTION_TARGET_REQUIRED', sourceId: action.id,
+    })]);
   });
 
   it('rejects duplicate persisted IDs and enforces Segment to TTS one-to-one mapping', async () => {

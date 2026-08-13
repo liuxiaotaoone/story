@@ -48,13 +48,14 @@ export function compileCameraTrack(input: {
   shotType: 'wide' | 'medium' | 'close-up';
   timing: SolvedShotTiming;
   focusEntityTrack?: Timeline['entityTracks'][number];
+  focusEntityId?: string;
   composition?: CameraComposition;
   environment: EnvironmentDefinition;
 }): CameraTrack {
   const {intent, timing} = input;
   const last = endFrame(timing);
   const zoom = baseZoom(input.shotType);
-  if (intent.focusEntityId !== undefined && input.focusEntityTrack?.groundPosition !== undefined
+  if (input.focusEntityId !== undefined && input.focusEntityTrack?.groundPosition !== undefined
     && (intent.type === 'follow' || input.composition !== undefined)) {
     const focusTrack = input.focusEntityTrack.groundPosition;
     const frames = focusFrames({timing, focusTrack});
@@ -77,7 +78,7 @@ export function compileCameraTrack(input: {
     };
   }
   if (intent.type === 'follow') {
-    if (intent.focusEntityId === undefined || input.focusEntityTrack?.groundPosition === undefined) {
+    if (input.focusEntityId === undefined || input.focusEntityTrack?.groundPosition === undefined) {
       throw new Error(`Follow camera ${intent.id} requires a ground-position track for its focus entity`);
     }
     const focusTrack = input.focusEntityTrack.groundPosition;

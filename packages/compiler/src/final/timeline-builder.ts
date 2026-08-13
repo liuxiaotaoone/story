@@ -192,11 +192,12 @@ export function buildCanonicalTimeline(input: {
       const shot = shots.get(timing.shotId)!;
       const intent = cameraIntents.get(timing.shotId)!;
       const scene = scenes.get(shot.sceneId)!;
-      const focusEntityTrack = intent.focusEntityId === undefined
+      const focusEntityTrack = shot.focusEntityId === undefined
         ? undefined
-        : compiledEntityTracks.find(track => track.entityId === intent.focusEntityId);
+        : compiledEntityTracks.find(track => track.entityId === shot.focusEntityId);
       return compileCameraTrack({
         intent, shotType: shot.shotType, timing,
+        ...(shot.focusEntityId === undefined ? {} : {focusEntityId: shot.focusEntityId}),
         ...(shot.composition === undefined ? {} : {composition: shot.composition}),
         ...(focusEntityTrack === undefined ? {} : {focusEntityTrack}),
         environment: input.catalog.environments.find(environment => environment.id === scene.environmentIntent)!,

@@ -196,8 +196,18 @@ export const DirectorPlanSchema = z.object({
   }
   for (const [index, camera] of plan.cameraIntents.entries()) {
     checkShot(camera, 'cameraIntents', index);
+    const shot = plan.shots.find(candidate => candidate.id === camera.shotId);
     if (camera.focusEntityId !== undefined && !directorEntityIds.has(camera.focusEntityId)) {
       context.addIssue({code: 'custom', message: `Unknown camera focus entity: ${camera.focusEntityId}`, path: ['cameraIntents', index, 'focusEntityId']});
+    }
+    if (shot !== undefined && camera.focusEntityId !== undefined && camera.focusEntityId !== shot.focusEntityId) {
+      context.addIssue({code: 'custom', message: `CameraIntent focus ${camera.focusEntityId} must match Shot focus ${shot.focusEntityId ?? 'undefined'}`, path: ['cameraIntents', index, 'focusEntityId']});
+    }
+    if (shot?.composition !== undefined && shot.focusEntityId === undefined) {
+      context.addIssue({code: 'custom', message: `Shot ${shot.id} composition requires Shot.focusEntityId`, path: ['shots', plan.shots.indexOf(shot), 'focusEntityId']});
+    }
+    if (camera.type === 'follow' && (shot?.focusEntityId === undefined || camera.focusEntityId !== shot.focusEntityId)) {
+      context.addIssue({code: 'custom', message: `Follow camera ${camera.id} requires matching Shot.focusEntityId and CameraIntent.focusEntityId`, path: ['cameraIntents', index, 'focusEntityId']});
     }
   }
   for (const [index, blocking] of plan.blockingIntents.entries()) {

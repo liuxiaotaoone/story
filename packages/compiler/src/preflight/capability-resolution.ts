@@ -61,6 +61,14 @@ export function resolveActions(
       });
       continue;
     }
+    if (capability.interaction !== undefined && action.targetId === undefined) {
+      diagnostics.push({
+        id: `diagnostic.${action.id}.interaction-target`, severity: 'error', code: 'INTERACTION_TARGET_REQUIRED',
+        message: `Interactive action ${actionName} requires targetId`, sourceId: action.id,
+        path: `/actions/${action.id}/targetId`, recoverable: false,
+      });
+      continue;
+    }
     const entityCapability = catalog.entityCapabilities.find(entity => entity.entityType === actorType)!;
     const missingPoseClip = capability.requiredPoseClips.find(poseClipId => !entityCapability.poseClips.includes(poseClipId));
     if (missingPoseClip !== undefined) {

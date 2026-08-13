@@ -26,6 +26,7 @@ export function compileSupplementalInstances(input: {
   effective: EffectiveDirectorPlan;
   preflight: PreflightCompileResult;
   catalog: ResolvedAssetCatalog;
+  timing: SolvedTimingPlan;
   durationFrames: number;
 }): EntityInstance[] {
   const landmarkBindings = new Map((input.catalog.landmarkBindings ?? []).map(binding => [binding.landmarkType, binding.entityDefinitionId]));
@@ -41,7 +42,8 @@ export function compileSupplementalInstances(input: {
       initialOwner: {kind: 'world', environmentId: environmentForScene(input.effective, landmark.sceneId)},
     };
   });
-  const effects: EntityInstance[] = input.preflight.expandedActions.flatMap(action => {
+  const scheduledActionIds = new Set(input.timing.shots.flatMap(shot => shot.actions.map(action => action.expandedActionId)));
+  const effects: EntityInstance[] = input.preflight.expandedActions.filter(action => scheduledActionIds.has(action.id)).flatMap(action => {
     const cue = action.interaction?.effect;
     if (cue === undefined) return [];
     const definitionId = effectBindings.get(cue.effectType);

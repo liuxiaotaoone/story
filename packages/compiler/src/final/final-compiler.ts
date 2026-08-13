@@ -53,6 +53,7 @@ export async function compileFinal(input: FinalCompileInput): Promise<RenderPlan
     effective: parsed.effectiveDirectorPlan,
     preflight: parsed.preflight,
     catalog: parsed.assetCatalog,
+    timing: duration.timing,
     durationFrames: timeline.durationFrames,
   });
   const renderPlan = RenderPlanSchema.parse({

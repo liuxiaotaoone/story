@@ -213,6 +213,7 @@ describe('M3 Visual Recovery Productization', () => {
       })),
       actions: [
         {id: 'action-collision', sceneId: 'scene-field', shotId: 'shot-run', actorId: 'rabbit', targetId: 'stump', action: 'collision', sequence: 0, direction: 'left', priority: 'required', enabled: true},
+        {id: 'action-sparkle', sceneId: 'scene-field', shotId: 'shot-run', actorId: 'rabbit', targetId: 'stump', action: 'sparkle', sequence: 1, direction: 'left', priority: 'optional', enabled: true},
         {id: 'action-pickup', sceneId: 'scene-field', shotId: 'shot-notice', actorId: 'farmer', targetId: 'rabbit', action: 'pickup', sequence: 0, direction: 'right', priority: 'required', enabled: true},
       ],
     });
@@ -226,6 +227,13 @@ describe('M3 Visual Recovery Productization', () => {
         contact: {targetAnchorId: 'impact', actorGroundOffset: {u: -0.04, v: 0.01}},
         effect: {effectType: 'impact-burst', trigger: 'action-start', durationFrames: 10},
       },
+    });
+    m3Capabilities.entityCapabilities.find(entity => entity.entityType === 'rabbit')!.poseClips.push('rabbit.sparkle');
+    m3Capabilities.entityCapabilities.find(entity => entity.entityType === 'rabbit')!.actions.push({
+      action: 'sparkle', requiredPoseClips: ['rabbit.sparkle'], poseBindings: [{direction: 'left', poseClipId: 'rabbit.sparkle'}],
+      targetTypes: ['stump'], minDurationFrames: 10, supportsDirections: ['left'], defaultDirection: 'left',
+      completionPolicy: 'hold', spatialMode: 'stationary',
+      interaction: {effect: {effectType: 'optional-magic-spark', trigger: 'action-start', durationFrames: 10}},
     });
     const farmerCapability = m3Capabilities.entityCapabilities.find(entity => entity.entityType === 'farmer')!;
     farmerCapability.poseClips.push('farmer.pickup-rabbit');
@@ -290,6 +298,8 @@ describe('M3 Visual Recovery Productization', () => {
     })]);
     expect(plan.timeline.effectEvents).toEqual([expect.objectContaining({effectType: 'impact-burst', targetEntityId: 'stump'})]);
     expect(plan.timeline.visibilityEvents.map(event => event.visible)).toEqual([true, false]);
+    expect(plan.instances.some(instance => instance.id.includes('action-sparkle'))).toBe(false);
+    expect(plan.provenance.warnings).toContainEqual(expect.objectContaining({code: 'OPTIONAL_ACTION_DROPPED'}));
     expect(plan.timeline.entityTracks.find(track => track.entityId === 'rabbit')?.groundPosition?.[0]?.value.u).toBeCloseTo(0.66, 8);
     expect(plan.timeline.cameraTracks.flatMap(track => track.position).every(keyframe =>
       keyframe.value.x >= 440 && keyframe.value.x <= 900 && keyframe.value.y >= 340 && keyframe.value.y <= 380)).toBe(true);

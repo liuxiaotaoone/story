@@ -2,14 +2,16 @@ import type {RenderPlan} from '@pose-clip/schemas';
 
 export interface MeaningfulVisualEvent {frame: number; type: string; sourceId: string}
 
-function sampledChangeFrames<T>(keyframes: readonly {frame: number; value: T}[] | undefined, changed: (left: T, right: T) => boolean, maximumGapFrames: number): number[] {
+function sampledChangeFrames<T>(keyframes: readonly {frame: number; value: T; easing: string}[] | undefined, changed: (left: T, right: T) => boolean, maximumGapFrames: number): number[] {
   const frames: number[] = [];
   for (let index = 1; index < (keyframes?.length ?? 0); index += 1) {
     const previous = keyframes![index - 1]!;
     const current = keyframes![index]!;
     if (!changed(previous.value, current.value)) continue;
-    frames.push(previous.frame);
-    for (let frame = previous.frame + maximumGapFrames; frame < current.frame; frame += maximumGapFrames) frames.push(frame);
+    if (previous.easing !== 'hold') {
+      frames.push(previous.frame);
+      for (let frame = previous.frame + maximumGapFrames; frame < current.frame; frame += maximumGapFrames) frames.push(frame);
+    }
     frames.push(current.frame);
   }
   return frames;
