@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M2 Vertical Slice PASS / Frozen**。22 秒自动成片已通过最终 PNG/RGBA Blank Gate、严格旁白完整性检查与 FFprobe 媒体验收；RenderPlan、Preflight、Gate Report、Artifact Manifest 及媒体/关键帧 Hash 已固化到 `experiments/m2-vertical-slice/frozen/`。下一步进入 M3 Action Package 实验，暂不修改 Frozen Schema/Compiler 合同。
+当前里程碑：**M2.1 Visual Quality Recovery**。M2 技术闭环保持 PASS / Frozen；M2.1 在不修改 Compiler、Canonical Timeline、Paper Engine 或 Pixi RenderState 契约的前提下，恢复完整故事动作、环境 Overscan、Camera Composition、角色比例、真实中文 TTS、ASS 烧录字幕，以及 Coverage/Freeze/Visual Cadence Gate。M2.1 达到可观看闭环并通过人工 Visual Acceptance 后，再进入 M3。
 
 ## 已冻结的实现边界
 

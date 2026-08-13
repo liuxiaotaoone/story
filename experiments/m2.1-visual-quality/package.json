@@ -1,0 +1,25 @@
+{
+  "name": "@pose-clip/m2.1-visual-quality",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "node --experimental-strip-types scripts/generate-artifacts.mts",
+    "visual-acceptance": "node scripts/run-visual-acceptance.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
+    "test": "node ../../node_modules/vitest/vitest.mjs run"
+  },
+  "dependencies": {
+    "@pose-clip/audio": "workspace:*",
+    "@pose-clip/compiler": "workspace:*",
+    "@pose-clip/paper-engine": "workspace:*",
+    "@pose-clip/paper-pixi": "workspace:*",
+    "@pose-clip/schemas": "workspace:*",
+    "playwright-core": "1.62.1"
+  },
+  "devDependencies": {
+    "vite": "8.2.1"
+  }
+}

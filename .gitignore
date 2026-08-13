@@ -5,6 +5,8 @@ coverage/
 .vite/
 experiments/**/output/
 experiments/m2-vertical-slice/generated/
+experiments/m2.1-visual-quality/generated/
+experiments/m2.1-visual-quality/output/
 experiments/asset-feasibility/generated/
 experiments/asset-feasibility/processed/
 experiments/asset-feasibility/normalized/
