@@ -244,6 +244,39 @@ describe('M3 Action Package Contract', () => {
     }).success).toBe(false);
   });
 
+  it('limits v1 baked ownership to one target type and requires exact Composite Slot type', async () => {
+    expect(ActionPackageSchema.safeParse({
+      ...golden,
+      targetTypes: ['rabbit', 'box'],
+      targetRequirements: [
+        ...golden.targetRequirements,
+        {entityType: 'box', interactionAnchors: ['pickup']},
+      ],
+    }).success).toBe(false);
+
+    const {packageHash: _packageHash, ...payload} = golden;
+    const mismatchedClip = {
+      ...poseClip,
+      compositeSlots: [{id: 'rabbit', entityType: 'box'}],
+    };
+    const mismatchedPoseClipHash = await hashPoseClipContent(mismatchedClip);
+    const mismatchedPayload = {
+      ...payload,
+      variants: payload.variants.map(variant => ({
+        ...variant,
+        poseClipHash: mismatchedPoseClipHash,
+      })),
+    };
+    const mismatchedPackage = {
+      ...mismatchedPayload,
+      packageHash: await hashActionPackagePayload(mismatchedPayload),
+    };
+    await expect(assertActionPackageIntegrity(mismatchedPackage, {
+      ...references,
+      poseClips: [mismatchedClip],
+    }, {mode: 'experiment'})).rejects.toThrow(/ACTION_PACKAGE_COMPOSITE_TARGET_MISMATCH/);
+  });
+
   it('enforces role/kind pairs and requires every PoseClip frame to be a pose-frame output', async () => {
     expect(ActionPackageSchema.safeParse({
       ...golden,

@@ -189,6 +189,11 @@ function refineActionPackage(
   if (actionPackage.interaction?.ownership !== undefined && actionPackage.attachmentMode !== 'baked') context.addIssue({
     code: 'custom', message: 'Baked ownership interaction requires attachmentMode=baked', path: ['attachmentMode'],
   });
+  if (actionPackage.interaction?.ownership?.mode === 'baked' && actionPackage.targetTypes?.length !== 1) context.addIssue({
+    code: 'custom',
+    message: 'Action Package v1 baked ownership requires exactly one targetType',
+    path: ['targetTypes'],
+  });
   const ownerSlot = actionPackage.interaction?.ownership?.ownerSlot;
   if (ownerSlot !== undefined && !actionPackage.actorRequirements?.attachmentSlots.includes(ownerSlot)) context.addIssue({
     code: 'custom', message: `Baked ownership ownerSlot ${ownerSlot} must appear in actorRequirements.attachmentSlots`,

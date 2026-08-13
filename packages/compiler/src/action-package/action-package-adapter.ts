@@ -175,9 +175,10 @@ export async function assertActionPackageIntegrity(
         'ACTION_PACKAGE_COMPOSITE_SLOT_MISSING',
         `Action Package ${actionPackage.id} PoseClip ${clip.id} lacks composite slot ${ownership.compositeSlotId}`,
       );
-      if (!(actionPackage.targetTypes ?? []).includes(compositeSlot.entityType)) integrityError(
-        'ACTION_PACKAGE_COMPOSITE_TARGET_UNSUPPORTED',
-        `Action Package ${actionPackage.id} composite slot ${compositeSlot.id} has unsupported target type ${compositeSlot.entityType}`,
+      const bakedTargetType = actionPackage.targetTypes?.[0];
+      if (bakedTargetType === undefined || compositeSlot.entityType !== bakedTargetType) integrityError(
+        'ACTION_PACKAGE_COMPOSITE_TARGET_MISMATCH',
+        `Action Package ${actionPackage.id} PoseClip ${clip.id} composite slot ${compositeSlot.id} has type ${compositeSlot.entityType}; expected ${bakedTargetType ?? 'one baked target type'}`,
       );
     }
   }

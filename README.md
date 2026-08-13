@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 1 / 1.1 / 1.2 — Action Package Contract / Implemented, Awaiting Final Freeze Review**。内容完整性与兼容性已闭环：Actor PoseClip/Slot、Target Type/Anchor、非空唯一 `targetTypes`、Asset/PoseClip Hash、Production QA 和 Role/Kind 均在 Package Resolution 阶段验证。生产路径仍只产生一个 Canonical RenderPlan；ComfyUI / Flux.2 尚未开始。
+当前里程碑：**M3 Commit 1 / 1.1 / 1.2 / 1.3 — Action Package v1 / PASS / Frozen**。内容与兼容性已闭环，并冻结 Baked Ownership 单一 Target Type 规则。生产路径仍只产生一个 Canonical RenderPlan；下一阶段是 M3 Commit 2 — Asset Generation Provider / ComfyUI Integration。
 
 ## 已冻结的实现边界
 
