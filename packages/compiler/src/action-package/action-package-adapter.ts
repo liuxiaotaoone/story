@@ -48,7 +48,8 @@ export async function hashPoseClipContent(input: unknown): Promise<string> {
 export interface ActionPackageReferences {
   assets: AssetManifest;
   poseClips: readonly PoseClip[];
-  actorDefinition?: EntityDefinition;
+  actorDefinition: EntityDefinition;
+  targetDefinitions?: readonly EntityDefinition[];
 }
 
 export interface ActionPackageResolutionOptions {
@@ -56,7 +57,7 @@ export interface ActionPackageResolutionOptions {
 }
 
 export function assertActionPackageCompatibility(
-  actionPackageInput: ActionPackage,
+  actionPackageInput: unknown,
   actorDefinitionInput: unknown,
 ): EntityDefinition {
   const actionPackage = ActionPackageSchema.parse(actionPackageInput);
@@ -72,7 +73,35 @@ export function assertActionPackageCompatibility(
       `Actor definition ${actorDefinition.id} lacks required attachment slot ${slot}`,
     );
   }
+  for (const variant of actionPackage.variants) {
+    if (!actorDefinition.poseClipIds.includes(variant.poseClipId)) integrityError(
+      'ACTION_PACKAGE_ACTOR_POSE_CLIP_MISSING',
+      `Actor definition ${actorDefinition.id} does not declare Action Package PoseClip ${variant.poseClipId}`,
+    );
+  }
   return actorDefinition;
+}
+
+export function assertActionPackageTargetCompatibility(
+  actionPackageInput: unknown,
+  targetDefinitionInput: unknown,
+): EntityDefinition {
+  const actionPackage = ActionPackageSchema.parse(actionPackageInput);
+  const targetDefinition = EntityDefinitionSchema.parse(targetDefinitionInput);
+  if (!(actionPackage.targetTypes ?? []).includes(targetDefinition.entityType)) integrityError(
+    'ACTION_PACKAGE_TARGET_TYPE_UNSUPPORTED',
+    `Target definition ${targetDefinition.id} has unsupported type ${targetDefinition.entityType}`,
+  );
+  const requirement = actionPackage.targetRequirements?.find(candidate =>
+    candidate.entityType === targetDefinition.entityType);
+  const targetAnchors = new Set((targetDefinition.interactionAnchors ?? []).map(anchor => anchor.id));
+  for (const anchor of requirement?.interactionAnchors ?? []) {
+    if (!targetAnchors.has(anchor)) integrityError(
+      'ACTION_PACKAGE_TARGET_ANCHOR_MISSING',
+      `Target definition ${targetDefinition.id} lacks required interaction anchor ${anchor}`,
+    );
+  }
+  return targetDefinition;
 }
 
 export async function assertActionPackageIntegrity(
@@ -152,12 +181,14 @@ export async function assertActionPackageIntegrity(
       );
     }
   }
-  if ((actionPackage.actorRequirements?.attachmentSlots.length ?? 0) > 0) {
-    if (references.actorDefinition === undefined) integrityError(
-      'ACTION_PACKAGE_ACTOR_DEFINITION_REQUIRED',
-      `Action Package ${actionPackage.id} requires an actor EntityDefinition for compatibility validation`,
+  assertActionPackageCompatibility(actionPackage, references.actorDefinition);
+  for (const targetType of actionPackage.targetTypes ?? []) {
+    const matches = (references.targetDefinitions ?? []).filter(definition => definition.entityType === targetType);
+    if (matches.length !== 1) integrityError(
+      'ACTION_PACKAGE_TARGET_DEFINITION_REQUIRED',
+      `Action Package ${actionPackage.id} requires exactly one target EntityDefinition for ${targetType}; received ${matches.length}`,
     );
-    assertActionPackageCompatibility(actionPackage, references.actorDefinition);
+    assertActionPackageTargetCompatibility(actionPackage, matches[0]);
   }
   return actionPackage;
 }

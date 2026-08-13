@@ -1,6 +1,6 @@
 # M3 Commit 1 — Action Package Contract
 
-状态：**Implemented / Awaiting Review**（Commit 1.1 Content Integrity 已完成）
+状态：**Implemented / Awaiting Final Freeze Review**（Commit 1.1 Content Integrity 与 Commit 1.2 Compatibility Integrity 已完成）
 
 ## 目标
 
@@ -26,6 +26,10 @@ Action Package
 - Package Variant 必须与实际 PoseClip 的 Entity Type、Action、Direction 一致。
 - Baked Ownership 的每个 Variant PoseClip 都必须声明对应 Composite Slot，且 Slot Entity Type 必须在 `targetTypes` 中。
 - `actorRequirements.attachmentSlots` 显式声明 Actor 前置条件；Baked Ownership 的 `ownerSlot` 必须在其中，并与实际 Actor `EntityDefinition.attachmentSlots` 做兼容性校验。
+- Actor `EntityDefinition.poseClipIds` 必须声明 Package 的每个 Variant PoseClip；仅仅 Entity Type 相同不再视为兼容。
+- `targetTypes` 在 Package 与 Capability 中都是非空唯一集合；`targetPolicy != none` 不允许形成“必须有 Target、但没有任何合法类型”的不可执行动作。
+- `targetRequirements[]` 按 Target Entity Type 声明所需 Interaction Anchor。Package Contact 必须为每个合法 Target Type声明对应 Anchor Requirement。
+- Package Resolution 要求每个 `targetType` 恰有一个 Target `EntityDefinition`，并在进入 Compiler 前验证 Target Type 与所需 Interaction Anchor。
 - `packageHash` 使用 `canonicalHash('action-package-v1', payload)`；Hash 漂移直接失败。
 - `productionReady=true` 只有在结构、连续性、Anchor 全部 PASS、人工审核 Approved 且没有 Error Diagnostic 时合法。
 - Adapter 必须显式选择 `experiment | production`：Production 要求 Package `productionReady=true`，并要求所有 Runtime Asset（除 Generation Reference 外）`qaStatus=passed`。
@@ -64,10 +68,10 @@ Ownership Event 不允许落到不可渲染的 `timeline.durationFrames` 边界�
 - Provenance / Canonical Hash
 - Automated QA / Human Review / Production Ready
 
-Commit 1.1 后 Golden Package Hash 为：
+Commit 1.2 后 Golden Package Hash 为：
 
 ```text
-299abe0764e43bb1aae72b9153236569290a1ed3909ca5a872cdcc68b1ee4ece
+ec694fe37ba17312fe754d7dcb5f28ff8f6b4393b9f397b8054ca7d5739564ba
 ```
 
 ## 非本提交范围

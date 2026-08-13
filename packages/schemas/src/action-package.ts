@@ -62,6 +62,20 @@ export const ActionPackageActorRequirementsSchema = z.object({
   }
 });
 
+export const ActionPackageTargetRequirementSchema = z.object({
+  entityType: IdSchema,
+  interactionAnchors: z.array(IdSchema).min(1),
+}).strict().superRefine((requirement, context) => {
+  const seen = new Set<string>();
+  for (const [index, anchor] of requirement.interactionAnchors.entries()) {
+    if (seen.has(anchor)) context.addIssue({
+      code: 'custom', message: `Duplicate target interaction anchor: ${anchor}`,
+      path: ['interactionAnchors', index],
+    });
+    seen.add(anchor);
+  }
+});
+
 export const ActionPackageQaDiagnosticSchema = z.object({
   code: IdSchema,
   severity: z.enum(['warning', 'error']),
@@ -100,10 +114,11 @@ const ActionPackageShape = {
   spatialMode: ActionSpatialModeSchema,
   completionPolicy: ActionCompletionPolicySchema,
   targetPolicy: ActionTargetPolicySchema,
-  targetTypes: z.array(IdSchema).optional(),
+  targetTypes: z.array(IdSchema).min(1).optional(),
   attachmentMode: AttachmentModeSchema.optional(),
   interaction: ActionInteractionSchema.optional(),
   actorRequirements: ActionPackageActorRequirementsSchema.optional(),
+  targetRequirements: z.array(ActionPackageTargetRequirementSchema).min(1).optional(),
   requiredAssets: z.array(ActionPackageAssetRequirementSchema).min(1),
   provenance: AssetProvenanceSchema,
   qa: ActionPackageQaSchema,
@@ -140,6 +155,28 @@ function refineActionPackage(
     assetIds.add(asset.assetId);
   }
 
+  const targetTypes = new Set<string>();
+  for (const [index, targetType] of (actionPackage.targetTypes ?? []).entries()) {
+    if (targetTypes.has(targetType)) context.addIssue({
+      code: 'custom', message: `Duplicate targetTypes value: ${targetType}`,
+      path: ['targetTypes', index],
+    });
+    targetTypes.add(targetType);
+  }
+
+  const targetRequirementTypes = new Set<string>();
+  for (const [index, requirement] of (actionPackage.targetRequirements ?? []).entries()) {
+    if (targetRequirementTypes.has(requirement.entityType)) context.addIssue({
+      code: 'custom', message: `Duplicate target requirement: ${requirement.entityType}`,
+      path: ['targetRequirements', index, 'entityType'],
+    });
+    targetRequirementTypes.add(requirement.entityType);
+    if (!targetTypes.has(requirement.entityType)) context.addIssue({
+      code: 'custom', message: `Target requirement ${requirement.entityType} is not declared in targetTypes`,
+      path: ['targetRequirements', index, 'entityType'],
+    });
+  }
+
   if (actionPackage.targetPolicy === 'none' && actionPackage.targetTypes !== undefined) context.addIssue({
     code: 'custom', message: 'targetPolicy=none forbids targetTypes', path: ['targetTypes'],
   });
@@ -157,6 +194,17 @@ function refineActionPackage(
     code: 'custom', message: `Baked ownership ownerSlot ${ownerSlot} must appear in actorRequirements.attachmentSlots`,
     path: ['actorRequirements', 'attachmentSlots'],
   });
+  const contactAnchor = actionPackage.interaction?.contact?.targetAnchorId;
+  if (contactAnchor !== undefined) {
+    for (const [index, targetType] of (actionPackage.targetTypes ?? []).entries()) {
+      const requirement = actionPackage.targetRequirements?.find(candidate => candidate.entityType === targetType);
+      if (!requirement?.interactionAnchors.includes(contactAnchor)) context.addIssue({
+        code: 'custom',
+        message: `Contact target ${targetType} must require interaction anchor ${contactAnchor}`,
+        path: ['targetRequirements', index],
+      });
+    }
+  }
 }
 
 export const ActionPackagePayloadSchema = z.object(ActionPackageShape).strict().superRefine(refineActionPackage);
@@ -168,6 +216,7 @@ export const ActionPackageSchema = z.object({
 export type ActionPackageVariant = z.infer<typeof ActionPackageVariantSchema>;
 export type ActionPackageAssetRequirement = z.infer<typeof ActionPackageAssetRequirementSchema>;
 export type ActionPackageActorRequirements = z.infer<typeof ActionPackageActorRequirementsSchema>;
+export type ActionPackageTargetRequirement = z.infer<typeof ActionPackageTargetRequirementSchema>;
 export type ActionPackageQa = z.infer<typeof ActionPackageQaSchema>;
 export type ActionPackagePayload = z.infer<typeof ActionPackagePayloadSchema>;
 export type ActionPackage = z.infer<typeof ActionPackageSchema>;

@@ -9,6 +9,7 @@ import {
   ActionPackageIntegrityError,
   actionPackageToCapability,
   assertActionPackageIntegrity,
+  assertActionPackageTargetCompatibility,
   hashActionPackagePayload,
   hashPoseClipContent,
   resolveOwnershipEventFrame,
@@ -71,7 +72,17 @@ const actorDefinition: EntityDefinition = {
   attachmentSlots: [{id: 'baked-rabbit', ownerAnchor: 'center'}],
 };
 
-const references = {assets, poseClips: [poseClip], actorDefinition};
+const targetDefinition: EntityDefinition = {
+  id: 'rabbit-definition',
+  entityType: 'rabbit',
+  displayName: 'Rabbit',
+  poseClipIds: ['rabbit.idle'],
+  defaultPoseClipId: 'rabbit.idle',
+  attachmentSlots: [],
+  interactionAnchors: [{id: 'pickup', groundOffset: {u: 0, v: 0}}],
+};
+
+const references = {assets, poseClips: [poseClip], actorDefinition, targetDefinitions: [targetDefinition]};
 
 describe('M3 Action Package Contract', () => {
   it('verifies the frozen Pickup package and deterministically adapts it to ActionCapability', async () => {
@@ -193,6 +204,44 @@ describe('M3 Action Package Contract', () => {
       ...references,
       actorDefinition: {...actorDefinition, attachmentSlots: []},
     }, {mode: 'experiment'})).rejects.toThrow(/ACTION_PACKAGE_ACTOR_SLOT_MISSING/);
+  });
+
+  it('requires the Actor Definition to declare every variant PoseClip', async () => {
+    await expect(assertActionPackageIntegrity(golden, {
+      ...references,
+      actorDefinition: {
+        ...actorDefinition,
+        poseClipIds: ['farmer.idle'],
+        defaultPoseClipId: 'farmer.idle',
+      },
+    }, {mode: 'experiment'})).rejects.toThrow(/ACTION_PACKAGE_ACTOR_POSE_CLIP_MISSING/);
+  });
+
+  it('validates target type and interaction anchors before Compiler entry', async () => {
+    await expect(assertActionPackageIntegrity(golden, {
+      ...references,
+      targetDefinitions: [{...targetDefinition, interactionAnchors: []}],
+    }, {mode: 'experiment'})).rejects.toThrow(/ACTION_PACKAGE_TARGET_ANCHOR_MISSING/);
+
+    await expect(assertActionPackageIntegrity(golden, {
+      ...references,
+      targetDefinitions: [],
+    }, {mode: 'experiment'})).rejects.toThrow(/ACTION_PACKAGE_TARGET_DEFINITION_REQUIRED/);
+
+    expect(() => assertActionPackageTargetCompatibility(golden, {
+      ...targetDefinition,
+      id: 'box-definition',
+      entityType: 'box',
+    })).toThrow(/ACTION_PACKAGE_TARGET_TYPE_UNSUPPORTED/);
+  });
+
+  it('requires targetTypes to be a non-empty unique set', () => {
+    expect(ActionPackageSchema.safeParse({...golden, targetTypes: []}).success).toBe(false);
+    expect(ActionPackageSchema.safeParse({...golden, targetTypes: ['rabbit', 'rabbit']}).success).toBe(false);
+    expect(ActionPackageSchema.safeParse({
+      ...golden,
+      targetRequirements: [{entityType: 'rabbit', interactionAnchors: ['wrong-anchor']}],
+    }).success).toBe(false);
   });
 
   it('enforces role/kind pairs and requires every PoseClip frame to be a pose-frame output', async () => {

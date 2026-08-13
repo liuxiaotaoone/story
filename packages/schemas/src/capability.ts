@@ -29,7 +29,7 @@ export const ActionCapabilitySchema = z.object({
     poseClipId: IdSchema,
   }).strict()).min(1),
   targetPolicy: ActionTargetPolicySchema,
-  targetTypes: z.array(IdSchema).optional(),
+  targetTypes: z.array(IdSchema).min(1).optional(),
   minDurationFrames: z.number().int().positive(),
   supportsDirections: z.array(DirectionSchema).min(1),
   defaultDirection: DirectionSchema,

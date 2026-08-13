@@ -41,6 +41,14 @@
       "baked-rabbit"
     ]
   },
+  "targetRequirements": [
+    {
+      "entityType": "rabbit",
+      "interactionAnchors": [
+        "pickup"
+      ]
+    }
+  ],
   "requiredAssets": [
     {
       "assetId": "farmer.pickup-rabbit.right.01",
@@ -77,5 +85,5 @@
     "productionReady": true,
     "diagnostics": []
   },
-  "packageHash": "299abe0764e43bb1aae72b9153236569290a1ed3909ca5a872cdcc68b1ee4ece"
+  "packageHash": "ec694fe37ba17312fe754d7dcb5f28ff8f6b4393b9f397b8054ca7d5739564ba"
 }
