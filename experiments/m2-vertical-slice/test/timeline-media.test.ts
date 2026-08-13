@@ -25,4 +25,36 @@ describe('M2 timeline media export', () => {
     expect(view.getInt16(44, true)).toBe(0);
     expect(view.getInt16(44 + 48_000 * 2, true)).toBe(1000);
   });
+
+  it('fails when the source WAV is shorter than the compiled narration contract', () => {
+    const shortVoice = writePcm16Wav({
+      sampleRate: 48_000,
+      channels: 1,
+      interleavedSamples: new Int16Array(32_000),
+    });
+    expect(() => assembleNarrationWav({
+      timeline,
+      wavByAssetId: new Map([['audio', shortVoice]]),
+    })).toThrow('but WAV has 32000 sample frames');
+  });
+
+  it('fails when narration would extend beyond the canonical timeline', () => {
+    const voice = writePcm16Wav({sampleRate: 48_000, channels: 1, interleavedSamples: new Int16Array(48_000)});
+    const overflowing = {
+      ...timeline,
+      narration: [{...timeline.narration[0]!, range: {startFrame: 75, endFrame: 90}}],
+    } as Timeline;
+    expect(() => assembleNarrationWav({
+      timeline: overflowing,
+      wavByAssetId: new Map([['audio', voice]]),
+    })).toThrow('beyond timeline sample length');
+  });
+
+  it('rejects a narration WAV with a different sample rate', () => {
+    const voice = writePcm16Wav({sampleRate: 44_100, channels: 1, interleavedSamples: new Int16Array(48_000)});
+    expect(() => assembleNarrationWav({
+      timeline,
+      wavByAssetId: new Map([['audio', voice]]),
+    })).toThrow('does not match master');
+  });
 });

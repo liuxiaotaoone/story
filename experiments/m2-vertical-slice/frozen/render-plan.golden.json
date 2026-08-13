@@ -1,0 +1,1074 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "waiting-rabbit-m2-vertical",
+    "title": "守株待兔",
+    "fps": 30,
+    "resolution": {
+      "width": 1280,
+      "height": 720
+    },
+    "sampleRate": 48000,
+    "seed": 20260812,
+    "styleGuideId": "warm-paper-cut",
+    "capabilityCatalogVersion": "1.0.0"
+  },
+  "assets": {
+    "schemaVersion": "1.0.0",
+    "assets": [
+      {
+        "id": "environment-far",
+        "uri": "/asset-source/processed/environment/far.png",
+        "contentHash": "30ad4ba8a1c78ef74413225e2f9171ed689db721e741d0cd49ba8b258e4301e1",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+          "modelId": "openai-built-in-imagegen",
+          "modelVersion": "unreported-by-tool",
+          "workflowVersion": "1.1.0",
+          "producer": {
+            "name": "asset-feasibility-pipeline",
+            "version": "0.2.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "environment-layer",
+        "width": 1280,
+        "height": 720,
+        "alphaMode": "opaque"
+      },
+      {
+        "id": "environment-mid",
+        "uri": "/asset-source/processed/environment/mid.png",
+        "contentHash": "05a0f5099706855a5fdf918422dc30da44a74779a18a522c398e483d3788f3ee",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+          "modelId": "openai-built-in-imagegen",
+          "modelVersion": "unreported-by-tool",
+          "workflowVersion": "1.1.0",
+          "producer": {
+            "name": "asset-feasibility-pipeline",
+            "version": "0.2.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "environment-layer",
+        "width": 1280,
+        "height": 720,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "environment-ground",
+        "uri": "/asset-source/processed/environment/ground.png",
+        "contentHash": "8c17244a931f9b740237937c6ed223756c872277f75683ceef635d573e3678ab",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+          "modelId": "openai-built-in-imagegen",
+          "modelVersion": "unreported-by-tool",
+          "workflowVersion": "1.1.0",
+          "producer": {
+            "name": "asset-feasibility-pipeline",
+            "version": "0.2.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "environment-layer",
+        "width": 1280,
+        "height": 720,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "environment-foreground",
+        "uri": "/asset-source/processed/environment/foreground.png",
+        "contentHash": "bc39f2e66cc8b502d7da8be74b077dd1114737e8ed9d9de8f9e4fddbfc9bbff1",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "promptHash": "c74db153cf9729858a17cc2bbdf28ad4de77cd876f74dca64714d0589cd90c5b",
+          "modelId": "openai-built-in-imagegen",
+          "modelVersion": "unreported-by-tool",
+          "workflowVersion": "1.1.0",
+          "producer": {
+            "name": "asset-feasibility-pipeline",
+            "version": "0.2.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "environment-layer",
+        "width": 1280,
+        "height": 720,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-idle",
+        "uri": "/artifacts/visual/farmer-idle.png",
+        "contentHash": "e6642398433e3e2692b2c9fc3c2863b0de9aafa832048d53a0f14be2ea8d326a",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "d9475d1be6f9037c4aceaf74bdcedcc3925d26bd031f1e35a7828c0c50562d47",
+          "producer": {
+            "name": "m2-asset-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "farmer-notice-right",
+        "uri": "/artifacts/visual/farmer-notice-right.png",
+        "contentHash": "d246da7281d78277c5f80b46ede25f0d3598aed2bd77fd9621420c4fc8c6cb6e",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "086ba305773c8615c63faf63f3c2c20a3a52d708da60b4fadf6ab46b04cb2580",
+          "producer": {
+            "name": "m2-asset-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "character-frame",
+        "width": 210,
+        "height": 315,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-idle-left",
+        "uri": "/artifacts/visual/rabbit-idle-left.png",
+        "contentHash": "08a100e1a16f21c8827e489f0049e16e2ccd51a50f424bcbb5b2da18a4a8ffe7",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "02ddef1dbdc3bba6721296c26e37acaec133d18bc20bda31fda6b8c8efcce318",
+          "producer": {
+            "name": "m2-asset-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 252,
+        "height": 202,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-run-1",
+        "uri": "/artifacts/visual/rabbit-run-1.png",
+        "contentHash": "042c21a2ba071fb3c0965cecea328ce86cc880dabe2b4fefa97a0113a65618bb",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "6853b36843bb167fea5df81a951f2e8415a266236ab98a2f3b583b36f6e99312",
+          "producer": {
+            "name": "m2-asset-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 252,
+        "height": 202,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-run-2",
+        "uri": "/artifacts/visual/rabbit-run-2.png",
+        "contentHash": "3ec1c25938816d91b928b2c2449b818c6a9c6f29e16c278b8e31396516ca068a",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "28f9bfe3536f1e318d81fc0a8629f036d2f0504e086c18db117974237008cbfc",
+          "producer": {
+            "name": "m2-asset-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 252,
+        "height": 202,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-run-3",
+        "uri": "/artifacts/visual/rabbit-run-3.png",
+        "contentHash": "ee84459cff987d85e03170e77bcec20717ac56d238b25a42f7789e1c3d95246c",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "aed3e81a7e0d2ba04340971f032cf0ee941089fa8f5c160aab07239b42be1dbe",
+          "producer": {
+            "name": "m2-asset-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 252,
+        "height": 202,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit-run-4",
+        "uri": "/artifacts/visual/rabbit-run-4.png",
+        "contentHash": "bd73eb31964db859323cca80be3004e394a95f6a8fa58952b74d4ba989188d7f",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "587cd33ead7d88ec41641db72e49d9c9d9b656a5979d88f8cbcda576afcf4bd0",
+          "producer": {
+            "name": "m2-asset-adapter",
+            "version": "1.0.0"
+          },
+          "createdAt": "2026-08-12T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 252,
+        "height": 202,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "audio.tts.narration-run.segment.1",
+        "uri": "artifacts/tts/tts.narration-run.segment.1.wav",
+        "contentHash": "5819b91b3b9a39eb6c92153c1a876da7622daf76561c417fa68e4137ce8e5457",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "e9ae3e405729516d84d02a208184ddb658d2ed9df9661424d6f6703e5152a99c",
+          "workflowVersion": "1.0.0",
+          "producer": {
+            "name": "deterministic-fake-tts",
+            "version": "1.0.0"
+          },
+          "createdAt": "1970-01-01T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "audio"
+      },
+      {
+        "id": "audio.tts.narration-run.segment.2",
+        "uri": "artifacts/tts/tts.narration-run.segment.2.wav",
+        "contentHash": "041adcdc313c9401a7b838e4cf1044d0696b76c2212b3655d85b480810c46949",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "563a3817e2382b703039b1ba4c34618e99b3dcf105a9aaf948d286e076da646f",
+          "workflowVersion": "1.0.0",
+          "producer": {
+            "name": "deterministic-fake-tts",
+            "version": "1.0.0"
+          },
+          "createdAt": "1970-01-01T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "audio"
+      },
+      {
+        "id": "audio.tts.narration-notice.segment.1",
+        "uri": "artifacts/tts/tts.narration-notice.segment.1.wav",
+        "contentHash": "88f168680dd9d71ab4c6067a788bbbc3e47cdc67db5443872fca9240f5c3df3a",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "a09af71bca80f8227454eb345917f616ebfd908134c6d2f0a821006ab48b6abe",
+          "workflowVersion": "1.0.0",
+          "producer": {
+            "name": "deterministic-fake-tts",
+            "version": "1.0.0"
+          },
+          "createdAt": "1970-01-01T00:00:00.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "audio"
+      }
+    ]
+  },
+  "environments": [
+    {
+      "id": "pastoral-field",
+      "name": "Pastoral Field",
+      "referenceResolution": {
+        "width": 1280,
+        "height": 720
+      },
+      "layers": [
+        {
+          "id": "far",
+          "assetId": "environment-far",
+          "renderLayer": "far",
+          "zIndex": 0,
+          "parallaxFactor": 0.1,
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1
+            },
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "id": "mid",
+          "assetId": "environment-mid",
+          "renderLayer": "mid",
+          "zIndex": 0,
+          "parallaxFactor": 0.35,
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1
+            },
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "id": "ground",
+          "assetId": "environment-ground",
+          "renderLayer": "ground",
+          "zIndex": 0,
+          "parallaxFactor": 0.7,
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1
+            },
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "id": "foreground",
+          "assetId": "environment-foreground",
+          "renderLayer": "foreground",
+          "zIndex": 0,
+          "parallaxFactor": 1.15,
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1
+            },
+            "rotation": 0,
+            "opacity": 1
+          }
+        }
+      ],
+      "ground": {
+        "farLeft": {
+          "x": 0.05,
+          "y": 0.58
+        },
+        "farRight": {
+          "x": 0.95,
+          "y": 0.58
+        },
+        "nearLeft": {
+          "x": 0,
+          "y": 0.96
+        },
+        "nearRight": {
+          "x": 1,
+          "y": 0.96
+        },
+        "farScale": 0.55,
+        "nearScale": 1,
+        "depthEasing": "linear",
+        "walkableZones": []
+      },
+      "occlusionZones": []
+    }
+  ],
+  "entities": [
+    {
+      "id": "rabbit-definition",
+      "entityType": "rabbit",
+      "displayName": "Rabbit",
+      "poseClipIds": [
+        "rabbit.idle-left",
+        "rabbit.run-left"
+      ],
+      "defaultPoseClipId": "rabbit.idle-left",
+      "attachmentSlots": []
+    },
+    {
+      "id": "farmer-definition",
+      "entityType": "farmer",
+      "displayName": "Farmer",
+      "poseClipIds": [
+        "farmer.idle",
+        "farmer.notice-right"
+      ],
+      "defaultPoseClipId": "farmer.idle",
+      "attachmentSlots": []
+    }
+  ],
+  "instances": [
+    {
+      "id": "farmer",
+      "definitionId": "farmer-definition",
+      "sceneId": "scene-field",
+      "activeRange": {
+        "startFrame": 0,
+        "endFrame": 660
+      },
+      "initialOwner": {
+        "kind": "world",
+        "environmentId": "pastoral-field"
+      }
+    },
+    {
+      "id": "rabbit",
+      "definitionId": "rabbit-definition",
+      "sceneId": "scene-field",
+      "activeRange": {
+        "startFrame": 0,
+        "endFrame": 660
+      },
+      "initialOwner": {
+        "kind": "world",
+        "environmentId": "pastoral-field"
+      }
+    }
+  ],
+  "poseClips": [
+    {
+      "id": "rabbit.idle-left",
+      "entityType": "rabbit",
+      "action": "idle",
+      "loop": true,
+      "direction": "left",
+      "frames": [
+        {
+          "assetId": "rabbit-idle-left",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.4889,
+              "y": 0.9251
+            },
+            "leftFoot": {
+              "x": 0.425,
+              "y": 0.9251
+            },
+            "rightFoot": {
+              "x": 0.5527,
+              "y": 0.9251
+            },
+            "center": {
+              "x": 0.4889,
+              "y": 0.492
+            },
+            "leftHand": {
+              "x": 0.3293,
+              "y": 0.492
+            },
+            "rightHand": {
+              "x": 0.6484,
+              "y": 0.492
+            },
+            "head": {
+              "x": 0.4889,
+              "y": 0.1888
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      }
+    },
+    {
+      "id": "rabbit.run-left",
+      "entityType": "rabbit",
+      "action": "run",
+      "loop": true,
+      "direction": "left",
+      "frames": [
+        {
+          "assetId": "rabbit-run-1",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4195,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5805,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5205
+            },
+            "leftHand": {
+              "x": 0.2988,
+              "y": 0.5205
+            },
+            "rightHand": {
+              "x": 0.7012,
+              "y": 0.5205
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "left-foot"
+          },
+          "referenceFoot": "left-foot"
+        },
+        {
+          "assetId": "rabbit-run-2",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4368,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5633,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "leftHand": {
+              "x": 0.3419,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.6582,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "right-foot"
+          },
+          "referenceFoot": "right-foot"
+        },
+        {
+          "assetId": "rabbit-run-3",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4056,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5944,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5206
+            },
+            "leftHand": {
+              "x": 0.264,
+              "y": 0.5206
+            },
+            "rightHand": {
+              "x": 0.736,
+              "y": 0.5206
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "left-foot"
+          },
+          "referenceFoot": "left-foot"
+        },
+        {
+          "assetId": "rabbit-run-4",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.8405
+            },
+            "leftFoot": {
+              "x": 0.4318,
+              "y": 0.8405
+            },
+            "rightFoot": {
+              "x": 0.5682,
+              "y": 0.8405
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5205
+            },
+            "leftHand": {
+              "x": 0.3295,
+              "y": 0.5205
+            },
+            "rightHand": {
+              "x": 0.6705,
+              "y": 0.5205
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.2966
+            }
+          },
+          "contact": {
+            "type": "right-foot"
+          },
+          "referenceFoot": "right-foot"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "contact-only",
+        "maxCorrectionPx": 48
+      }
+    },
+    {
+      "id": "farmer.idle",
+      "entityType": "farmer",
+      "action": "idle",
+      "loop": true,
+      "direction": "front",
+      "frames": [
+        {
+          "assetId": "farmer-idle",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4494,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5505,
+              "y": 0.96
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4953
+            },
+            "leftHand": {
+              "x": 0.3735,
+              "y": 0.4953
+            },
+            "rightHand": {
+              "x": 0.6264,
+              "y": 0.4953
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      }
+    },
+    {
+      "id": "farmer.notice-right",
+      "entityType": "farmer",
+      "action": "notice",
+      "loop": true,
+      "direction": "right",
+      "frames": [
+        {
+          "assetId": "farmer-notice-right",
+          "durationFrames": 30,
+          "anchors": {
+            "foot": {
+              "x": 0.5,
+              "y": 0.96
+            },
+            "leftFoot": {
+              "x": 0.4431,
+              "y": 0.96
+            },
+            "rightFoot": {
+              "x": 0.5569,
+              "y": 0.96
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.4952
+            },
+            "leftHand": {
+              "x": 0.3577,
+              "y": 0.4952
+            },
+            "rightHand": {
+              "x": 0.6424,
+              "y": 0.4952
+            },
+            "head": {
+              "x": 0.5,
+              "y": 0.17
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "always",
+        "maxCorrectionPx": 8
+      }
+    }
+  ],
+  "timeline": {
+    "schemaVersion": "1.0.0",
+    "fps": 30,
+    "durationFrames": 660,
+    "shots": [
+      {
+        "id": "shot-run",
+        "sceneId": "scene-field",
+        "environmentId": "pastoral-field",
+        "range": {
+          "startFrame": 0,
+          "endFrame": 360
+        },
+        "focusEntityId": "rabbit"
+      },
+      {
+        "id": "shot-notice",
+        "sceneId": "scene-field",
+        "environmentId": "pastoral-field",
+        "range": {
+          "startFrame": 360,
+          "endFrame": 660
+        },
+        "focusEntityId": "farmer"
+      }
+    ],
+    "entityTracks": [
+      {
+        "entityId": "farmer",
+        "groundPosition": [
+          {
+            "frame": 0,
+            "value": {
+              "u": 0.28,
+              "v": 0.65
+            },
+            "easing": "hold"
+          },
+          {
+            "frame": 360,
+            "value": {
+              "u": 0.28,
+              "v": 0.65
+            },
+            "easing": "hold"
+          }
+        ]
+      },
+      {
+        "entityId": "rabbit",
+        "groundPosition": [
+          {
+            "frame": 0,
+            "value": {
+              "u": 0.9,
+              "v": 0.65
+            },
+            "easing": "linear"
+          },
+          {
+            "frame": 120,
+            "value": {
+              "u": 0.28,
+              "v": 0.65
+            },
+            "easing": "hold"
+          }
+        ]
+      }
+    ],
+    "cameraTracks": [
+      {
+        "shotId": "shot-run",
+        "position": [
+          {
+            "frame": 0,
+            "value": {
+              "x": 1134.08,
+              "y": 595.4399999999999
+            },
+            "easing": "linear"
+          },
+          {
+            "frame": 120,
+            "value": {
+              "x": 368.25600000000003,
+              "y": 595.4399999999999
+            },
+            "easing": "linear"
+          },
+          {
+            "frame": 359,
+            "value": {
+              "x": 368.25600000000003,
+              "y": 595.4399999999999
+            },
+            "easing": "hold"
+          }
+        ],
+        "zoom": [
+          {
+            "frame": 0,
+            "value": 1,
+            "easing": "hold"
+          }
+        ]
+      },
+      {
+        "shotId": "shot-notice",
+        "position": [
+          {
+            "frame": 360,
+            "value": {
+              "x": 700,
+              "y": 360
+            },
+            "easing": "linear"
+          },
+          {
+            "frame": 659,
+            "value": {
+              "x": 580,
+              "y": 360
+            },
+            "easing": "hold"
+          }
+        ],
+        "zoom": [
+          {
+            "frame": 360,
+            "value": 1.1,
+            "easing": "hold"
+          }
+        ]
+      }
+    ],
+    "poseEvents": [
+      {
+        "id": "pose.expanded.action-run",
+        "frame": 0,
+        "entityId": "rabbit",
+        "poseClipId": "rabbit.run-left",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose-complete.expanded.action-run",
+        "frame": 120,
+        "entityId": "rabbit",
+        "poseClipId": "rabbit.idle-left",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      },
+      {
+        "id": "pose.expanded.action-notice",
+        "frame": 360,
+        "entityId": "farmer",
+        "poseClipId": "farmer.notice-right",
+        "clipStartOffset": 0,
+        "playbackRate": 1
+      }
+    ],
+    "poseTransitions": [
+      {
+        "id": "pose-transition.expanded.action-run",
+        "entityId": "rabbit",
+        "fromPoseClipId": "rabbit.idle-left",
+        "toPoseClipId": "rabbit.run-left",
+        "startFrame": 0,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      },
+      {
+        "id": "pose-transition-complete.expanded.action-run",
+        "entityId": "rabbit",
+        "fromPoseClipId": "rabbit.run-left",
+        "toPoseClipId": "rabbit.idle-left",
+        "startFrame": 120,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      },
+      {
+        "id": "pose-transition.expanded.action-notice",
+        "entityId": "farmer",
+        "fromPoseClipId": "farmer.idle",
+        "toPoseClipId": "farmer.notice-right",
+        "startFrame": 360,
+        "durationFrames": 0,
+        "mode": "cut",
+        "anchorPolicy": "foot"
+      }
+    ],
+    "ownershipEvents": [],
+    "visibilityEvents": [],
+    "effectEvents": [],
+    "narration": [
+      {
+        "id": "narration.narration-run.segment.1",
+        "range": {
+          "startFrame": 0,
+          "endFrame": 79
+        },
+        "assetId": "audio.tts.narration-run.segment.1",
+        "text": "一只兔子慌忙地穿过田野。",
+        "sampleStart": 0,
+        "sampleLength": 125714
+      },
+      {
+        "id": "narration.narration-run.segment.2",
+        "range": {
+          "startFrame": 79,
+          "endFrame": 151
+        },
+        "assetId": "audio.tts.narration-run.segment.2",
+        "text": "它一头撞在了老树桩上！",
+        "sampleStart": 0,
+        "sampleLength": 114286
+      },
+      {
+        "id": "narration.narration-notice.segment.1",
+        "range": {
+          "startFrame": 360,
+          "endFrame": 525
+        },
+        "assetId": "audio.tts.narration-notice.segment.1",
+        "text": "正在田边劳作的农夫听见响声，转身发现了倒下的兔子。",
+        "sampleStart": 0,
+        "sampleLength": 262857
+      }
+    ],
+    "subtitles": [
+      {
+        "id": "subtitle.narration-run.segment.1",
+        "range": {
+          "startFrame": 0,
+          "endFrame": 79
+        },
+        "text": "一只兔子慌忙地穿过田野。",
+        "styleId": "subtitle.default"
+      },
+      {
+        "id": "subtitle.narration-run.segment.2",
+        "range": {
+          "startFrame": 79,
+          "endFrame": 151
+        },
+        "text": "它一头撞在了老树桩上！",
+        "styleId": "subtitle.default"
+      },
+      {
+        "id": "subtitle.narration-notice.segment.1",
+        "range": {
+          "startFrame": 360,
+          "endFrame": 525
+        },
+        "text": "正在田边劳作的农夫听见响声，转身发现了倒下的兔子。",
+        "styleId": "subtitle.default"
+      }
+    ],
+    "sfx": [],
+    "transitions": [
+      {
+        "id": "shot-transition.shot-notice",
+        "fromShotId": "shot-run",
+        "toShotId": "shot-notice",
+        "type": "cut",
+        "frame": 360
+      }
+    ],
+    "markers": []
+  },
+  "provenance": {
+    "compilerVersion": "0.1.0",
+    "sourceDirectorPlanHash": "83ad5978377eb61761ce9fc4235f8343fabf0cf8e326ed2c115f682cc84f920a",
+    "effectiveDirectorPlanHash": "4d563e5ff8f3966f6b1702336660a0d860dac165f15a216da21696b271e31e88",
+    "directorOverrideIds": [],
+    "capabilityCatalogVersion": "1.0.0",
+    "compiledAt": "2026-08-12T00:00:00.000Z",
+    "warnings": []
+  }
+}

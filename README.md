@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M2 Vertical Slice**。M2 Contracts、Fake TTS/WAV Measurement、Duration Solver、Final Binding Semantics 与 Final Compiler v0.1 均已 PASS / Frozen；下一步进入 20–30 秒自动渲染与音频/字幕合成。
+当前里程碑：**M2 Vertical Slice PASS / Frozen**。22 秒自动成片已通过最终 PNG/RGBA Blank Gate、严格旁白完整性检查与 FFprobe 媒体验收；RenderPlan、Preflight、Gate Report、Artifact Manifest 及媒体/关键帧 Hash 已固化到 `experiments/m2-vertical-slice/frozen/`。下一步进入 M3 Action Package 实验，暂不修改 Frozen Schema/Compiler 合同。
 
 ## 已冻结的实现边界
 

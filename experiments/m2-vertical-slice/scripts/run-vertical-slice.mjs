@@ -1,7 +1,7 @@
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {existsSync} from 'node:fs';
-import {mkdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {copyFile, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {chromium} from 'playwright-core';
 import {createServer} from 'vite';
@@ -10,6 +10,8 @@ const root = resolve(import.meta.dirname, '..');
 const output = join(root, 'output');
 const frames = join(output, 'frames');
 const generated = join(root, 'generated', 'artifacts');
+const frozen = join(root, 'frozen');
+const MIN_CONTENT_PIXEL_RATIO = 0.01;
 
 function findChrome() {
   const candidates = [
@@ -83,7 +85,10 @@ const browser = await chromium.launch({
   args: ['--enable-webgl', '--ignore-gpu-blocklist', '--use-angle=swiftshader'],
 });
 let frameCount = 0;
-let blankFrames = 0;
+const pixelBlankFrames = [];
+const criticalFrameRgbaSha256 = {};
+let minimumNonTransparentPixelCount = Number.POSITIVE_INFINITY;
+let minimumNonBlackPixelCount = Number.POSITIVE_INFINITY;
 try {
   const page = await browser.newPage({viewport: {width: 1360, height: 850}, deviceScaleFactor: 1});
   page.on('console', message => { if (message.type() === 'error') process.stderr.write(`[browser] ${message.text()}\n`); });
@@ -92,8 +97,29 @@ try {
   frameCount = await page.evaluate(() => window.m2VerticalSlice.durationFrames);
   const stills = new Set([0, 60, 119, 120, 359, 360, frameCount - 1]);
   for (let frame = 0; frame < frameCount; frame += 1) {
-    const result = await page.evaluate(value => window.m2VerticalSlice.exportFrame(value), frame);
-    if (result.visibleEntityIds.length === 0) blankFrames += 1;
+    const includeRgbaHash = stills.has(frame);
+    const result = await page.evaluate(
+      ([value, includeHash]) => window.m2VerticalSlice.exportFrame(value, includeHash),
+      [frame, includeRgbaHash],
+    );
+    const threshold = Math.ceil(result.pixelStats.totalPixelCount * MIN_CONTENT_PIXEL_RATIO);
+    minimumNonTransparentPixelCount = Math.min(
+      minimumNonTransparentPixelCount,
+      result.pixelStats.nonTransparentPixelCount,
+    );
+    minimumNonBlackPixelCount = Math.min(
+      minimumNonBlackPixelCount,
+      result.pixelStats.nonBlackPixelCount,
+    );
+    if (
+      result.pixelStats.nonTransparentPixelCount <= threshold ||
+      result.pixelStats.nonBlackPixelCount <= threshold
+    ) {
+      pixelBlankFrames.push({frame, threshold, ...result.pixelStats});
+    }
+    if (result.pixelStats.rgbaSha256 !== undefined) {
+      criticalFrameRgbaSha256[String(frame)] = result.pixelStats.rgbaSha256;
+    }
     const bytes = pngBytes(result.dataUrl);
     const name = `frame-${String(frame).padStart(4, '0')}.png`;
     await writeFile(join(frames, name), bytes);
@@ -139,7 +165,7 @@ const avDurationDeltaSeconds = Math.abs(videoDurationSeconds - audioDurationSeco
 const generatedReport = JSON.parse(await readFile(join(generated, 'generation-report.json'), 'utf8'));
 const report = {
   status:
-    blankFrames === 0 &&
+    pixelBlankFrames.length === 0 &&
     videoStream?.width === generatedReport.media.width &&
     videoStream?.height === generatedReport.media.height &&
     actualFps === generatedReport.media.fps &&
@@ -154,7 +180,21 @@ const report = {
       : 'FAIL',
   artifact: 'm2-vertical-slice-22s.mp4',
   ...generatedReport,
-  mp4Sha256: await sha256(finalVideo), blankFrames,
+  mp4Sha256: await sha256(finalVideo),
+  blankFrames: pixelBlankFrames.length,
+  pixelGate: {
+    source: 'decoded-final-png-rgba',
+    minimumContentPixelRatio: MIN_CONTENT_PIXEL_RATIO,
+    minimumNonTransparentPixelCount,
+    minimumNonBlackPixelCount,
+    blankFrames: pixelBlankFrames,
+    criticalFrameRgbaSha256,
+  },
+  narrationIntegrity: {
+    status: 'PASS',
+    decoder: '@pose-clip/audio.decodePcm16Wav',
+    policy: 'fail-on-source-underrun-or-timeline-overflow',
+  },
   mediaProbe: {
     width: videoStream?.width,
     height: videoStream?.height,
@@ -174,4 +214,34 @@ const report = {
   narrationArtifact: 'generated/artifacts/narration-master.wav',
 };
 await writeFile(join(output, 'm2-vertical-slice-report.json'), `${JSON.stringify(report, null, 2)}\n`);
+if (report.status !== 'PASS') throw new Error('M2 media gate failed; frozen artifacts were not updated');
+await mkdir(frozen, {recursive: true});
+await copyFile(join(generated, 'render-plan.json'), join(frozen, 'render-plan.golden.json'));
+await copyFile(join(generated, 'preflight.json'), join(frozen, 'preflight.golden.json'));
+await writeFile(join(frozen, 'm2-vertical-slice-report.json'), `${JSON.stringify(report, null, 2)}\n`);
+await writeFile(join(frozen, 'artifact-manifest.json'), `${JSON.stringify({
+  schemaVersion: '1.0.0',
+  storyHash: report.sourceStoryHash,
+  directorPlanHash: report.sourceDirectorPlanHash,
+  preflightHash: report.preflightHash,
+  assetCatalogHash: report.assetCatalogHash,
+  renderPlanSemanticHash: report.renderPlanSemanticHash,
+  mp4Sha256: report.mp4Sha256,
+  width: report.mediaProbe.width,
+  height: report.mediaProbe.height,
+  fps: report.mediaProbe.fps,
+  frames: report.mediaProbe.frameCount,
+  durationSeconds: report.mediaProbe.durationSeconds,
+  videoCodec: report.mediaProbe.videoCodec,
+  pixelFormat: report.mediaProbe.pixelFormat,
+  audioCodec: report.mediaProbe.audioCodec,
+  subtitleCodec: report.mediaProbe.subtitleCodec,
+  blankFrames: report.blankFrames,
+  criticalFrameRgbaSha256,
+  artifactStorage: {
+    repositoryPath: null,
+    expectedFilename: report.artifact,
+    policy: 'external-or-git-lfs',
+  },
+}, null, 2)}\n`);
 process.stdout.write(`M2 Vertical Slice: ${finalVideo}\n`);

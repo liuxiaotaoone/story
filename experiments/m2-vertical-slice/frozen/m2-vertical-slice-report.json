@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "artifact": "m2-vertical-slice-22s.mp4",
+  "sourceStoryHash": "a98d6c0c6e5720b6d39a3f34df936576c637949e9956a3b5a2b7c7fe39291386",
+  "sourceDirectorPlanHash": "83ad5978377eb61761ce9fc4235f8343fabf0cf8e326ed2c115f682cc84f920a",
+  "effectiveDirectorPlanHash": "4d563e5ff8f3966f6b1702336660a0d860dac165f15a216da21696b271e31e88",
+  "preflightHash": "57c629d623747bf35cbbd47dac145c52d088836498e3d97da4878db123b2f809",
+  "assetCatalogHash": "9550966766416fdee8b52b69e47a015cca1ad2e7fc532202c46da5927606c0bc",
+  "renderPlanSemanticHash": "29d181e6203e0c1192cd453232638993455349da7cf37c694f2738dff4cf66ee",
+  "fps": 30,
+  "frameCount": 660,
+  "durationSeconds": 22,
+  "media": {
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "frameCount": 660,
+    "durationSeconds": 22
+  },
+  "timelineAuthorship": "final-compiler-only",
+  "fakeTts": true,
+  "mp4Sha256": "0dc2f9543b3c17e18b1a17baab51809983a38e4d760860c12a88e3c49326bd16",
+  "blankFrames": 0,
+  "pixelGate": {
+    "source": "decoded-final-png-rgba",
+    "minimumContentPixelRatio": 0.01,
+    "minimumNonTransparentPixelCount": 858007,
+    "minimumNonBlackPixelCount": 858006,
+    "blankFrames": [],
+    "criticalFrameRgbaSha256": {
+      "0": "ff555423b242436c1296296421474a31e9be54deb71cb2781fc1179effe099c5",
+      "60": "3987758765ee14c221acbc56a0582ff8a311fd775ec822f17b5699b124c0a87d",
+      "119": "852c7076fcae5219bcf12746f61c85daf558f839b86042f42562767c197371e2",
+      "120": "5d256fd708356bface124cf10080a1627b5c18d08d99f8f5266af0f693577835",
+      "359": "5d256fd708356bface124cf10080a1627b5c18d08d99f8f5266af0f693577835",
+      "360": "75c44941c0d2cdc842a5a05d0b49c56b6c4db724da65fd25682059650f87ff91",
+      "659": "a1617e6f1a5e31c2176b28e60a93ac26eef9d4cf3013cb90e4946f7e85c91bbd"
+    }
+  },
+  "narrationIntegrity": {
+    "status": "PASS",
+    "decoder": "@pose-clip/audio.decodePcm16Wav",
+    "policy": "fail-on-source-underrun-or-timeline-overflow"
+  },
+  "mediaProbe": {
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "frameCount": 660,
+    "durationSeconds": 22,
+    "videoDurationSeconds": 22,
+    "audioDurationSeconds": 22,
+    "avDurationDeltaSeconds": 0,
+    "videoCodec": "h264",
+    "pixelFormat": "yuv420p",
+    "audioCodec": "aac",
+    "subtitleCodec": "mov_text",
+    "subtitleLanguage": "zho"
+  },
+  "subtitleArtifact": "generated/artifacts/subtitles.srt",
+  "narrationArtifact": "generated/artifacts/narration-master.wav"
+}

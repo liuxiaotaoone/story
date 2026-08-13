@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {TtsArtifactSchema, canonicalHash, measuredAudioDurationSeconds} from '@pose-clip/schemas';
-import {TtsIntegrityError, fakeTtsSampleFrameCount, generateFakeTts, measureWav, writePcm16Wav} from '../src/index.js';
+import {TtsIntegrityError, decodePcm16Wav, fakeTtsSampleFrameCount, generateFakeTts, measureWav, writePcm16Wav} from '../src/index.js';
 
 async function request(overrides: Partial<{
   id: string;
@@ -66,6 +66,23 @@ describe('deterministic Fake TTS', () => {
 });
 
 describe('independent WAV measurement', () => {
+  it('decodes PCM16 samples and validates the full format contract', () => {
+    const wav = writePcm16Wav({sampleRate: 48_000, channels: 1, interleavedSamples: new Int16Array([-123, 456])});
+    expect(decodePcm16Wav(wav)).toEqual(expect.objectContaining({
+      sampleRate: 48_000,
+      sampleFrameCount: 2,
+      channels: 1,
+      blockAlign: 2,
+      interleavedSamples: new Int16Array([-123, 456]),
+    }));
+  });
+
+  it('rejects invalid PCM16 block alignment', () => {
+    const wav = writePcm16Wav({sampleRate: 48_000, channels: 1, interleavedSamples: new Int16Array(2)});
+    new DataView(wav.buffer).setUint16(32, 4, true);
+    expect(() => decodePcm16Wav(wav)).toThrow('blockAlign');
+  });
+
   it('derives exactly two seconds from 96000 mono PCM16 sample frames', () => {
     const wav = writePcm16Wav({sampleRate: 48_000, channels: 1, interleavedSamples: new Int16Array(96_000)});
     const measured = measureWav(wav);

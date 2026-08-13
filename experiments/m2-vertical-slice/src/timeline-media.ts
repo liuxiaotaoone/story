@@ -1,4 +1,4 @@
-import {writePcm16Wav} from '@pose-clip/audio';
+import {decodePcm16Wav, writePcm16Wav} from '@pose-clip/audio';
 import type {Timeline} from '@pose-clip/schemas';
 
 export function formatSrtTimestamp(frame: number, fps: number): string {
@@ -19,22 +19,6 @@ export function timelineToSrt(timeline: Timeline): string {
   ].join('\n')).join('\n');
 }
 
-function pcm16Data(bytes: Uint8Array): Int16Array {
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  let offset = 12;
-  while (offset + 8 <= bytes.length) {
-    const id = String.fromCharCode(...bytes.subarray(offset, offset + 4));
-    const size = view.getUint32(offset + 4, true);
-    if (id === 'data') {
-      const samples = new Int16Array(size / 2);
-      for (let index = 0; index < samples.length; index += 1) samples[index] = view.getInt16(offset + 8 + index * 2, true);
-      return samples;
-    }
-    offset += 8 + size + size % 2;
-  }
-  throw new TypeError('WAV data chunk missing');
-}
-
 export function assembleNarrationWav(input: {
   timeline: Timeline;
   wavByAssetId: ReadonlyMap<string, Uint8Array>;
@@ -45,15 +29,28 @@ export function assembleNarrationWav(input: {
   for (const cue of input.timeline.narration) {
     const wav = input.wavByAssetId.get(cue.assetId);
     if (wav === undefined) throw new Error(`Narration WAV missing: ${cue.assetId}`);
-    const source = pcm16Data(wav);
+    const decoded = decodePcm16Wav(wav);
+    if (decoded.sampleRate !== sampleRate) {
+      throw new Error(`Narration ${cue.id} sample rate ${decoded.sampleRate} does not match master ${sampleRate}`);
+    }
+    if (decoded.channels !== 1) throw new Error(`Narration ${cue.id} must be mono PCM16`);
+    const sourceEnd = cue.sampleStart + cue.sampleLength;
+    if (sourceEnd > decoded.sampleFrameCount) {
+      throw new RangeError(
+        `Narration ${cue.id} requires source samples [${cue.sampleStart}, ${sourceEnd}), ` +
+        `but WAV has ${decoded.sampleFrameCount} sample frames`,
+      );
+    }
     const start = Math.round(cue.range.startFrame * sampleRate / input.timeline.fps);
-    const length = Math.min(
-      cue.sampleLength,
-      source.length - cue.sampleStart,
-      samples.length - start,
-    );
-    for (let index = 0; index < length; index += 1) {
-      const mixed = samples[start + index]! + source[cue.sampleStart + index]!;
+    const destinationEnd = start + cue.sampleLength;
+    if (destinationEnd > samples.length) {
+      throw new RangeError(
+        `Narration ${cue.id} ends at master sample ${destinationEnd}, ` +
+        `beyond timeline sample length ${samples.length}`,
+      );
+    }
+    for (let index = 0; index < cue.sampleLength; index += 1) {
+      const mixed = samples[start + index]! + decoded.interleavedSamples[cue.sampleStart + index]!;
       samples[start + index] = Math.max(-32768, Math.min(32767, mixed));
     }
   }

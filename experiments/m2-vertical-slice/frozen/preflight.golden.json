@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "1.0.0",
+  "effectiveDirectorPlanHash": "4d563e5ff8f3966f6b1702336660a0d860dac165f15a216da21696b271e31e88",
+  "capabilityCatalogVersion": "1.0.0",
+  "capabilityCatalogHash": "b96eccd4a83ddd55255c70057a4a7d5cd48b757f0e3c8ab11606afa4378a1ce7",
+  "narrationSegments": [
+    {
+      "id": "narration-run.segment.1",
+      "narrationIntentId": "narration-run",
+      "shotId": "shot-run",
+      "sequence": 0,
+      "text": "一只兔子慌忙地穿过田野。",
+      "language": "zh-CN"
+    },
+    {
+      "id": "narration-run.segment.2",
+      "narrationIntentId": "narration-run",
+      "shotId": "shot-run",
+      "sequence": 1,
+      "text": "它一头撞在了老树桩上！",
+      "language": "zh-CN"
+    },
+    {
+      "id": "narration-notice.segment.1",
+      "narrationIntentId": "narration-notice",
+      "shotId": "shot-notice",
+      "sequence": 0,
+      "text": "正在田边劳作的农夫听见响声，转身发现了倒下的兔子。",
+      "language": "zh-CN"
+    }
+  ],
+  "ttsRequests": [
+    {
+      "id": "tts.narration-run.segment.1",
+      "segmentId": "narration-run.segment.1",
+      "text": "一只兔子慌忙地穿过田野。",
+      "voiceId": "narrator",
+      "speed": 1,
+      "language": "zh-CN",
+      "inputHash": "e9ae3e405729516d84d02a208184ddb658d2ed9df9661424d6f6703e5152a99c"
+    },
+    {
+      "id": "tts.narration-run.segment.2",
+      "segmentId": "narration-run.segment.2",
+      "text": "它一头撞在了老树桩上！",
+      "voiceId": "narrator",
+      "speed": 1,
+      "language": "zh-CN",
+      "inputHash": "563a3817e2382b703039b1ba4c34618e99b3dcf105a9aaf948d286e076da646f"
+    },
+    {
+      "id": "tts.narration-notice.segment.1",
+      "segmentId": "narration-notice.segment.1",
+      "text": "正在田边劳作的农夫听见响声，转身发现了倒下的兔子。",
+      "voiceId": "narrator",
+      "speed": 1,
+      "language": "zh-CN",
+      "inputHash": "a09af71bca80f8227454eb345917f616ebfd908134c6d2f0a821006ab48b6abe"
+    }
+  ],
+  "assetRequirements": [
+    {
+      "id": "asset.environment.pastoral-field",
+      "kind": "environment-layer",
+      "environmentIntent": "pastoral-field",
+      "required": true
+    },
+    {
+      "id": "asset.animal-frame.rabbit.run.left",
+      "kind": "animal-frame",
+      "entityType": "rabbit",
+      "action": "run",
+      "direction": "left",
+      "required": true,
+      "requestedByActionIds": [
+        "action-run"
+      ]
+    },
+    {
+      "id": "asset.character-frame.farmer.notice.right",
+      "kind": "character-frame",
+      "entityType": "farmer",
+      "action": "notice",
+      "direction": "right",
+      "required": true,
+      "requestedByActionIds": [
+        "action-notice"
+      ]
+    }
+  ],
+  "expandedActions": [
+    {
+      "id": "expanded.action-run",
+      "sourceActionId": "action-run",
+      "sceneId": "scene-field",
+      "shotId": "shot-run",
+      "actorId": "rabbit",
+      "action": "run",
+      "sequence": 0,
+      "direction": "left",
+      "priority": "required",
+      "durationPreference": {
+        "preferredSeconds": 4
+      },
+      "minDurationFrames": 12,
+      "poseClipId": "rabbit.run-left",
+      "requiredPoseClipIds": [
+        "rabbit.run-left"
+      ],
+      "completionPolicy": "return-default",
+      "spatialMode": "locomotion",
+      "destinationBlocking": {
+        "horizontal": "left",
+        "depth": "ground",
+        "facing": "left"
+      }
+    },
+    {
+      "id": "expanded.action-notice",
+      "sourceActionId": "action-notice",
+      "sceneId": "scene-field",
+      "shotId": "shot-notice",
+      "actorId": "farmer",
+      "action": "notice",
+      "sequence": 0,
+      "direction": "right",
+      "priority": "required",
+      "minDurationFrames": 15,
+      "poseClipId": "farmer.notice-right",
+      "requiredPoseClipIds": [
+        "farmer.notice-right"
+      ],
+      "completionPolicy": "hold",
+      "spatialMode": "stationary"
+    }
+  ],
+  "diagnostics": [],
+  "preflightHash": "57c629d623747bf35cbbd47dac145c52d088836498e3d97da4878db123b2f809"
+}

@@ -1,6 +1,6 @@
 # M2 Vertical Slice
 
-状态：实现完成，自动媒体 Gate PASS。
+状态：PASS / Frozen。
 
 该实验只消费 Frozen 的 Compiler、Paper Engine 和 Pixi Renderer。固定 Story 经由 DirectorPlan、Preflight、Fake TTS、MeasuredAudio 与 Final Compiler 自动生成唯一 RenderPlan；Timeline 不允许人工编写或修改。
 
@@ -15,6 +15,12 @@
 - `generated/artifacts/narration-master.wav`
 - `output/m2-vertical-slice-22s.mp4`
 - `output/m2-vertical-slice-report.json`
+- `frozen/render-plan.golden.json`
+- `frozen/preflight.golden.json`
+- `frozen/m2-vertical-slice-report.json`
+- `frozen/artifact-manifest.json`
+
+`output/` 与生成资产不进入普通 Git；可提交的 `frozen/` 保存精确 Golden、媒体参数、MP4 SHA-256 与关键帧 RGBA SHA-256。MP4 本体应通过 Git LFS、Release 或对象存储发布。
 
 运行：
 
