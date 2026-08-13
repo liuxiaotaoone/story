@@ -1,6 +1,6 @@
 # M3 Commit 1 — Action Package Contract
 
-状态：**Implemented / Awaiting Review**
+状态：**Implemented / Awaiting Review**（Commit 1.1 Content Integrity 已完成）
 
 ## 目标
 
@@ -18,18 +18,21 @@ Action Package
 
 ## 冻结合同
 
-- `variants[]` 是 Direction 到完整人物 `poseClipId` 的唯一映射；每个 Direction 和 PoseClip ID 在包内唯一。
+- `variants[]` 是 Direction 到完整人物 `poseClipId + poseClipHash` 的唯一映射；每个 Direction 和 PoseClip ID 在包内唯一，Hash 绑定 PoseClip 的 Frame、Anchor、时长、GroundLock 与 Composite Slot 等完整语义。
 - `targetPolicy = none | optional | required` 显式决定 Director `targetId` 合法性，不再通过 `interaction` 是否存在间接推断。
 - `interaction` 只允许出现在 `targetPolicy=required` 的 Package/Capability；Contact、Effect、Baked Ownership 继续使用已有正式 Schema。
-- `requiredAssets[]` 必须唯一，必须能在 Asset Manifest 中解析，且类型必须吻合；PoseClip 的每个 Frame Asset 必须被 Package 声明。
+- `requiredAssets[]` 必须唯一，每项保存 `contentHash`，必须与 Asset Manifest 的真实内容 Hash 一致；同 ID 替换文件会使 Integrity 失败。
+- Asset Role/Kind 是正式约束：`pose-frame → character-frame|animal-frame`、`effect → effect`、`prop → prop`、`audio → audio`、`reference → character-frame|animal-frame|prop`。PoseClip Frame 必须引用 `role=pose-frame` 的资产。
 - Package Variant 必须与实际 PoseClip 的 Entity Type、Action、Direction 一致。
 - Baked Ownership 的每个 Variant PoseClip 都必须声明对应 Composite Slot，且 Slot Entity Type 必须在 `targetTypes` 中。
+- `actorRequirements.attachmentSlots` 显式声明 Actor 前置条件；Baked Ownership 的 `ownerSlot` 必须在其中，并与实际 Actor `EntityDefinition.attachmentSlots` 做兼容性校验。
 - `packageHash` 使用 `canonicalHash('action-package-v1', payload)`；Hash 漂移直接失败。
 - `productionReady=true` 只有在结构、连续性、Anchor 全部 PASS、人工审核 Approved 且没有 Error Diagnostic 时合法。
+- Adapter 必须显式选择 `experiment | production`：Production 要求 Package `productionReady=true`，并要求所有 Runtime Asset（除 Generation Reference 外）`qaStatus=passed`。
 
 ## Adapter 边界
 
-`actionPackageToCapability()` 只做确定性字段映射：
+`actionPackageToCapability(package, references, {mode})` 先完成 Hash、内容、兼容性和 Production Gate，再做确定性字段映射：
 
 - `variants` → `requiredPoseClips` / `poseBindings` / `supportsDirections`
 - `duration.minDurationFrames` → Capability 最小时长
@@ -60,6 +63,12 @@ Ownership Event 不允许落到不可渲染的 `timeline.durationFrames` 边界�
 - Required Assets
 - Provenance / Canonical Hash
 - Automated QA / Human Review / Production Ready
+
+Commit 1.1 后 Golden Package Hash 为：
+
+```text
+299abe0764e43bb1aae72b9153236569290a1ed3909ca5a872cdcc68b1ee4ece
+```
 
 ## 非本提交范围
 

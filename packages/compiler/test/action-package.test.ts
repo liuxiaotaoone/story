@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {
   ActionPackageSchema,
   type AssetManifest,
+  type EntityDefinition,
   type PoseClip,
 } from '@pose-clip/schemas';
 import {
@@ -9,6 +10,7 @@ import {
   actionPackageToCapability,
   assertActionPackageIntegrity,
   hashActionPackagePayload,
+  hashPoseClipContent,
   resolveOwnershipEventFrame,
 } from '../src/index.js';
 import golden from './golden/farmer.pickup-rabbit.action-package.json' with {type: 'json'};
@@ -60,10 +62,21 @@ const poseClip: PoseClip = {
   compositeSlots: [{id: 'rabbit', entityType: 'rabbit'}],
 };
 
+const actorDefinition: EntityDefinition = {
+  id: 'farmer-definition',
+  entityType: 'farmer',
+  displayName: 'Farmer',
+  poseClipIds: ['farmer.pickup-rabbit.right'],
+  defaultPoseClipId: 'farmer.pickup-rabbit.right',
+  attachmentSlots: [{id: 'baked-rabbit', ownerAnchor: 'center'}],
+};
+
+const references = {assets, poseClips: [poseClip], actorDefinition};
+
 describe('M3 Action Package Contract', () => {
   it('verifies the frozen Pickup package and deterministically adapts it to ActionCapability', async () => {
-    const actionPackage = await assertActionPackageIntegrity(golden, {assets, poseClips: [poseClip]});
-    const capability = await actionPackageToCapability(actionPackage, {assets, poseClips: [poseClip]});
+    const actionPackage = await assertActionPackageIntegrity(golden, references, {mode: 'production'});
+    const capability = await actionPackageToCapability(actionPackage, references, {mode: 'production'});
     expect(capability).toEqual({
       action: 'pickup',
       requiredPoseClips: ['farmer.pickup-rabbit.right'],
@@ -83,7 +96,8 @@ describe('M3 Action Package Contract', () => {
   it('rejects hash drift, missing assets, mismatched variants and missing composite slots', async () => {
     await expect(assertActionPackageIntegrity(
       {...golden, duration: {minDurationFrames: 31}},
-      {assets, poseClips: [poseClip]},
+      references,
+      {mode: 'experiment'},
     )).rejects.toThrow(/does not match packageHash/);
 
     const {packageHash: _packageHash, ...payload} = golden;
@@ -95,18 +109,33 @@ describe('M3 Action Package Contract', () => {
       ...missingAssetPayload,
       packageHash: await hashActionPackagePayload(missingAssetPayload),
     };
-    await expect(assertActionPackageIntegrity(missingAsset, {assets, poseClips: [poseClip]}))
+    await expect(assertActionPackageIntegrity(missingAsset, references, {mode: 'experiment'}))
       .rejects.toThrow(/uses undeclared asset/);
 
     await expect(assertActionPackageIntegrity(golden, {
-      assets,
+      ...references,
       poseClips: [{...poseClip, direction: 'left'}],
-    })).rejects.toThrow(/does not match PoseClip/);
+    }, {mode: 'experiment'})).rejects.toThrow(/does not match PoseClip/);
 
-    await expect(assertActionPackageIntegrity(golden, {
-      assets,
-      poseClips: [{...poseClip, compositeSlots: []}],
-    })).rejects.toThrow(/lacks composite slot/);
+    const noCompositeClip = {...poseClip, compositeSlots: []};
+    const noCompositePoseClipHash = await hashPoseClipContent(noCompositeClip);
+    const noCompositePayload = {
+      ...payload,
+      variants: payload.variants.map(variant => ({
+        ...variant,
+        poseClipHash: variant.poseClipId === noCompositeClip.id
+          ? noCompositePoseClipHash
+          : variant.poseClipHash,
+      })),
+    };
+    const noCompositePackage = {
+      ...noCompositePayload,
+      packageHash: await hashActionPackagePayload(noCompositePayload),
+    };
+    await expect(assertActionPackageIntegrity(noCompositePackage, {
+      ...references,
+      poseClips: [noCompositeClip],
+    }, {mode: 'experiment'})).rejects.toThrow(/lacks composite slot/);
   });
 
   it('rejects invalid target policy and QA claims at the Schema boundary', () => {
@@ -115,7 +144,78 @@ describe('M3 Action Package Contract', () => {
       ...golden,
       qa: {...golden.qa, continuity: 'warning'},
     }).success).toBe(false);
-    expect(new ActionPackageIntegrityError('x')).toBeInstanceOf(Error);
+    expect(new ActionPackageIntegrityError('TEST', 'x')).toBeInstanceOf(Error);
+  });
+
+  it('binds package identity to asset bytes and complete PoseClip semantics', async () => {
+    const changedAssetManifest: AssetManifest = {
+      ...assets,
+      assets: assets.assets.map((asset, index) => index === 0 ? {...asset, contentHash: '3'.repeat(64)} : asset),
+    };
+    await expect(assertActionPackageIntegrity(golden, {
+      ...references,
+      assets: changedAssetManifest,
+    }, {mode: 'experiment'})).rejects.toThrow(/ACTION_PACKAGE_ASSET_CONTENT_MISMATCH/);
+
+    const changedPoseClip = {
+      ...poseClip,
+      frames: poseClip.frames.map((frame, index) => index === 0
+        ? {...frame, durationFrames: frame.durationFrames + 1}
+        : frame),
+    };
+    expect(await hashPoseClipContent(changedPoseClip)).not.toBe(golden.variants[0]?.poseClipHash);
+    await expect(assertActionPackageIntegrity(golden, {
+      ...references,
+      poseClips: [changedPoseClip],
+    }, {mode: 'experiment'})).rejects.toThrow(/ACTION_PACKAGE_POSE_CLIP_CONTENT_MISMATCH/);
+  });
+
+  it('enforces production readiness, runtime asset QA and actor slot compatibility', async () => {
+    const {packageHash: _packageHash, ...payload} = golden;
+    const experimentalPayload = {...payload, qa: {...payload.qa, productionReady: false}};
+    const experimentalPackage = {
+      ...experimentalPayload,
+      packageHash: await hashActionPackagePayload(experimentalPayload),
+    };
+    await expect(actionPackageToCapability(experimentalPackage, references, {mode: 'experiment'})).resolves.toBeDefined();
+    await expect(actionPackageToCapability(experimentalPackage, references, {mode: 'production'}))
+      .rejects.toThrow(/ACTION_PACKAGE_NOT_PRODUCTION_READY/);
+
+    const failedAssets: AssetManifest = {
+      ...assets,
+      assets: assets.assets.map((asset, index) => index === 0 ? {...asset, qaStatus: 'failed' as const} : asset),
+    };
+    await expect(actionPackageToCapability(golden, {...references, assets: failedAssets}, {mode: 'experiment'})).resolves.toBeDefined();
+    await expect(actionPackageToCapability(golden, {...references, assets: failedAssets}, {mode: 'production'}))
+      .rejects.toThrow(/ACTION_PACKAGE_NOT_PRODUCTION_READY/);
+
+    await expect(assertActionPackageIntegrity(golden, {
+      ...references,
+      actorDefinition: {...actorDefinition, attachmentSlots: []},
+    }, {mode: 'experiment'})).rejects.toThrow(/ACTION_PACKAGE_ACTOR_SLOT_MISSING/);
+  });
+
+  it('enforces role/kind pairs and requires every PoseClip frame to be a pose-frame output', async () => {
+    expect(ActionPackageSchema.safeParse({
+      ...golden,
+      requiredAssets: [{
+        assetId: 'voice', contentHash: HASH, kind: 'audio', role: 'pose-frame',
+      }],
+    }).success).toBe(false);
+
+    const {packageHash: _packageHash, ...payload} = golden;
+    const wrongRolePayload = {
+      ...payload,
+      requiredAssets: payload.requiredAssets.map((asset, index) => index === 0
+        ? {...asset, role: 'reference' as const}
+        : asset),
+    };
+    const wrongRolePackage = {
+      ...wrongRolePayload,
+      packageHash: await hashActionPackagePayload(wrongRolePayload),
+    };
+    await expect(assertActionPackageIntegrity(wrongRolePackage, references, {mode: 'experiment'}))
+      .rejects.toThrow(/ACTION_PACKAGE_POSE_FRAME_ROLE_INVALID/);
   });
 
   it('defines action-end as the final active frame of a half-open SolvedAction range', () => {

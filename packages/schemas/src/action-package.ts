@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {AssetKindSchema, AssetProvenanceSchema} from './asset.js';
+import {AssetProvenanceSchema} from './asset.js';
 import {AttachmentModeSchema} from './attachment.js';
 import {
   ActionCompletionPolicySchema,
@@ -13,13 +13,54 @@ import {DirectionSchema} from './pose-clip.js';
 export const ActionPackageVariantSchema = z.object({
   direction: DirectionSchema,
   poseClipId: IdSchema,
+  poseClipHash: ContentHashSchema,
 }).strict();
 
-export const ActionPackageAssetRequirementSchema = z.object({
+const ActionPackageAssetRequirementBase = {
   assetId: IdSchema,
-  kind: AssetKindSchema,
-  role: z.enum(['pose-frame', 'effect', 'prop', 'reference', 'audio']),
-}).strict();
+  contentHash: ContentHashSchema,
+} as const;
+
+export const ActionPackageAssetRequirementSchema = z.discriminatedUnion('role', [
+  z.object({
+    ...ActionPackageAssetRequirementBase,
+    role: z.literal('pose-frame'),
+    kind: z.enum(['character-frame', 'animal-frame']),
+  }).strict(),
+  z.object({
+    ...ActionPackageAssetRequirementBase,
+    role: z.literal('effect'),
+    kind: z.literal('effect'),
+  }).strict(),
+  z.object({
+    ...ActionPackageAssetRequirementBase,
+    role: z.literal('prop'),
+    kind: z.literal('prop'),
+  }).strict(),
+  z.object({
+    ...ActionPackageAssetRequirementBase,
+    role: z.literal('audio'),
+    kind: z.literal('audio'),
+  }).strict(),
+  z.object({
+    ...ActionPackageAssetRequirementBase,
+    role: z.literal('reference'),
+    kind: z.enum(['character-frame', 'animal-frame', 'prop']),
+  }).strict(),
+]);
+
+export const ActionPackageActorRequirementsSchema = z.object({
+  attachmentSlots: z.array(IdSchema),
+}).strict().superRefine((requirements, context) => {
+  const seen = new Set<string>();
+  for (const [index, slot] of requirements.attachmentSlots.entries()) {
+    if (seen.has(slot)) context.addIssue({
+      code: 'custom', message: `Duplicate actor attachment slot: ${slot}`,
+      path: ['attachmentSlots', index],
+    });
+    seen.add(slot);
+  }
+});
 
 export const ActionPackageQaDiagnosticSchema = z.object({
   code: IdSchema,
@@ -62,6 +103,7 @@ const ActionPackageShape = {
   targetTypes: z.array(IdSchema).optional(),
   attachmentMode: AttachmentModeSchema.optional(),
   interaction: ActionInteractionSchema.optional(),
+  actorRequirements: ActionPackageActorRequirementsSchema.optional(),
   requiredAssets: z.array(ActionPackageAssetRequirementSchema).min(1),
   provenance: AssetProvenanceSchema,
   qa: ActionPackageQaSchema,
@@ -110,6 +152,11 @@ function refineActionPackage(
   if (actionPackage.interaction?.ownership !== undefined && actionPackage.attachmentMode !== 'baked') context.addIssue({
     code: 'custom', message: 'Baked ownership interaction requires attachmentMode=baked', path: ['attachmentMode'],
   });
+  const ownerSlot = actionPackage.interaction?.ownership?.ownerSlot;
+  if (ownerSlot !== undefined && !actionPackage.actorRequirements?.attachmentSlots.includes(ownerSlot)) context.addIssue({
+    code: 'custom', message: `Baked ownership ownerSlot ${ownerSlot} must appear in actorRequirements.attachmentSlots`,
+    path: ['actorRequirements', 'attachmentSlots'],
+  });
 }
 
 export const ActionPackagePayloadSchema = z.object(ActionPackageShape).strict().superRefine(refineActionPackage);
@@ -120,6 +167,7 @@ export const ActionPackageSchema = z.object({
 
 export type ActionPackageVariant = z.infer<typeof ActionPackageVariantSchema>;
 export type ActionPackageAssetRequirement = z.infer<typeof ActionPackageAssetRequirementSchema>;
+export type ActionPackageActorRequirements = z.infer<typeof ActionPackageActorRequirementsSchema>;
 export type ActionPackageQa = z.infer<typeof ActionPackageQaSchema>;
 export type ActionPackagePayload = z.infer<typeof ActionPackagePayloadSchema>;
 export type ActionPackage = z.infer<typeof ActionPackageSchema>;

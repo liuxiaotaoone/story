@@ -6,7 +6,8 @@
   "variants": [
     {
       "direction": "right",
-      "poseClipId": "farmer.pickup-rabbit.right"
+      "poseClipId": "farmer.pickup-rabbit.right",
+      "poseClipHash": "8e64ac39f581e9c061664e4a2bbf7cc5f35cdfa0ca27d8ab1d45b828cea24eb6"
     }
   ],
   "defaultDirection": "right",
@@ -35,21 +36,29 @@
       "compositeSlotId": "rabbit"
     }
   },
+  "actorRequirements": {
+    "attachmentSlots": [
+      "baked-rabbit"
+    ]
+  },
   "requiredAssets": [
     {
       "assetId": "farmer.pickup-rabbit.right.01",
       "kind": "character-frame",
-      "role": "pose-frame"
+      "role": "pose-frame",
+      "contentHash": "1111111111111111111111111111111111111111111111111111111111111111"
     },
     {
       "assetId": "farmer.pickup-rabbit.right.02",
       "kind": "character-frame",
-      "role": "pose-frame"
+      "role": "pose-frame",
+      "contentHash": "1111111111111111111111111111111111111111111111111111111111111111"
     },
     {
       "assetId": "farmer.pickup-rabbit.reference",
       "kind": "character-frame",
-      "role": "reference"
+      "role": "reference",
+      "contentHash": "1111111111111111111111111111111111111111111111111111111111111111"
     }
   ],
   "provenance": {
@@ -68,5 +77,5 @@
     "productionReady": true,
     "diagnostics": []
   },
-  "packageHash": "fdeef45889422bf83571f0f244f92ec433b94f1e0ce527582fb0cc8376310f1a"
+  "packageHash": "299abe0764e43bb1aae72b9153236569290a1ed3909ca5a872cdcc68b1ee4ece"
 }
