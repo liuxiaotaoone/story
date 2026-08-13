@@ -8,12 +8,14 @@ interface PixelStats {
   edgeValidPixelCount: number;
   edgePixelCount: number;
   rgbaSha256: string;
+  grayscaleThumbnailBase64: string;
 }
 
 interface RendererApi {
   ready: boolean;
   durationFrames: number;
   exportFrame(frame: number): Promise<{dataUrl: string; pixelStats: PixelStats}>;
+  analyzeFrame(frame: number): Promise<PixelStats>;
 }
 
 declare global { interface Window { m21VisualQuality: RendererApi; } }
@@ -27,15 +29,13 @@ const renderer = new PaperPixiRenderer(application);
 await renderer.preload(plan);
 document.querySelector('#canvas-host')!.appendChild(application.canvas);
 
-async function inspectPng(dataUrl: string): Promise<PixelStats> {
-  const image = await createImageBitmap(await (await fetch(dataUrl)).blob());
+async function inspectCanvas(source: HTMLCanvasElement): Promise<PixelStats> {
   const canvas = document.createElement('canvas');
-  canvas.width = image.width;
-  canvas.height = image.height;
+  canvas.width = source.width;
+  canvas.height = source.height;
   const context = canvas.getContext('2d', {willReadFrequently: true});
   if (context === null) throw new Error('2D canvas unavailable');
-  context.drawImage(image, 0, 0);
-  image.close();
+  context.drawImage(source, 0, 0);
   const rgba = context.getImageData(0, 0, canvas.width, canvas.height).data;
   let validPixelCount = 0;
   let edgeValidPixelCount = 0;
@@ -54,7 +54,21 @@ async function inspectPng(dataUrl: string): Promise<PixelStats> {
   }
   const digest = await crypto.subtle.digest('SHA-256', Uint8Array.from(rgba));
   const rgbaSha256 = [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('');
-  return {totalPixelCount: rgba.length / 4, validPixelCount, edgeValidPixelCount, edgePixelCount, rgbaSha256};
+  const thumbnail = document.createElement('canvas');
+  thumbnail.width = 64;
+  thumbnail.height = 36;
+  const thumbnailContext = thumbnail.getContext('2d', {willReadFrequently: true});
+  if (thumbnailContext === null) throw new Error('Thumbnail canvas unavailable');
+  thumbnailContext.drawImage(canvas, 0, 0, thumbnail.width, thumbnail.height);
+  const thumbnailRgba = thumbnailContext.getImageData(0, 0, thumbnail.width, thumbnail.height).data;
+  const grayscale = new Uint8Array(thumbnail.width * thumbnail.height);
+  for (let index = 0; index < grayscale.length; index += 1) {
+    const offset = index * 4;
+    grayscale[index] = Math.round(0.2126 * thumbnailRgba[offset]! + 0.7152 * thumbnailRgba[offset + 1]! + 0.0722 * thumbnailRgba[offset + 2]!);
+  }
+  let binary = '';
+  for (const value of grayscale) binary += String.fromCharCode(value);
+  return {totalPixelCount: rgba.length / 4, validPixelCount, edgeValidPixelCount, edgePixelCount, rgbaSha256, grayscaleThumbnailBase64: btoa(binary)};
 }
 
 async function exportFrame(frame: number) {
@@ -62,9 +76,16 @@ async function exportFrame(frame: number) {
   const state = evaluateFrame(prepared, bounded);
   renderer.apply(state);
   document.querySelector('#status')!.textContent = `Frame ${bounded}/${plan.timeline.durationFrames - 1}`;
+  const pixelStats = await inspectCanvas(application.canvas);
   const dataUrl = exportCanonicalPngDataUrl(application);
-  return {dataUrl, pixelStats: await inspectPng(dataUrl)};
+  return {dataUrl, pixelStats};
+}
+
+async function analyzeFrame(frame: number) {
+  const bounded = Math.max(0, Math.min(plan.timeline.durationFrames - 1, Math.trunc(frame)));
+  renderer.apply(evaluateFrame(prepared, bounded));
+  return inspectCanvas(application.canvas);
 }
 
 await exportFrame(0);
-window.m21VisualQuality = {ready: true, durationFrames: plan.timeline.durationFrames, exportFrame};
+window.m21VisualQuality = {ready: true, durationFrames: plan.timeline.durationFrames, exportFrame, analyzeFrame};

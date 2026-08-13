@@ -3,14 +3,12 @@ import {createHash} from 'node:crypto';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {promisify} from 'node:util';
-import {generateFakeTts, measureWav} from '@pose-clip/audio';
 import {compileFinal, compilePreflight, createEffectiveDirectorPlan, hashResolvedAssetCatalogPayload} from '@pose-clip/compiler';
 import {evaluateGroundPointKeyframes, projectGround} from '@pose-clip/paper-engine';
 import {
   DirectorPlanSchema,
   RenderPlanSchema,
   StorySchema,
-  TtsArtifactSchema,
   canonicalHash,
   semanticRenderPlanHash,
   type AssetRecord,
@@ -18,11 +16,10 @@ import {
   type PoseAnchors,
   type RenderPlan,
   type ResolvedAssetCatalog,
-  type TtsArtifact,
-  type TtsRequest,
 } from '@pose-clip/schemas';
 import {assembleNarrationWav, timelineToSrt} from '../../m2-vertical-slice/src/timeline-media.ts';
 import {timelineToAss} from '../src/subtitle-ass.ts';
+import {createTtsProvider} from '../src/tts-providers.ts';
 
 const runFile = promisify(execFile);
 const root = resolve(import.meta.dirname, '..');
@@ -174,33 +171,12 @@ async function packageVisual(id: string, kind: 'character-frame' | 'animal-frame
   return adaptVisual({id, kind, sourcePath: resolve(assetRoot, file), sourceHash: source.contentHash, width: source.width, height: source.height, scale});
 }
 
-async function generateSapiTts(request: TtsRequest): Promise<{wavBytes: Uint8Array; artifact: TtsArtifact}> {
-  const raw = resolve(audioRoot, `${request.id}.raw.wav`);
-  const output = resolve(audioRoot, `${request.id}.wav`);
-  await runFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', resolve(root, 'scripts', 'generate-sapi-tts.ps1'), '-Text', request.text, '-OutputPath', raw]);
-  await runFile(ffmpeg, ['-y', '-hide_banner', '-loglevel', 'error', '-i', raw, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', output]);
-  const wavBytes = await readFile(output);
-  const measurement = measureWav(wavBytes);
-  const contentHash = sha256(wavBytes);
-  const assetId = `audio.${request.id}`;
-  const artifact = TtsArtifactSchema.parse({
-    asset: {id: assetId, kind: 'audio', uri: `artifacts/tts/${request.id}.wav`, contentHash, source: 'generated', qaStatus: 'passed', provenance: {inputHash: request.inputHash, workflowVersion: '1.0.0', producer: {name: 'windows-sapi-huihui', version: '1.0.0'}, createdAt: '2026-08-13T00:00:00.000Z'}},
-    measuredAudio: {requestId: request.id, sourceTtsRequestHash: request.inputHash, assetId, sampleRate: measurement.sampleRate, sampleFrameCount: measurement.sampleFrameCount, channels: measurement.channels, contentHash, measurementProducer: {name: 'pcm16-wav-measurer', version: '1.0.0'}},
-  });
-  return {wavBytes, artifact};
-}
-
-async function generateContractTts(request: TtsRequest) {
-  const result = await generateFakeTts(request, `artifacts/tts/${request.id}.wav`);
-  await writeFile(resolve(audioRoot, `${request.id}.wav`), result.wavBytes);
-  return result;
-}
-
 await mkdir(audioRoot, {recursive: true});
 await mkdir(visualRoot, {recursive: true});
 const effectiveDirectorPlan = await createEffectiveDirectorPlan({story, directorPlan, overrides: []});
 const preflight = await compilePreflight({effectiveDirectorPlan, capabilityCatalog});
-const ttsArtifacts = await Promise.all(preflight.ttsRequests.map(contractOnly ? generateContractTts : generateSapiTts));
+const ttsProvider = createTtsProvider(contractOnly ? 'fake' : (process.env.M21_TTS_PROVIDER ?? 'qwen3'));
+const ttsArtifacts = await ttsProvider.synthesize(preflight.ttsRequests, {audioRoot, ffmpeg, root});
 
 const adaptedVisuals = await Promise.all([
   packageVisual('farmer-idle', 'character-frame', 'normalized/farmer/idle.png', 0.205),
@@ -329,6 +305,12 @@ function applyVisualRecovery(plan: RenderPlan): RenderPlan {
     ['shot-approach', {focusEntityId: 'farmer', desiredScreenX: 500, leadRoom: 'right'}],
     ['shot-pickup', {focusEntityId: 'farmer', desiredScreenX: 560, leadRoom: 'center'}],
   ]);
+  const shotZoomTargets = new Map([
+    ['shot-collision', 1.14],
+    ['shot-notice', 1.15],
+    ['shot-approach', 1.14],
+    ['shot-pickup', 1.14],
+  ]);
   const clamp = (value: number, minimum: number, maximum: number) => Math.min(maximum, Math.max(minimum, value));
   recovered.timeline.cameraTracks = recovered.timeline.shots.map(shot => {
     const contract = composition.get(shot.id)!;
@@ -346,10 +328,10 @@ function applyVisualRecovery(plan: RenderPlan): RenderPlan {
         : shot.id === 'shot-pickup' && holdSettleFrame > shot.range.startFrame && holdSettleFrame < shot.range.endFrame - 1
           ? [
               {frame: shot.range.startFrame, value: 1.04, easing: 'ease-in-out' as const},
-              {frame: holdSettleFrame, value: 1.12, easing: 'ease-in-out' as const},
-              {frame: shot.range.endFrame - 1, value: 1.10, easing: 'hold' as const},
+              {frame: holdSettleFrame, value: shotZoomTargets.get(shot.id)!, easing: 'ease-in-out' as const},
+              {frame: shot.range.endFrame - 1, value: 1.12, easing: 'hold' as const},
             ]
-          : [{frame: shot.range.startFrame, value: 1.04, easing: 'linear' as const}, {frame: shot.range.endFrame - 1, value: 1.07, easing: 'hold' as const}],
+          : [{frame: shot.range.startFrame, value: 1.04, easing: 'ease-in-out' as const}, {frame: shot.range.endFrame - 1, value: shotZoomTargets.get(shot.id)!, easing: 'hold' as const}],
     };
   });
   return RenderPlanSchema.parse(recovered);
@@ -370,9 +352,7 @@ await writeFile(resolve(artifacts, 'generation-report.json'), `${JSON.stringify(
   preflightHash: preflight.preflightHash, assetCatalogHash: assetCatalog.catalogHash, renderPlanSemanticHash: renderPlanHash,
   media: {width: 1280, height: 720, fps: renderPlan.timeline.fps, frameCount: renderPlan.timeline.durationFrames, durationSeconds: renderPlan.timeline.durationFrames / renderPlan.timeline.fps},
   timelineAuthorship: 'final-compiler-plus-deterministic-visual-recovery-planner',
-  tts: contractOnly
-    ? {kind: 'contract-only-fake', provider: 'deterministic-fake-tts', voice: 'test-tone-not-for-acceptance'}
-    : {kind: 'real', provider: 'Windows SAPI', voice: 'Microsoft Huihui Desktop'},
+  tts: {kind: ttsProvider.kind, acceptanceEligible: ttsProvider.kind === 'qwen3' || ttsProvider.kind === 'sapi', ...ttsProvider.description},
   visualContracts: {environmentOverscan: 1.5, cameraSafeBounds: {minX: 440, maxX: 900, minY: 340, maxY: 380}, farmerCanonicalScale: 1, rabbitCanonicalRelativeScale: 0.35},
 }, null, 2)}\n`);
 process.stdout.write(`M2.1 generated artifacts: ${artifacts}\n`);

@@ -5,13 +5,14 @@ import {copyFile, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {chromium} from 'playwright-core';
 import {createServer} from 'vite';
-import {evaluateCameraSafeBounds, evaluateCharacterScale, evaluateCoverage, evaluateStoryActions, evaluateVisualEventCadence, scanFreezeRuns} from '../src/quality-gates.mjs';
+import {collectMeaningfulVisualEvents, evaluateCameraSafeBounds, evaluateCharacterScale, evaluateCoverage, evaluateStoryActions, evaluateVisualEventCadence, grayscaleMeanAbsoluteDifference, scanMeaningfulMotion} from '../src/quality-gates.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const output = join(root, 'output');
 const frames = join(output, 'frames');
 const generated = join(root, 'generated', 'artifacts');
-const frozen = join(root, 'frozen');
+const candidate = join(root, 'candidate');
+const analyzeOnly = process.env.M21_ANALYZE_ONLY === '1';
 
 function findChrome() {
   const candidates = [process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe', join(process.env.LOCALAPPDATA ?? '', 'Google', 'Chrome', 'Application', 'chrome.exe')].filter(Boolean);
@@ -59,20 +60,16 @@ await rm(output, {recursive: true, force: true});
 await mkdir(frames, {recursive: true});
 const renderPlan = JSON.parse(await readFile(join(generated, 'render-plan.json'), 'utf8'));
 const generatedReport = JSON.parse(await readFile(join(generated, 'generation-report.json'), 'utf8'));
-const visualEventFrames = [
-  ...renderPlan.timeline.shots.map(shot => shot.range.startFrame),
-  ...renderPlan.timeline.poseEvents.map(event => event.frame),
-  ...renderPlan.timeline.visibilityEvents.map(event => event.frame),
-  ...renderPlan.timeline.markers.map(marker => marker.frame),
-  ...renderPlan.timeline.cameraTracks.flatMap(track => track.position.map(keyframe => keyframe.frame)),
-];
+const meaningfulVisualEvents = collectMeaningfulVisualEvents(renderPlan);
+const visualEventFrames = meaningfulVisualEvents.map(event => event.frame);
 const cadenceGate = evaluateVisualEventCadence(visualEventFrames, renderPlan.timeline.durationFrames);
 
 const server = await createServer({root, server: {host: '127.0.0.1', port: 4176, strictPort: true}, logLevel: 'warn'});
 await server.listen();
 const browser = await chromium.launch({executablePath: findChrome(), headless: true, args: ['--enable-webgl', '--ignore-gpu-blocklist', '--use-angle=swiftshader']});
 const coverageFailures = [];
-const frameHashes = [];
+const motionDifferences = [];
+let previousGrayscale = null;
 let minimumFrameCoverage = 1;
 let minimumEdgeCoverage = 1;
 let frameCount = 0;
@@ -84,24 +81,44 @@ try {
   frameCount = await page.evaluate(() => window.m21VisualQuality.durationFrames);
   const stills = new Set([...visualEventFrames, 0, frameCount - 1].filter(frame => frame >= 0 && frame < frameCount));
   for (let frame = 0; frame < frameCount; frame += 1) {
-    const result = await page.evaluate(value => window.m21VisualQuality.exportFrame(value), frame);
+    const result = analyzeOnly
+      ? {pixelStats: await page.evaluate(value => window.m21VisualQuality.analyzeFrame(value), frame)}
+      : await page.evaluate(value => window.m21VisualQuality.exportFrame(value), frame);
     const coverage = evaluateCoverage(result.pixelStats);
     minimumFrameCoverage = Math.min(minimumFrameCoverage, coverage.frameCoverage);
     minimumEdgeCoverage = Math.min(minimumEdgeCoverage, coverage.edgeCoverage);
     if (!coverage.pass) coverageFailures.push({frame, ...coverage});
-    frameHashes.push(result.pixelStats.rgbaSha256);
-    const bytes = pngBytes(result.dataUrl);
-    await writeFile(join(frames, `frame-${String(frame).padStart(4, '0')}.png`), bytes);
-    if (stills.has(frame)) await writeFile(join(output, `frame-${String(frame).padStart(4, '0')}.png`), bytes);
+    const grayscale = Buffer.from(result.pixelStats.grayscaleThumbnailBase64, 'base64');
+    if (previousGrayscale !== null) motionDifferences.push(grayscaleMeanAbsoluteDifference(previousGrayscale, grayscale));
+    previousGrayscale = grayscale;
+    if (!analyzeOnly) {
+      const bytes = pngBytes(result.dataUrl);
+      await writeFile(join(frames, `frame-${String(frame).padStart(4, '0')}.png`), bytes);
+      if (stills.has(frame)) await writeFile(join(output, `frame-${String(frame).padStart(4, '0')}.png`), bytes);
+    }
   }
 } finally {
   await browser.close();
   await server.close();
 }
-const freezeGate = scanFreezeRuns(frameHashes);
+const meaningfulMotionGate = scanMeaningfulMotion(motionDifferences);
 const storyActionGate = evaluateStoryActions(renderPlan);
 const cameraSafeBoundsGate = evaluateCameraSafeBounds(renderPlan, generatedReport.visualContracts.cameraSafeBounds);
 const characterScaleGate = evaluateCharacterScale(renderPlan);
+const visualAnalysisPass = coverageFailures.length === 0 && meaningfulMotionGate.failures.length === 0 && cadenceGate.pass && storyActionGate.pass && cameraSafeBoundsGate.pass && characterScaleGate.pass;
+
+if (analyzeOnly) {
+  const analysisReport = {
+    status: visualAnalysisPass ? 'VISUAL_ANALYSIS_PASS' : 'FAIL',
+    coverageGate: {minimumRequired: 0.995, minimumFrameCoverage, minimumEdgeCoverage, failures: coverageFailures},
+    meaningfulMotionGate,
+    visualEventCadenceGate: {...cadenceGate, events: meaningfulVisualEvents, excludedEventTypes: ['marker', 'metadata']},
+    storyActionGate, cameraSafeBoundsGate, characterScaleGate,
+  };
+  await writeFile(join(output, 'm21-visual-analysis-report.json'), `${JSON.stringify(analysisReport, null, 2)}\n`);
+  process.stdout.write(`M2.1 visual analysis ${analysisReport.status}: ${join(output, 'm21-visual-analysis-report.json')}\n`);
+  process.exit(visualAnalysisPass ? 0 : 1);
+}
 
 const ffmpeg = findFfmpeg();
 const ffprobe = findFfprobe(ffmpeg);
@@ -120,8 +137,7 @@ const subtitle = probe.streams.find(stream => stream.codec_type === 'subtitle');
 const videoDuration = Number(video?.duration ?? probe.format.duration);
 const audioDuration = Number(audio?.duration ?? probe.format.duration);
 const avDelta = Math.abs(videoDuration - audioDuration);
-const technicalPass = coverageFailures.length === 0 && freezeGate.failures.length === 0 && cadenceGate.pass &&
-  storyActionGate.pass && cameraSafeBoundsGate.pass && characterScaleGate.pass && generatedReport.tts.kind === 'real' &&
+const technicalPass = visualAnalysisPass && generatedReport.tts.acceptanceEligible === true &&
   video?.width === 1280 && video?.height === 720 && frameRate(video?.avg_frame_rate) === 30 && Number(video?.nb_frames) === frameCount && avDelta <= 1 / 30 && subtitle?.codec_name === 'mov_text';
 const report = {
   status: technicalPass ? 'TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED' : 'FAIL',
@@ -129,8 +145,8 @@ const report = {
   ...generatedReport,
   mp4Sha256: await sha256(finalVideo),
   coverageGate: {minimumRequired: 0.995, minimumFrameCoverage, minimumEdgeCoverage, failures: coverageFailures},
-  freezeGate,
-  visualEventCadenceGate: cadenceGate,
+  meaningfulMotionGate,
+  visualEventCadenceGate: {...cadenceGate, events: meaningfulVisualEvents, excludedEventTypes: ['marker', 'metadata']},
   storyActionGate,
   cameraSafeBoundsGate,
   characterScaleGate,
@@ -139,8 +155,18 @@ const report = {
 };
 await writeFile(join(output, 'm21-visual-acceptance-report.json'), `${JSON.stringify(report, null, 2)}\n`);
 if (!technicalPass) throw new Error('M2.1 technical visual quality gates failed');
-await mkdir(frozen, {recursive: true});
-await copyFile(join(generated, 'render-plan.json'), join(frozen, 'render-plan.golden.json'));
-await copyFile(join(generated, 'director-plan.json'), join(frozen, 'director-plan.golden.json'));
-await writeFile(join(frozen, 'technical-gate-report.json'), `${JSON.stringify(report, null, 2)}\n`);
-process.stdout.write(`M2.1 Technical Gate: ${finalVideo}\n`);
+await rm(candidate, {recursive: true, force: true});
+await mkdir(candidate, {recursive: true});
+await copyFile(finalVideo, join(candidate, 'm21-visual-acceptance.mp4'));
+await copyFile(join(generated, 'render-plan.json'), join(candidate, 'render-plan.golden.json'));
+await copyFile(join(generated, 'director-plan.json'), join(candidate, 'director-plan.golden.json'));
+await copyFile(join(generated, 'preflight.json'), join(candidate, 'preflight.golden.json'));
+await copyFile(join(generated, 'subtitles.ass'), join(candidate, 'subtitles.ass'));
+await writeFile(join(candidate, 'technical-gate-report.json'), `${JSON.stringify(report, null, 2)}\n`);
+await writeFile(join(candidate, 'artifact-manifest.json'), `${JSON.stringify({
+  status: 'candidate', artifact: 'm21-visual-acceptance.mp4', artifactSha256: report.mp4Sha256,
+  renderPlanSemanticHash: report.renderPlanSemanticHash, preflightHash: report.preflightHash,
+  width: report.mediaProbe.width, height: report.mediaProbe.height, fps: report.mediaProbe.fps,
+  frames: report.mediaProbe.frames, durationSeconds: report.mediaProbe.durationSeconds,
+}, null, 2)}\n`);
+process.stdout.write(`M2.1 Technical Gate PASS; candidate awaiting human review: ${join(candidate, 'm21-visual-acceptance.mp4')}\n`);

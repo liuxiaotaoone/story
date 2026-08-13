@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {evaluateCameraSafeBounds, evaluateCharacterScale, evaluateCoverage, evaluateStoryActions, evaluateVisualEventCadence, scanFreezeRuns} from '../src/quality-gates.mjs';
+import {collectMeaningfulVisualEvents, evaluateCameraSafeBounds, evaluateCharacterScale, evaluateCoverage, evaluateStoryActions, evaluateVisualEventCadence, grayscaleMeanAbsoluteDifference, scanMeaningfulMotion} from '../src/quality-gates.mjs';
 
 describe('M2.1 visual quality gates', () => {
   it('requires both whole-frame and border coverage', () => {
@@ -7,15 +7,47 @@ describe('M2.1 visual quality gates', () => {
     expect(evaluateCoverage({totalPixelCount: 1000, validPixelCount: 999, edgePixelCount: 100, edgeValidPixelCount: 90}).pass).toBe(false);
   });
 
-  it('warns above one second and fails above two seconds at 30 FPS', () => {
-    expect(scanFreezeRuns(Array(31).fill('same')).warnings).toHaveLength(1);
-    expect(scanFreezeRuns(Array(31).fill('same')).failures).toHaveLength(0);
-    expect(scanFreezeRuns(Array(61).fill('same')).failures).toHaveLength(1);
+  it('measures perceptual thumbnail change instead of exact frame identity', () => {
+    expect(grayscaleMeanAbsoluteDifference(Uint8Array.from([10, 20]), Uint8Array.from([11, 23]))).toBe(2);
+    const microMotion = Array(31).fill(0.1);
+    expect(scanMeaningfulMotion(microMotion).warnings).toHaveLength(1);
+    expect(scanMeaningfulMotion(microMotion).failures).toHaveLength(0);
+    expect(scanMeaningfulMotion(Array(61).fill(0.1)).failures).toHaveLength(1);
+    expect(scanMeaningfulMotion(Array(90).fill(2)).failures).toHaveLength(0);
   });
 
   it('requires a visual event at least every four seconds', () => {
     expect(evaluateVisualEventCadence([60, 180], 240).pass).toBe(true);
     expect(evaluateVisualEventCadence([121], 300).pass).toBe(false);
+  });
+
+  it('excludes markers and tiny micro motion from visual cadence', () => {
+    const plan = {
+      timeline: {
+        shots: [{id: 'shot', range: {startFrame: 0, endFrame: 180}}],
+        poseEvents: [{id: 'pose', frame: 90}],
+        poseTransitions: [], visibilityEvents: [], ownershipEvents: [], effectEvents: [],
+        markers: [{id: 'metadata-only', frame: 30}],
+        entityTracks: [{entityId: 'farmer', rotation: [{frame: 0, value: -0.004}, {frame: 30, value: 0.004}]}],
+        cameraTracks: [{shotId: 'shot', position: [{frame: 0, value: {x: 640, y: 360}}, {frame: 60, value: {x: 650, y: 360}}], zoom: []}],
+      },
+    };
+    const events = collectMeaningfulVisualEvents(plan);
+    expect(events.map(event => event.frame)).toEqual([0, 90]);
+    expect(events.some(event => event.sourceId === 'metadata-only')).toBe(false);
+  });
+
+  it('represents a long continuous camera move without treating metadata as motion', () => {
+    const plan = {
+      timeline: {
+        shots: [{id: 'shot', range: {startFrame: 0, endFrame: 180}}], poseEvents: [], poseTransitions: [],
+        visibilityEvents: [], ownershipEvents: [], effectEvents: [], entityTracks: [], markers: [{id: 'marker', frame: 60}],
+        cameraTracks: [{shotId: 'shot', position: [], zoom: [{frame: 0, value: 1}, {frame: 150, value: 1.15}]}],
+      },
+    };
+    const events = collectMeaningfulVisualEvents(plan);
+    expect(events.filter(event => event.type === 'camera-zoom-change').map(event => event.frame)).toEqual([0, 120, 150]);
+    expect(evaluateVisualEventCadence(events.map(event => event.frame), 180).pass).toBe(true);
   });
 
   it('requires every narrated story action and the stump landmark', () => {

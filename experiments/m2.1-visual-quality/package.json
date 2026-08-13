@@ -6,6 +6,8 @@
   "scripts": {
     "generate": "node --experimental-strip-types scripts/generate-artifacts.mts",
     "visual-acceptance": "node scripts/run-visual-acceptance.mjs",
+    "review:approve": "node scripts/review-candidate.mjs --approve",
+    "review:reject": "node scripts/review-candidate.mjs --reject",
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
