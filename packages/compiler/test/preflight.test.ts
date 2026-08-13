@@ -59,6 +59,7 @@ describe('Preflight Compiler', () => {
 
   it('rejects an interactive action without targetId during Preflight resolution', () => {
     const interactiveCatalog = structuredClone(capabilityCatalog);
+    interactiveCatalog.entityCapabilities[0]!.actions[0]!.targetPolicy = 'required';
     interactiveCatalog.entityCapabilities[0]!.actions[0]!.targetTypes = ['stump'];
     interactiveCatalog.entityCapabilities[0]!.actions[0]!.interaction = {
       contact: {targetAnchorId: 'impact'}, effect: {effectType: 'impact', trigger: 'action-start', durationFrames: 10},
@@ -67,8 +68,45 @@ describe('Preflight Compiler', () => {
     const result = resolveActions([action], new Map([['rabbit', 'rabbit']]), interactiveCatalog, ['shot-run']);
     expect(result.expandedActions).toEqual([]);
     expect(result.diagnostics).toEqual([expect.objectContaining({
-      severity: 'error', code: 'INTERACTION_TARGET_REQUIRED', sourceId: action.id,
+      severity: 'error', code: 'ACTION_TARGET_REQUIRED', sourceId: action.id,
     })]);
+  });
+
+  it('enforces none, optional and required target policies independently of interaction metadata', () => {
+    const baseAction = storyDirectorPlan.actions[0]!;
+    const baseCapability = capabilityCatalog.entityCapabilities[0]!.actions[0]!;
+    const withPolicy = (targetPolicy: 'none' | 'optional' | 'required') => ({
+      ...capabilityCatalog,
+      entityCapabilities: [{
+        ...capabilityCatalog.entityCapabilities[0]!,
+        actions: [{
+          ...baseCapability,
+          targetPolicy,
+          ...(targetPolicy === 'none' ? {} : {targetTypes: ['stump']}),
+        }],
+      }, capabilityCatalog.entityCapabilities[1]!],
+    });
+
+    const forbidden = resolveActions(
+      [{...baseAction, targetId: 'stump'}],
+      new Map([['rabbit', 'rabbit'], ['stump', 'stump']]),
+      withPolicy('none'),
+    );
+    expect(forbidden.diagnostics).toContainEqual(expect.objectContaining({code: 'ACTION_TARGET_FORBIDDEN'}));
+
+    const optional = resolveActions(
+      [{...baseAction, targetId: undefined}],
+      new Map([['rabbit', 'rabbit'], ['stump', 'stump']]),
+      withPolicy('optional'),
+    );
+    expect(optional.expandedActions).toHaveLength(1);
+
+    const required = resolveActions(
+      [{...baseAction, targetId: undefined}],
+      new Map([['rabbit', 'rabbit'], ['stump', 'stump']]),
+      withPolicy('required'),
+    );
+    expect(required.diagnostics).toContainEqual(expect.objectContaining({code: 'ACTION_TARGET_REQUIRED'}));
   });
 
   it('rejects duplicate persisted IDs and enforces Segment to TTS one-to-one mapping', async () => {

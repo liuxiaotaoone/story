@@ -71,6 +71,7 @@ export const capabilityCatalog: CapabilityCatalog = {
       actions: [{
         action: 'run', requiredPoseClips: ['rabbit.run-left'],
         poseBindings: [{direction: 'left', poseClipId: 'rabbit.run-left'}],
+        targetPolicy: 'none',
         minDurationFrames: 12, supportsDirections: ['left'], defaultDirection: 'left',
         completionPolicy: 'return-default', spatialMode: 'locomotion',
       }],
@@ -80,6 +81,7 @@ export const capabilityCatalog: CapabilityCatalog = {
       actions: [{
         action: 'notice', requiredPoseClips: ['farmer.notice-right'],
         poseBindings: [{direction: 'right', poseClipId: 'farmer.notice-right'}],
+        targetPolicy: 'none',
         minDurationFrames: 15, supportsDirections: ['right'], defaultDirection: 'right',
         completionPolicy: 'hold', spatialMode: 'stationary',
       }],

@@ -70,10 +70,10 @@ const capabilityCatalog: CapabilityCatalog = {
   schemaVersion: '1.0.0', catalogVersion: '1.0.0',
   entityCapabilities: [{
     entityType: 'rabbit', visualAssetKind: 'animal-frame', poseClips: ['rabbit.run-left'], attachmentSlots: [],
-    actions: [{action: 'run', requiredPoseClips: ['rabbit.run-left'], poseBindings: [{direction: 'left', poseClipId: 'rabbit.run-left'}], minDurationFrames: 12, supportsDirections: ['left'], defaultDirection: 'left', completionPolicy: 'return-default', spatialMode: 'locomotion'}],
+    actions: [{action: 'run', requiredPoseClips: ['rabbit.run-left'], poseBindings: [{direction: 'left', poseClipId: 'rabbit.run-left'}], targetPolicy: 'none', minDurationFrames: 12, supportsDirections: ['left'], defaultDirection: 'left', completionPolicy: 'return-default', spatialMode: 'locomotion'}],
   }, {
     entityType: 'farmer', visualAssetKind: 'character-frame', poseClips: ['farmer.notice-right'], attachmentSlots: [],
-    actions: [{action: 'notice', requiredPoseClips: ['farmer.notice-right'], poseBindings: [{direction: 'right', poseClipId: 'farmer.notice-right'}], minDurationFrames: 15, supportsDirections: ['right'], defaultDirection: 'right', completionPolicy: 'hold', spatialMode: 'stationary'}],
+    actions: [{action: 'notice', requiredPoseClips: ['farmer.notice-right'], poseBindings: [{direction: 'right', poseClipId: 'farmer.notice-right'}], targetPolicy: 'none', minDurationFrames: 15, supportsDirections: ['right'], defaultDirection: 'right', completionPolicy: 'hold', spatialMode: 'stationary'}],
   }],
   cameraCapabilities: [
     {intent: 'follow', minDurationFrames: 30, allowedShotTypes: ['wide']},

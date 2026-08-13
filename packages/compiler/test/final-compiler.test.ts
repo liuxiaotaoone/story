@@ -175,7 +175,7 @@ describe('M2 Final Compiler', () => {
     const second = {
       ...stationaryBase, id: 'expanded.rabbit-next', sourceActionId: 'rabbit-next',
       poseClipId: 'rabbit.idle-left', requiredPoseClipIds: ['rabbit.idle-left'],
-      completionPolicy: 'hold' as const, spatialMode: 'stationary' as const,
+      completionPolicy: 'hold' as const, spatialMode: 'stationary' as const, targetPolicy: 'none' as const,
     };
     const output = compileActionPoseEvents({
       effective: input.effectiveDirectorPlan,
@@ -222,6 +222,7 @@ describe('M3 Visual Recovery Productization', () => {
     m3Capabilities.entityCapabilities.find(entity => entity.entityType === 'rabbit')!.poseClips.push('rabbit.collision');
     m3Capabilities.entityCapabilities.find(entity => entity.entityType === 'rabbit')!.actions.push({
       action: 'collision', requiredPoseClips: ['rabbit.collision'], poseBindings: [{direction: 'left', poseClipId: 'rabbit.collision'}],
+      targetPolicy: 'required',
       targetTypes: ['stump'], minDurationFrames: 18, supportsDirections: ['left'], defaultDirection: 'left',
       completionPolicy: 'hold', spatialMode: 'stationary',
       interaction: {
@@ -232,6 +233,7 @@ describe('M3 Visual Recovery Productization', () => {
     m3Capabilities.entityCapabilities.find(entity => entity.entityType === 'rabbit')!.poseClips.push('rabbit.sparkle');
     m3Capabilities.entityCapabilities.find(entity => entity.entityType === 'rabbit')!.actions.push({
       action: 'sparkle', requiredPoseClips: ['rabbit.sparkle'], poseBindings: [{direction: 'left', poseClipId: 'rabbit.sparkle'}],
+      targetPolicy: 'required',
       targetTypes: ['stump'], minDurationFrames: 10, supportsDirections: ['left'], defaultDirection: 'left',
       completionPolicy: 'hold', spatialMode: 'stationary',
       interaction: {effect: {effectType: 'optional-magic-spark', trigger: 'action-start', durationFrames: 10}},
@@ -241,6 +243,7 @@ describe('M3 Visual Recovery Productization', () => {
     farmerCapability.attachmentSlots.push('baked-rabbit');
     farmerCapability.actions.push({
       action: 'pickup', requiredPoseClips: ['farmer.pickup-rabbit'], poseBindings: [{direction: 'right', poseClipId: 'farmer.pickup-rabbit'}],
+      targetPolicy: 'required',
       targetTypes: ['rabbit'], minDurationFrames: 30, supportsDirections: ['right'], defaultDirection: 'right',
       completionPolicy: 'hold', spatialMode: 'stationary', attachmentMode: 'baked',
       interaction: {ownership: {mode: 'baked', timing: 'action-start', ownerSlot: 'baked-rabbit', compositeSlotId: 'rabbit'}},

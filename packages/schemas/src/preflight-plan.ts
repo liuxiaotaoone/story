@@ -5,6 +5,7 @@ import {ContentHashSchema, IdSchema, SemverSchema} from './common.js';
 import {BlockingIntentSchema, DurationPreferenceSchema} from './director-plan.js';
 import {DirectionSchema} from './pose-clip.js';
 import {ActionInteractionSchema} from './interaction.js';
+import {ActionTargetPolicySchema} from './capability.js';
 import {NarrationSegmentSchema, TtsRequestSchema} from './tts-request.js';
 
 export const AssetRequirementSchema = z.object({
@@ -34,6 +35,8 @@ export const ExpandedActionSchema = z.object({
   targetId: IdSchema.optional(),
   direction: DirectionSchema,
   priority: z.enum(['required', 'optional']),
+  // Optional only for reading Frozen M2 Preflight artifacts. M3+ Compiler output always writes it.
+  targetPolicy: ActionTargetPolicySchema.optional(),
   durationPreference: DurationPreferenceSchema.optional(),
   minDurationFrames: z.number().int().positive(),
   poseClipId: IdSchema,
@@ -49,6 +52,12 @@ export const ExpandedActionSchema = z.object({
 }).strict().superRefine((action, context) => {
   if (!action.requiredPoseClipIds.includes(action.poseClipId)) context.addIssue({
     code: 'custom', message: 'poseClipId must be declared in requiredPoseClipIds', path: ['poseClipId'],
+  });
+  if (action.targetPolicy === 'required' && action.targetId === undefined) context.addIssue({
+    code: 'custom', message: 'Required targetPolicy requires targetId', path: ['targetId'],
+  });
+  if (action.targetPolicy === 'none' && action.targetId !== undefined) context.addIssue({
+    code: 'custom', message: 'targetPolicy=none forbids targetId', path: ['targetId'],
   });
   if (action.spatialMode === 'locomotion' && action.destinationBlocking === undefined) context.addIssue({
     code: 'custom', message: 'Locomotion action requires destinationBlocking', path: ['destinationBlocking'],

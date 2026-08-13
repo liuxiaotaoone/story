@@ -101,7 +101,8 @@ const directorPlan = DirectorPlanSchema.parse({
 });
 
 const capability = (action: string, poseClipId: string, direction: 'left' | 'right', minimum: number, spatialMode: 'stationary' | 'locomotion', targetTypes?: string[]) => ({
-  action, requiredPoseClips: [poseClipId], poseBindings: [{direction, poseClipId}], minDurationFrames: minimum,
+  action, requiredPoseClips: [poseClipId], poseBindings: [{direction, poseClipId}],
+  targetPolicy: targetTypes === undefined ? 'none' as const : 'required' as const, minDurationFrames: minimum,
   supportsDirections: [direction], defaultDirection: direction, completionPolicy: 'hold' as const, spatialMode,
   ...(targetTypes === undefined ? {} : {targetTypes}),
 });

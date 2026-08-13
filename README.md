@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 0 / 0.1 / 0.2 — PASS / Frozen**。Visual Recovery Productization、合同加固与 Entity Namespace Integrity 已完成；Director Entity 与 RenderPlan Instance 的全局唯一性已经锁定。生产路径不使用 `applyVisualRecovery()` 二次修改 RenderPlan；下一步是 M3 Commit 1 — Action Package Contract。
+当前里程碑：**M3 Commit 1 — Action Package Contract / Implemented, Awaiting Review**。Commit 0 / 0.1 / 0.2 已 Frozen；Action Package Schema、Canonical Hash、Integrity、显式 `targetPolicy`、Capability Adapter 与首份 `farmer.pickup-rabbit` Golden Package 已落地。生产路径仍只产生一个 Canonical RenderPlan；ComfyUI / Flux.2 尚未开始。
 
 ## 已冻结的实现边界
 

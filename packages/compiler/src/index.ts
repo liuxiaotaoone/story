@@ -1,4 +1,5 @@
 export {DirectorOverrideError, hashDirectorPlan} from './override/apply-director-overrides.js';
+export * from './action-package/action-package-adapter.js';
 export * from './integrity/final-compile-integrity.js';
 export * from './integrity/asset-catalog-integrity.js';
 export * from './integrity/hash-integrity.js';

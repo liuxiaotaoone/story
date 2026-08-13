@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "farmer.pickup-rabbit",
+  "entityType": "farmer",
+  "action": "pickup",
+  "variants": [
+    {
+      "direction": "right",
+      "poseClipId": "farmer.pickup-rabbit.right"
+    }
+  ],
+  "defaultDirection": "right",
+  "duration": {
+    "minDurationFrames": 30
+  },
+  "spatialMode": "stationary",
+  "completionPolicy": "hold",
+  "targetPolicy": "required",
+  "targetTypes": [
+    "rabbit"
+  ],
+  "attachmentMode": "baked",
+  "interaction": {
+    "contact": {
+      "targetAnchorId": "pickup",
+      "actorGroundOffset": {
+        "u": -0.03,
+        "v": 0
+      }
+    },
+    "ownership": {
+      "mode": "baked",
+      "timing": "action-end",
+      "ownerSlot": "baked-rabbit",
+      "compositeSlotId": "rabbit"
+    }
+  },
+  "requiredAssets": [
+    {
+      "assetId": "farmer.pickup-rabbit.right.01",
+      "kind": "character-frame",
+      "role": "pose-frame"
+    },
+    {
+      "assetId": "farmer.pickup-rabbit.right.02",
+      "kind": "character-frame",
+      "role": "pose-frame"
+    },
+    {
+      "assetId": "farmer.pickup-rabbit.reference",
+      "kind": "character-frame",
+      "role": "reference"
+    }
+  ],
+  "provenance": {
+    "inputHash": "2222222222222222222222222222222222222222222222222222222222222222",
+    "producer": {
+      "name": "action-package-author",
+      "version": "1.0.0"
+    },
+    "createdAt": "2026-08-13T00:00:00.000Z"
+  },
+  "qa": {
+    "structural": "passed",
+    "continuity": "passed",
+    "anchors": "passed",
+    "humanReview": "approved",
+    "productionReady": true,
+    "diagnostics": []
+  },
+  "packageHash": "fdeef45889422bf83571f0f244f92ec433b94f1e0ce527582fb0cc8376310f1a"
+}

@@ -40,6 +40,7 @@ describe('M3 visual productization contracts', () => {
     })).toThrow(/Left lead room/);
     expect(() => ActionCapabilitySchema.parse({
       action: 'pickup', requiredPoseClips: ['pickup'], poseBindings: [{direction: 'right', poseClipId: 'pickup'}],
+      targetPolicy: 'required',
       targetTypes: ['rabbit'], minDurationFrames: 10, supportsDirections: ['right'], defaultDirection: 'right',
       completionPolicy: 'hold', spatialMode: 'stationary',
       interaction: {ownership: {mode: 'baked', timing: 'action-start', ownerSlot: 'arms', compositeSlotId: 'rabbit'}},

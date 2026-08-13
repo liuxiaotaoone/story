@@ -33,11 +33,12 @@ describe('M2 semantic boundary contracts', () => {
   it('rejects zero-duration required action capability and expansion', () => {
     expect(ActionCapabilitySchema.safeParse({
       action: 'impact', requiredPoseClips: [], poseBindings: [], minDurationFrames: 0, supportsDirections: ['front'],
-      defaultDirection: 'front', completionPolicy: 'hold', spatialMode: 'stationary',
+      defaultDirection: 'front', targetPolicy: 'none', completionPolicy: 'hold', spatialMode: 'stationary',
     }).success).toBe(false);
     expect(ExpandedActionSchema.safeParse({
       id: 'expanded-impact', sourceActionId: 'impact', sceneId: 'scene-1', shotId: 'shot-1',
       actorId: 'farmer', action: 'impact', sequence: 0, direction: 'front', priority: 'required',
+      targetPolicy: 'none',
       minDurationFrames: 0, poseClipId: 'farmer.impact', requiredPoseClipIds: [],
       completionPolicy: 'hold', spatialMode: 'stationary',
     }).success).toBe(false);
@@ -80,6 +81,7 @@ describe('M2 semantic boundary contracts', () => {
     const locomotion = {
       id: 'expanded-run', sourceActionId: 'run', sceneId: 'scene-1', shotId: 'shot-1',
       actorId: 'farmer', action: 'run', sequence: 0, direction: 'left', priority: 'required',
+      targetPolicy: 'none',
       minDurationFrames: 12, poseClipId: 'farmer.run-left', requiredPoseClipIds: ['farmer.run-left'],
       completionPolicy: 'return-default', spatialMode: 'locomotion',
     };
@@ -111,6 +113,7 @@ describe('M2 semantic boundary contracts', () => {
     expect(ActionCapabilitySchema.safeParse({
       action: 'run', requiredPoseClips: ['run-left'],
       poseBindings: [{direction: 'left', poseClipId: 'run-left'}],
+      targetPolicy: 'none',
       minDurationFrames: 10, supportsDirections: ['left'], defaultDirection: 'right',
       completionPolicy: 'return-default', spatialMode: 'locomotion',
     }).success).toBe(false);

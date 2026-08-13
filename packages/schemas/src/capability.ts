@@ -5,6 +5,10 @@ import {CameraIntentSchema, DepthIntentSchema, ShotTypeSchema} from './director-
 import {DirectionSchema} from './pose-clip.js';
 import {ActionInteractionSchema} from './interaction.js';
 
+export const ActionTargetPolicySchema = z.enum(['none', 'optional', 'required']);
+export const ActionCompletionPolicySchema = z.enum(['hold', 'return-default']);
+export const ActionSpatialModeSchema = z.enum(['stationary', 'locomotion']);
+
 function addDuplicateIssues(
   values: readonly string[],
   context: z.RefinementCtx,
@@ -24,12 +28,13 @@ export const ActionCapabilitySchema = z.object({
     direction: DirectionSchema,
     poseClipId: IdSchema,
   }).strict()).min(1),
+  targetPolicy: ActionTargetPolicySchema,
   targetTypes: z.array(IdSchema).optional(),
   minDurationFrames: z.number().int().positive(),
   supportsDirections: z.array(DirectionSchema).min(1),
   defaultDirection: DirectionSchema,
-  completionPolicy: z.enum(['hold', 'return-default']),
-  spatialMode: z.enum(['stationary', 'locomotion']),
+  completionPolicy: ActionCompletionPolicySchema,
+  spatialMode: ActionSpatialModeSchema,
   attachmentMode: AttachmentModeSchema.optional(),
   interaction: ActionInteractionSchema.optional(),
 }).strict().superRefine((action, context) => {
@@ -57,8 +62,14 @@ export const ActionCapabilitySchema = z.object({
       path: ['supportsDirections', index],
     });
   }
-  if (action.interaction !== undefined && action.targetTypes === undefined) context.addIssue({
-    code: 'custom', message: 'Interactive action requires targetTypes', path: ['targetTypes'],
+  if (action.targetPolicy === 'none' && action.targetTypes !== undefined) context.addIssue({
+    code: 'custom', message: 'targetPolicy=none forbids targetTypes', path: ['targetTypes'],
+  });
+  if (action.targetPolicy !== 'none' && action.targetTypes === undefined) context.addIssue({
+    code: 'custom', message: `${action.targetPolicy} targetPolicy requires targetTypes`, path: ['targetTypes'],
+  });
+  if (action.targetPolicy !== 'required' && action.interaction !== undefined) context.addIssue({
+    code: 'custom', message: 'Interaction requires targetPolicy=required', path: ['targetPolicy'],
   });
   if (action.interaction?.ownership !== undefined && action.attachmentMode !== 'baked') context.addIssue({
     code: 'custom', message: 'Baked ownership interaction requires attachmentMode=baked', path: ['attachmentMode'],
@@ -143,6 +154,7 @@ export const CapabilityCatalogSchema = z.object({
 
 export type CapabilityCatalog = z.infer<typeof CapabilityCatalogSchema>;
 export type ActionCapability = z.infer<typeof ActionCapabilitySchema>;
+export type ActionTargetPolicy = z.infer<typeof ActionTargetPolicySchema>;
 export type EntityCapability = z.infer<typeof EntityCapabilitySchema>;
 export type CameraCapability = z.infer<typeof CameraCapabilitySchema>;
 export type EnvironmentCapability = z.infer<typeof EnvironmentCapabilitySchema>;

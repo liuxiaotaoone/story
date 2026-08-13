@@ -11,6 +11,15 @@ import type {SolvedTimingPlan} from '../timing/types.js';
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 export const effectInstanceId = (expandedActionId: string): string => `effect.${expandedActionId}`;
 
+export function resolveOwnershipEventFrame(
+  timing: 'action-start' | 'action-end',
+  solved: {startFrame: number; endFrame: number},
+): number {
+  // SolvedAction ranges are half-open. action-end means the final active frame,
+  // never the non-rendered endFrame boundary.
+  return timing === 'action-start' ? solved.startFrame : solved.endFrame - 1;
+}
+
 function solvedActions(preflight: PreflightCompileResult, timing: SolvedTimingPlan) {
   const actions = new Map(preflight.expandedActions.map(action => [action.id, action]));
   return timing.shots.flatMap(shot => shot.actions.map(solved => ({solved, action: actions.get(solved.expandedActionId)!})));
@@ -136,7 +145,7 @@ export function compileInteractionTimeline(input: {
       });
     }
     if (interaction.ownership !== undefined) {
-      const frame = interaction.ownership.timing === 'action-start' ? solved.startFrame : solved.endFrame;
+      const frame = resolveOwnershipEventFrame(interaction.ownership.timing, solved);
       ownershipEvents.push({
         id: `ownership.${action.id}`, frame, type: 'attach', entityId: action.targetId,
         from: {kind: 'world', environmentId: environmentForScene(input.effective, action.sceneId)},

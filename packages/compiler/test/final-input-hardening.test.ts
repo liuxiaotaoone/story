@@ -108,6 +108,7 @@ describe('Final Compiler input and asset binding hardening', () => {
     const required = {
       id: 'expanded.required', sourceActionId: 'required', sceneId: 'scene', shotId: 'shot', actorId: 'rabbit',
       action: 'run', sequence: 0, direction: 'left' as const, priority: 'required' as const,
+      targetPolicy: 'none' as const,
       minDurationFrames: 10, poseClipId: 'rabbit.run-left', requiredPoseClipIds: ['rabbit.run-left'],
       completionPolicy: 'return-default' as const, spatialMode: 'locomotion' as const,
       destinationBlocking: {horizontal: 'left' as const, depth: 'ground' as const},

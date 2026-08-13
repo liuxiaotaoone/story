@@ -1,4 +1,5 @@
 export * from './asset.js';
+export * from './action-package.js';
 export * from './attachment.js';
 export * from './capability.js';
 export * from './common.js';

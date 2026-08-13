@@ -61,10 +61,18 @@ export function resolveActions(
       });
       continue;
     }
-    if (capability.interaction !== undefined && action.targetId === undefined) {
+    if (capability.targetPolicy === 'required' && action.targetId === undefined) {
       diagnostics.push({
-        id: `diagnostic.${action.id}.interaction-target`, severity: 'error', code: 'INTERACTION_TARGET_REQUIRED',
-        message: `Interactive action ${actionName} requires targetId`, sourceId: action.id,
+        id: `diagnostic.${action.id}.target-required`, severity: 'error', code: 'ACTION_TARGET_REQUIRED',
+        message: `Action ${actionName} requires targetId`, sourceId: action.id,
+        path: `/actions/${action.id}/targetId`, recoverable: false,
+      });
+      continue;
+    }
+    if (capability.targetPolicy === 'none' && action.targetId !== undefined) {
+      diagnostics.push({
+        id: `diagnostic.${action.id}.target-forbidden`, severity: 'error', code: 'ACTION_TARGET_FORBIDDEN',
+        message: `Action ${actionName} does not accept targetId`, sourceId: action.id,
         path: `/actions/${action.id}/targetId`, recoverable: false,
       });
       continue;
@@ -137,7 +145,8 @@ export function resolveActions(
       actorId: action.actorId, action: actionName, sequence: action.sequence,
       ...(action.targetId === undefined ? {} : {targetId: action.targetId}),
       ...(action.durationPreference === undefined ? {} : {durationPreference: action.durationPreference}),
-      direction, priority: action.priority, minDurationFrames: capability.minDurationFrames,
+      direction, priority: action.priority, targetPolicy: capability.targetPolicy,
+      minDurationFrames: capability.minDurationFrames,
       poseClipId: poseBinding.poseClipId, requiredPoseClipIds: [poseBinding.poseClipId],
       completionPolicy: capability.completionPolicy, spatialMode: capability.spatialMode,
       ...(action.destinationBlocking === undefined ? {} : {destinationBlocking: action.destinationBlocking}),
