@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 1 / 1.1 / 1.2 / 1.3 — Action Package v1 / PASS / Frozen**。内容与兼容性已闭环，并冻结 Baked Ownership 单一 Target Type 规则。生产路径仍只产生一个 Canonical RenderPlan；下一阶段是 M3 Commit 2 — Asset Generation Provider / ComfyUI Integration。
+当前里程碑：**M3 Commit 2 — Asset Generation Provider / ComfyUI Integration / Implemented, Awaiting Review**。Action Package v1 保持 PASS / Frozen；Generation Request → ComfyUI/Flux.2 → 真实 PNG bytes → SHA-256 → AssetRecord 已在 Intel Arc XPU 上跑通。连续生成显存可靠性仍为 Warning，尚未宣告 Production Ready。
 
 ## 已冻结的实现边界
 

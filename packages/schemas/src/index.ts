@@ -9,6 +9,7 @@ export * from './director.js';
 export * from './director-override.js';
 export * from './effective-director-plan.js';
 export * from './final-compile.js';
+export * from './generation.js';
 export * from './entity.js';
 export * from './environment.js';
 export * from './hash.js';

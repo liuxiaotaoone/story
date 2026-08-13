@@ -34,6 +34,15 @@ importers:
         specifier: 8.2.1
         version: 8.2.1
 
+  experiments/comfyui-feasibility:
+    dependencies:
+      '@pose-clip/asset-generation':
+        specifier: workspace:*
+        version: link:../../packages/asset-generation
+      '@pose-clip/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
+
   experiments/m2-vertical-slice:
     dependencies:
       '@pose-clip/audio':
@@ -102,6 +111,12 @@ importers:
       vite:
         specifier: 8.2.1
         version: 8.2.1
+
+  packages/asset-generation:
+    dependencies:
+      '@pose-clip/schemas':
+        specifier: workspace:*
+        version: link:../schemas
 
   packages/audio:
     dependencies:
