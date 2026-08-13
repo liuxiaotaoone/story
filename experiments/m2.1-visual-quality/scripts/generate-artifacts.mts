@@ -63,14 +63,14 @@ const directorPlan = DirectorPlanSchema.parse({
   shots: [
     {id: 'shot-collision', sceneId: 'scene-field', shotType: 'wide', focusEntityId: 'rabbit', durationPreference: {preferredSeconds: 6, maxSeconds: 7}},
     {id: 'shot-notice', sceneId: 'scene-field', shotType: 'wide', focusEntityId: 'farmer', durationPreference: {preferredSeconds: 4, maxSeconds: 5}},
-    {id: 'shot-approach', sceneId: 'scene-field', shotType: 'wide', focusEntityId: 'farmer', durationPreference: {preferredSeconds: 6, maxSeconds: 7}},
-    {id: 'shot-pickup', sceneId: 'scene-field', shotType: 'medium', focusEntityId: 'farmer', durationPreference: {preferredSeconds: 6, maxSeconds: 7}},
+    {id: 'shot-approach', sceneId: 'scene-field', shotType: 'wide', focusEntityId: 'farmer', durationPreference: {preferredSeconds: 4.5, maxSeconds: 5}},
+    {id: 'shot-pickup', sceneId: 'scene-field', shotType: 'medium', focusEntityId: 'farmer', durationPreference: {preferredSeconds: 5, maxSeconds: 5.5}},
   ],
   narration: [
-    {id: 'narration-collision', sceneId: 'scene-field', shotId: 'shot-collision', sequence: 0, text: '一只兔子慌忙穿过田野，砰的一声撞上了树桩。', voiceId: 'huihui', language: 'zh-CN', speed: 1},
-    {id: 'narration-notice', sceneId: 'scene-field', shotId: 'shot-notice', sequence: 0, text: '兔子倒在地上。农夫听见响声，转身看去。', voiceId: 'huihui', language: 'zh-CN', speed: 1},
-    {id: 'narration-approach', sceneId: 'scene-field', shotId: 'shot-approach', sequence: 0, text: '他快步走到树桩旁，弯下腰仔细查看。', voiceId: 'huihui', language: 'zh-CN', speed: 1},
-    {id: 'narration-pickup', sceneId: 'scene-field', shotId: 'shot-pickup', sequence: 0, text: '农夫伸手抱起兔子，把它稳稳搂在怀里。', voiceId: 'huihui', language: 'zh-CN', speed: 1},
+    {id: 'narration-collision', sceneId: 'scene-field', shotId: 'shot-collision', sequence: 0, text: '一只兔子慌忙穿过田野，砰的一声撞上了树桩。', voiceId: 'qwen3:Serena', language: 'zh-CN', speed: 1},
+    {id: 'narration-notice', sceneId: 'scene-field', shotId: 'shot-notice', sequence: 0, text: '兔子倒在地上。农夫听见响声，转身看去。', voiceId: 'qwen3:Serena', language: 'zh-CN', speed: 1},
+    {id: 'narration-approach', sceneId: 'scene-field', shotId: 'shot-approach', sequence: 0, text: '他快步走到树桩旁，弯下腰仔细查看。', voiceId: 'qwen3:Serena', language: 'zh-CN', speed: 1},
+    {id: 'narration-pickup', sceneId: 'scene-field', shotId: 'shot-pickup', sequence: 0, text: '农夫伸手抱起兔子，把它稳稳搂在怀里。', voiceId: 'qwen3:Serena', language: 'zh-CN', speed: 1},
   ],
   actions: [
     {id: 'action-run', sceneId: 'scene-field', shotId: 'shot-collision', actorId: 'rabbit', action: 'run', sequence: 0, direction: 'left', priority: 'required', enabled: true, durationPreference: {preferredSeconds: 3}, destinationBlocking: {horizontal: 'right', depth: 'ground', facing: 'left'}},
@@ -117,12 +117,12 @@ const capabilityCatalog: CapabilityCatalog = {
     ],
   }, {
     entityType: 'farmer', visualAssetKind: 'character-frame',
-    poseClips: ['farmer.notice-right', 'farmer.walk-right', 'farmer.bend', 'farmer.pickup', 'farmer.hold-rabbit'], attachmentSlots: [],
+    poseClips: ['farmer.notice-right', 'farmer.walk-right', 'farmer.bend', 'farmer.pickup-rabbit', 'farmer.hold-rabbit'], attachmentSlots: ['baked-rabbit'],
     actions: [
       capability('notice', 'farmer.notice-right', 'right', 18, 'stationary'),
       capability('walk', 'farmer.walk-right', 'right', 30, 'locomotion'),
       capability('bend', 'farmer.bend', 'right', 18, 'stationary'),
-      capability('pickup', 'farmer.pickup', 'right', 18, 'stationary', ['rabbit']),
+      capability('pickup', 'farmer.pickup-rabbit', 'right', 18, 'stationary', ['rabbit']),
       capability('hold', 'farmer.hold-rabbit', 'right', 30, 'stationary', ['rabbit']),
     ],
   }],
@@ -171,6 +171,12 @@ async function packageVisual(id: string, kind: 'character-frame' | 'animal-frame
   return adaptVisual({id, kind, sourcePath: resolve(assetRoot, file), sourceHash: source.contentHash, width: source.width, height: source.height, scale});
 }
 
+async function localVisual(id: string, kind: 'character-frame' | 'animal-frame' | 'prop' | 'effect', file: string, width: number, height: number, scale: number): Promise<AssetRecord> {
+  const sourcePath = resolve(root, file);
+  const sourceBytes = await readFile(sourcePath);
+  return adaptVisual({id, kind, sourcePath, sourceHash: sha256(sourceBytes), width, height, scale});
+}
+
 await mkdir(audioRoot, {recursive: true});
 await mkdir(visualRoot, {recursive: true});
 const effectiveDirectorPlan = await createEffectiveDirectorPlan({story, directorPlan, overrides: []});
@@ -183,7 +189,7 @@ const adaptedVisuals = await Promise.all([
   packageVisual('farmer-notice', 'character-frame', 'normalized/farmer/notice-right.png', 0.205),
   ...[1, 2, 3, 4].map(number => packageVisual(`farmer-walk-${number}`, 'character-frame', `normalized/farmer/walk-0${number}.png`, 0.205)),
   packageVisual('farmer-bend', 'character-frame', 'normalized/farmer/bend.png', 0.205),
-  packageVisual('farmer-pickup', 'character-frame', 'normalized/farmer/pickup.png', 0.205),
+  ...[1, 2, 3, 4].map(number => localVisual(`farmer-pickup-rabbit-${number}`, 'character-frame', `assets/pickup-rabbit-0${number}.png`, 1024, 1536, 0.205)),
   packageVisual('farmer-hold-rabbit', 'character-frame', 'normalized/farmer/hold-rabbit.png', 0.205),
   ...[1, 2, 3, 4].map(number => packageVisual(`rabbit-run-${number}`, 'animal-frame', `normalized/rabbit/run-left-0${number}.png`, 0.10)),
   packageVisual('rabbit-collision', 'animal-frame', 'normalized/rabbit/collision.png', 0.10),
@@ -194,6 +200,28 @@ const stumpSource = await readFile(resolve(root, 'assets', 'stump.png'));
 adaptedVisuals.push(await adaptVisual({id: 'stump-prop', kind: 'prop', sourcePath: resolve(root, 'assets', 'stump.png'), sourceHash: sha256(stumpSource), width: 1672, height: 941, scale: 0.14}));
 
 const clipFrame = async (assetId: string, anchorFile: string, durationFrames = 30) => ({assetId, durationFrames, anchors: await anchors(anchorFile), contact: {type: 'both' as const}, referenceFoot: 'midpoint' as const});
+const pickupFeet = [
+  {x: 0.4794921875, y: 0.7923177083333334},
+  {x: 0.47705078125, y: 0.9029947916666666},
+  {x: 0.5009765625, y: 0.93359375},
+  {x: 0.50732421875, y: 0.9602864583333334},
+];
+const pickupFrame = (number: number) => {
+  const foot = pickupFeet[number - 1]!;
+  return {
+    assetId: `farmer-pickup-rabbit-${number}`,
+    durationFrames: 10,
+    anchors: {
+      foot,
+      leftFoot: {x: foot.x - 0.05, y: foot.y},
+      rightFoot: {x: foot.x + 0.05, y: foot.y},
+      center: {x: 0.5, y: 0.52},
+      head: {x: 0.5, y: number === 1 ? 0.31 : 0.22},
+    },
+    contact: {type: 'both' as const},
+    referenceFoot: 'midpoint' as const,
+  };
+};
 const poseClips = [{
   id: 'rabbit.run-left', entityType: 'rabbit', action: 'run', loop: true, direction: 'left' as const,
   frames: await Promise.all([1, 2, 3, 4].map(async number => ({assetId: `rabbit-run-${number}`, durationFrames: 3, anchors: await anchors(`anchors/rabbit/run-left-0${number}.json`), contact: {type: number % 2 === 1 ? 'left-foot' as const : 'right-foot' as const}, referenceFoot: number % 2 === 1 ? 'left-foot' as const : 'right-foot' as const}))),
@@ -213,9 +241,13 @@ const poseClips = [{
 }, {
   id: 'farmer.bend', entityType: 'farmer', action: 'bend', loop: true, direction: 'right' as const, frames: [await clipFrame('farmer-bend', 'anchors/farmer/bend.json')], rootMotion: {mode: 'timeline' as const}, groundLock: {mode: 'always' as const, maxCorrectionPx: 8},
 }, {
-  id: 'farmer.pickup', entityType: 'farmer', action: 'pickup', loop: true, direction: 'right' as const, frames: [await clipFrame('farmer-pickup', 'anchors/farmer/pickup.json')], rootMotion: {mode: 'timeline' as const}, groundLock: {mode: 'always' as const, maxCorrectionPx: 8},
+  id: 'farmer.pickup-rabbit', entityType: 'farmer', action: 'pickup', loop: false, direction: 'right' as const,
+  frames: [1, 2, 3, 4].map(pickupFrame), compositeSlots: [{id: 'rabbit', entityType: 'rabbit'}],
+  rootMotion: {mode: 'timeline' as const}, groundLock: {mode: 'always' as const, maxCorrectionPx: 8},
 }, {
-  id: 'farmer.hold-rabbit', entityType: 'farmer', action: 'hold', loop: true, direction: 'right' as const, frames: [await clipFrame('farmer-hold-rabbit', 'anchors/farmer/hold-rabbit.json')], rootMotion: {mode: 'timeline' as const}, groundLock: {mode: 'always' as const, maxCorrectionPx: 8},
+  id: 'farmer.hold-rabbit', entityType: 'farmer', action: 'hold', loop: true, direction: 'right' as const,
+  frames: [await clipFrame('farmer-hold-rabbit', 'anchors/farmer/hold-rabbit.json')], compositeSlots: [{id: 'rabbit', entityType: 'rabbit'}],
+  rootMotion: {mode: 'timeline' as const}, groundLock: {mode: 'always' as const, maxCorrectionPx: 8},
 }];
 
 const catalogPayload: Omit<ResolvedAssetCatalog, 'catalogHash'> = {
@@ -241,7 +273,7 @@ const catalogPayload: Omit<ResolvedAssetCatalog, 'catalogHash'> = {
   }],
   entityDefinitions: [
     {id: 'rabbit-definition', entityType: 'rabbit', displayName: 'Rabbit', poseClipIds: ['rabbit.run-left', 'rabbit.collision', 'rabbit.lying'], defaultPoseClipId: 'rabbit.run-left', attachmentSlots: [], tags: ['canonical-relative-scale-0.35']},
-    {id: 'farmer-definition', entityType: 'farmer', displayName: 'Farmer', poseClipIds: ['farmer.idle', 'farmer.notice-right', 'farmer.walk-right', 'farmer.bend', 'farmer.pickup', 'farmer.hold-rabbit'], defaultPoseClipId: 'farmer.idle', attachmentSlots: [], tags: ['canonical-scale-1.0']},
+    {id: 'farmer-definition', entityType: 'farmer', displayName: 'Farmer', poseClipIds: ['farmer.idle', 'farmer.notice-right', 'farmer.walk-right', 'farmer.bend', 'farmer.pickup-rabbit', 'farmer.hold-rabbit'], defaultPoseClipId: 'farmer.idle', attachmentSlots: [{id: 'baked-rabbit', ownerAnchor: 'center'}], tags: ['canonical-scale-1.0']},
   ],
   characterBindings: [{characterId: 'rabbit', entityDefinitionId: 'rabbit-definition'}, {characterId: 'farmer', entityDefinitionId: 'farmer-definition'}],
 };
@@ -263,6 +295,10 @@ function applyVisualRecovery(plan: RenderPlan): RenderPlan {
   const recovered = structuredClone(plan);
   const duration = recovered.timeline.durationFrames;
   const collisionFrame = eventFrame(recovered, 'rabbit.collision');
+  const lyingFrame = eventFrame(recovered, 'rabbit.lying');
+  const walkFrame = eventFrame(recovered, 'farmer.walk-right');
+  const bendFrame = eventFrame(recovered, 'farmer.bend');
+  const pickupFrame = eventFrame(recovered, 'farmer.pickup-rabbit');
   const holdFrame = eventFrame(recovered, 'farmer.hold-rabbit');
   const holdSettleFrame = Math.min(duration - 2, holdFrame + 75);
   recovered.entities.push(
@@ -279,8 +315,22 @@ function applyVisualRecovery(plan: RenderPlan): RenderPlan {
   );
   recovered.timeline.entityTracks.push(
     {entityId: 'stump', groundPosition: [{frame: 0, value: {u: 0.76, v: 0.66}, easing: 'hold'}]},
-    {entityId: 'impact', groundPosition: [{frame: 0, value: {u: 0.735, v: 0.67}, easing: 'hold'}], scale: [{frame: 0, value: {x: 0.75, y: 0.75}, easing: 'linear'}, {frame: collisionFrame, value: {x: 0.75, y: 0.75}, easing: 'linear'}, {frame: collisionFrame + 9, value: {x: 1.15, y: 1.15}, easing: 'hold'}]},
+    {entityId: 'impact', groundPosition: [{frame: 0, value: {u: 0.715, v: 0.67}, easing: 'hold'}], scale: [{frame: 0, value: {x: 0.75, y: 0.75}, easing: 'linear'}, {frame: collisionFrame, value: {x: 0.75, y: 0.75}, easing: 'linear'}, {frame: collisionFrame + 9, value: {x: 1.15, y: 1.15}, easing: 'hold'}]},
   );
+  const rabbitTrack = recovered.timeline.entityTracks.find(candidate => candidate.entityId === 'rabbit')!;
+  rabbitTrack.groundPosition = [
+    {frame: 0, value: {u: 0.90, v: 0.60}, easing: 'linear'},
+    {frame: collisionFrame, value: {u: 0.70, v: 0.66}, easing: 'hold'},
+    {frame: lyingFrame, value: {u: 0.69, v: 0.67}, easing: 'hold'},
+    {frame: duration - 1, value: {u: 0.69, v: 0.67}, easing: 'hold'},
+  ];
+  const farmerTrack = recovered.timeline.entityTracks.find(candidate => candidate.entityId === 'farmer')!;
+  farmerTrack.groundPosition = [
+    {frame: 0, value: {u: 0.28, v: 0.65}, easing: 'hold'},
+    {frame: walkFrame, value: {u: 0.28, v: 0.65}, easing: 'linear'},
+    {frame: bendFrame, value: {u: 0.63, v: 0.67}, easing: 'hold'},
+    {frame: duration - 1, value: {u: 0.63, v: 0.67}, easing: 'hold'},
+  ];
   for (const [entityId, amplitude] of [['farmer', 0.004], ['rabbit', 0.003]] as const) {
     const track = recovered.timeline.entityTracks.find(candidate => candidate.entityId === entityId)!;
     track.rotation = microMotion(duration, amplitude);
@@ -289,11 +339,22 @@ function applyVisualRecovery(plan: RenderPlan): RenderPlan {
     {id: 'm21-impact-hidden-start', frame: 0, entityId: 'impact', visible: false},
     {id: 'm21-impact-show', frame: collisionFrame, entityId: 'impact', visible: true},
     {id: 'm21-impact-hide', frame: collisionFrame + 10, entityId: 'impact', visible: false},
-    {id: 'm21-rabbit-baked-into-hold', frame: holdFrame, entityId: 'rabbit', visible: false},
   );
+  recovered.timeline.ownershipEvents.push({
+    id: 'm21-rabbit-baked-pickup',
+    frame: pickupFrame,
+    type: 'attach',
+    entityId: 'rabbit',
+    from: {kind: 'world', environmentId: 'pastoral-field'},
+    to: {kind: 'entity', entityId: 'farmer', slot: 'baked-rabbit'},
+    mode: 'baked',
+    preserveWorldTransform: false,
+    bakedBinding: {ownerEntityId: 'farmer', childEntityId: 'rabbit', compositeSlotId: 'rabbit'},
+  });
   recovered.timeline.markers.push(
     {id: 'm21-marker-collision', frame: collisionFrame, type: 'collision', entityIds: ['rabbit', 'stump']},
-    {id: 'm21-marker-pickup-complete', frame: holdFrame, type: 'pickup', entityIds: ['farmer', 'rabbit']},
+    {id: 'm21-marker-pickup-contact', frame: pickupFrame, type: 'pickup', entityIds: ['farmer', 'rabbit']},
+    {id: 'm21-marker-pickup-complete', frame: holdFrame, type: 'pickup-complete', entityIds: ['farmer', 'rabbit']},
     {id: 'm21-marker-hold-settle', frame: holdSettleFrame, type: 'camera-settle', entityIds: ['farmer']},
   );
 

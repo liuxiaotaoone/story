@@ -11,7 +11,7 @@ export const REQUIRED_STORY_ACTIONS = [
   'farmer.notice-right',
   'farmer.walk-right',
   'farmer.bend',
-  'farmer.pickup',
+  'farmer.pickup-rabbit',
   'farmer.hold-rabbit',
 ];
 
@@ -26,6 +26,20 @@ export function grayscaleMeanAbsoluteDifference(previous, current) {
   let total = 0;
   for (let index = 0; index < previous.length; index += 1) total += Math.abs(previous[index] - current[index]);
   return total / previous.length;
+}
+
+export function packedGrayscaleDifferences(bytes, frameSize = 64 * 36) {
+  if (!Number.isInteger(frameSize) || frameSize <= 0) throw new Error('Packed grayscale frameSize must be a positive integer');
+  if (bytes.length === 0 || bytes.length % frameSize !== 0) throw new Error(`Packed grayscale byte length ${bytes.length} is not a positive multiple of ${frameSize}`);
+  const frameCount = bytes.length / frameSize;
+  const differences = [];
+  for (let frame = 1; frame < frameCount; frame += 1) {
+    differences.push(grayscaleMeanAbsoluteDifference(
+      bytes.subarray((frame - 1) * frameSize, frame * frameSize),
+      bytes.subarray(frame * frameSize, (frame + 1) * frameSize),
+    ));
+  }
+  return {frameCount, differences};
 }
 
 export function scanMeaningfulMotion(differences, threshold = MEANINGFUL_MOTION_MAD_THRESHOLD) {

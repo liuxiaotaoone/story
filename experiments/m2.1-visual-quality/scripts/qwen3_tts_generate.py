@@ -36,7 +36,6 @@ def main() -> None:
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--device", default="xpu:0")
-    parser.add_argument("--speaker", default="Serena")
     parser.add_argument("--instruct", default="温暖自然的儿童寓言旁白，吐字清晰，节奏舒缓但不拖沓。")
     parser.add_argument("--attention", default="sdpa")
     parser.add_argument("--seed", type=int, default=20260813)
@@ -45,9 +44,10 @@ def main() -> None:
     model_path = Path(args.model).resolve()
     if not (model_path / "config.json").is_file() or not (model_path / "model.safetensors").is_file():
         raise FileNotFoundError(f"Incomplete local Qwen3-TTS model snapshot: {model_path}")
-    requests = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+    manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+    requests = manifest.get("requests") if isinstance(manifest, dict) else None
     if not isinstance(requests, list) or not requests:
-        raise ValueError("Qwen3-TTS request manifest must be a non-empty array")
+        raise ValueError("Qwen3-TTS request manifest must contain a non-empty requests array")
     if args.device.startswith("xpu") and not torch.xpu.is_available():
         raise RuntimeError("Qwen3-TTS requested Intel XPU but torch.xpu is unavailable")
     if args.device.startswith("xpu"):
@@ -68,7 +68,7 @@ def main() -> None:
     wavs, sample_rate = model.generate_custom_voice(
         text=texts,
         language=[item.get("language", "Chinese") for item in requests],
-        speaker=[args.speaker] * len(requests),
+        speaker=[item["speaker"] for item in requests],
         instruct=[args.instruct] * len(requests),
         do_sample=True,
         top_k=50,
@@ -83,7 +83,7 @@ def main() -> None:
         path = output_dir / filename
         sf.write(path, wav, sample_rate, subtype="PCM_16")
         outputs.append({"id": item["id"], "path": str(path), "sampleRate": sample_rate})
-    print(json.dumps({"provider": "qwen3-tts-local", "speaker": args.speaker, "device": args.device, "outputs": outputs}, ensure_ascii=False))
+    print(json.dumps({"provider": "qwen3-tts-local", "speakers": sorted({item["speaker"] for item in requests}), "device": args.device, "outputs": outputs}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

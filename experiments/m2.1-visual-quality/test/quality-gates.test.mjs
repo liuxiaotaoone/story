@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {collectMeaningfulVisualEvents, evaluateCameraSafeBounds, evaluateCharacterScale, evaluateCoverage, evaluateStoryActions, evaluateVisualEventCadence, grayscaleMeanAbsoluteDifference, scanMeaningfulMotion} from '../src/quality-gates.mjs';
+import {collectMeaningfulVisualEvents, evaluateCameraSafeBounds, evaluateCharacterScale, evaluateCoverage, evaluateStoryActions, evaluateVisualEventCadence, grayscaleMeanAbsoluteDifference, packedGrayscaleDifferences, scanMeaningfulMotion} from '../src/quality-gates.mjs';
 
 describe('M2.1 visual quality gates', () => {
   it('requires both whole-frame and border coverage', () => {
@@ -14,6 +14,11 @@ describe('M2.1 visual quality gates', () => {
     expect(scanMeaningfulMotion(microMotion).failures).toHaveLength(0);
     expect(scanMeaningfulMotion(Array(61).fill(0.1)).failures).toHaveLength(1);
     expect(scanMeaningfulMotion(Array(90).fill(2)).failures).toHaveLength(0);
+  });
+
+  it('derives consecutive differences from decoded packed grayscale video frames', () => {
+    expect(packedGrayscaleDifferences(Uint8Array.from([0, 0, 1, 1, 5, 5]), 2)).toEqual({frameCount: 3, differences: [1, 4]});
+    expect(() => packedGrayscaleDifferences(Uint8Array.from([0, 1, 2]), 2)).toThrow(/multiple/);
   });
 
   it('requires a visual event at least every four seconds', () => {

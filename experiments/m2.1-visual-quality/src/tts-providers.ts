@@ -7,6 +7,12 @@ import {generateFakeTts, measureWav} from '@pose-clip/audio';
 import {TtsArtifactSchema, type TtsArtifact, type TtsRequest} from '@pose-clip/schemas';
 
 const runFile = promisify(execFile);
+const QWEN_MODEL_ID = 'qwen3-tts-12hz-1.7b-customvoice';
+const QWEN_MODEL_VERSION = process.env.M21_QWEN_MODEL_VERSION ?? '0c0e3051f131929182e2c023b9537f8b1c68adfe';
+const QWEN_MODEL_CONTENT_HASH = process.env.M21_QWEN_MODEL_HASH ?? '38b1d5971bdbd982b561cccec982669a53b0537c3cf5e9bd4778ed07bb2f5137';
+const QWEN_INSTRUCT = process.env.M21_QWEN_INSTRUCT ?? '温暖自然的儿童寓言旁白，吐字清晰，节奏舒缓但不拖沓。';
+const QWEN_SEED = Number(process.env.M21_QWEN_SEED ?? 20260813);
+const QWEN_ATTENTION = process.env.M21_QWEN_ATTENTION ?? 'sdpa';
 
 export interface TtsProviderResult {
   wavBytes: Uint8Array;
@@ -90,30 +96,27 @@ export class Qwen3TtsProvider implements ITtsProvider {
   readonly description: Record<string, unknown>;
   private readonly python: string;
   private readonly modelPath: string;
-  private readonly speaker: string;
 
   constructor(
     python = process.env.M21_QWEN_PYTHON ?? 'D:\\Study\\githubV2\\runtime\\python\\Scripts\\python.exe',
     modelPath = process.env.M21_QWEN_MODEL ?? 'D:\\Study\\githubV2\\models\\huggingface\\hub\\models--Qwen--Qwen3-TTS-12Hz-1.7B-CustomVoice\\snapshots\\0c0e3051f131929182e2c023b9537f8b1c68adfe',
-    speaker = process.env.M21_QWEN_SPEAKER ?? 'Serena',
   ) {
     this.python = python;
     this.modelPath = modelPath;
-    this.speaker = speaker;
-    this.description = {provider: 'Qwen3-TTS local', model: 'Qwen3-TTS-12Hz-1.7B-CustomVoice', speaker: this.speaker, device: process.env.M21_QWEN_DEVICE ?? 'xpu:0'};
+    this.description = {provider: 'Qwen3-TTS local', model: 'Qwen3-TTS-12Hz-1.7B-CustomVoice', modelVersion: QWEN_MODEL_VERSION, voiceBinding: 'request.voiceId', device: process.env.M21_QWEN_DEVICE ?? 'xpu:0'};
   }
 
   async synthesize(requests: TtsRequest[], context: TtsProviderContext): Promise<TtsProviderResult[]> {
     const rawRoot = resolve(context.audioRoot, 'qwen-raw');
     await mkdir(rawRoot, {recursive: true});
     const manifest = resolve(context.audioRoot, 'qwen-requests.json');
-    const requestManifest = requests.map(request => ({id: request.id, text: request.text, language: request.language.toLowerCase().startsWith('zh') ? 'Chinese' : 'Auto', filename: `${request.id}.wav`}));
+    const requestManifest = buildQwenRawCacheManifest(requests);
     let reuseExisting = false;
     if (process.env.M21_QWEN_REUSE === '1') {
       try {
         const existing = JSON.parse(await readFile(manifest, 'utf8'));
         reuseExisting = JSON.stringify(existing) === JSON.stringify(requestManifest);
-        if (reuseExisting) await Promise.all(requestManifest.map(item => readFile(resolve(rawRoot, item.filename))));
+        if (reuseExisting) await Promise.all(requestManifest.requests.map(item => readFile(resolve(rawRoot, item.filename))));
       } catch {
         reuseExisting = false;
       }
@@ -122,16 +125,44 @@ export class Qwen3TtsProvider implements ITtsProvider {
     if (!reuseExisting) {
       await runFile(this.python, [
         resolve(context.root, 'scripts', 'qwen3_tts_generate.py'), '--model', this.modelPath, '--manifest', manifest,
-        '--output-dir', rawRoot, '--device', process.env.M21_QWEN_DEVICE ?? 'xpu:0', '--speaker', this.speaker,
-        '--attention', process.env.M21_QWEN_ATTENTION ?? 'sdpa',
+        '--output-dir', rawRoot, '--device', process.env.M21_QWEN_DEVICE ?? 'xpu:0',
+        '--instruct', QWEN_INSTRUCT, '--attention', QWEN_ATTENTION, '--seed', String(QWEN_SEED),
       ], {env: {...process.env, HF_HUB_OFFLINE: '1', TRANSFORMERS_OFFLINE: '1'}, maxBuffer: 10 * 1024 * 1024});
     }
     return Promise.all(requests.map(async request => {
       const output = resolve(context.audioRoot, `${request.id}.wav`);
       const wavBytes = await normalizeWav(resolve(rawRoot, `${request.id}.wav`), output, request.speed, context.ffmpeg);
-      return artifactFor(request, wavBytes, {name: 'qwen3-tts-local-provider', version: '1.0.0'}, {id: 'qwen3-tts-12hz-1.7b-customvoice', version: '0c0e3051'});
+      return artifactFor(request, wavBytes, {name: 'qwen3-tts-local-provider', version: '1.1.0'}, {id: QWEN_MODEL_ID, version: QWEN_MODEL_VERSION});
     }));
   }
+}
+
+export function resolveQwenSpeaker(voiceId: string): string {
+  if (!voiceId.startsWith('qwen3:') || voiceId.length <= 'qwen3:'.length) {
+    throw new Error(`Qwen3 TTS voiceId must use qwen3:<speaker>, received ${voiceId}`);
+  }
+  const speaker = voiceId.slice('qwen3:'.length);
+  const forcedSpeaker = process.env.M21_QWEN_SPEAKER;
+  if (forcedSpeaker !== undefined && forcedSpeaker !== speaker) {
+    throw new Error(`Qwen3 speaker mismatch: DirectorPlan requests ${speaker}, M21_QWEN_SPEAKER forces ${forcedSpeaker}`);
+  }
+  return speaker;
+}
+
+export function buildQwenRawCacheManifest(requests: TtsRequest[]) {
+  if (!Number.isInteger(QWEN_SEED)) throw new Error(`M21_QWEN_SEED must be an integer, received ${QWEN_SEED}`);
+  return {
+    schemaVersion: '1.0.0',
+    model: {id: QWEN_MODEL_ID, version: QWEN_MODEL_VERSION, contentHash: QWEN_MODEL_CONTENT_HASH},
+    inference: {instruct: QWEN_INSTRUCT, seed: QWEN_SEED, attention: QWEN_ATTENTION},
+    requests: requests.map(request => ({
+      id: request.id,
+      text: request.text,
+      language: request.language.toLowerCase().startsWith('zh') ? 'Chinese' : 'Auto',
+      speaker: resolveQwenSpeaker(request.voiceId),
+      filename: `${request.id}.wav`,
+    })),
+  };
 }
 
 export function createTtsProvider(name: string): ITtsProvider {
