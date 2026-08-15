@@ -35,6 +35,11 @@ interface ComfyImageDescriptor {
   nodeId: string;
 }
 
+interface GenerationOutputSelector {
+  nodeId: string;
+  expectedCount: 1;
+}
+
 function asRecord(value: unknown, context: string): JsonRecord {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw new TypeError(`${context} must be a JSON object`);
@@ -69,7 +74,11 @@ async function responseJson(response: Response, context: string): Promise<unknow
   return response.json();
 }
 
-function collectImages(history: JsonRecord, promptId: string): ComfyImageDescriptor[] | undefined {
+function collectImages(
+  history: JsonRecord,
+  promptId: string,
+  selector: GenerationOutputSelector,
+): ComfyImageDescriptor[] | undefined {
   const entryValue = history[promptId];
   if (entryValue === undefined) return undefined;
   const entry = asRecord(entryValue, `ComfyUI history ${promptId}`);
@@ -87,23 +96,27 @@ function collectImages(history: JsonRecord, promptId: string): ComfyImageDescrip
   const outputs = entry.outputs === undefined ? undefined : asRecord(entry.outputs, 'ComfyUI history outputs');
   if (outputs === undefined) return undefined;
 
-  const images: ComfyImageDescriptor[] = [];
-  for (const nodeId of Object.keys(outputs).sort()) {
-    const output = asRecord(outputs[nodeId], `ComfyUI output ${nodeId}`);
-    if (!Array.isArray(output.images)) continue;
-    for (const item of output.images) {
-      const image = asRecord(item, `ComfyUI output image ${nodeId}`);
-      if (typeof image.filename !== 'string') throw new TypeError('ComfyUI output image lacks filename');
-      images.push({
-        filename: image.filename,
-        subfolder: typeof image.subfolder === 'string' ? image.subfolder : '',
-        type: typeof image.type === 'string' ? image.type : 'output',
-        nodeId,
-      });
-    }
+  const selectedOutput = outputs[selector.nodeId];
+  const selectedImages = selectedOutput === undefined
+    ? []
+    : asRecord(selectedOutput, `ComfyUI output ${selector.nodeId}`).images;
+  const imageValues = Array.isArray(selectedImages) ? selectedImages : [];
+  if (imageValues.length !== selector.expectedCount) {
+    throw new AssetGenerationIntegrityError(
+      'GENERATION_OUTPUT_COUNT_MISMATCH',
+      `ComfyUI output node ${selector.nodeId} returned ${imageValues.length} images; expected ${selector.expectedCount}`,
+    );
   }
-  if (images.length === 0) throw new Error(`ComfyUI prompt ${promptId} completed without PNG outputs`);
-  return images;
+  return imageValues.map((item) => {
+    const image = asRecord(item, `ComfyUI output image ${selector.nodeId}`);
+    if (typeof image.filename !== 'string') throw new TypeError('ComfyUI output image lacks filename');
+    return {
+      filename: image.filename,
+      subfolder: typeof image.subfolder === 'string' ? image.subfolder : '',
+      type: typeof image.type === 'string' ? image.type : 'output',
+      nodeId: selector.nodeId,
+    };
+  });
 }
 
 export class ComfyUiProvider implements ImageGenerationProvider {
@@ -117,6 +130,15 @@ export class ComfyUiProvider implements ImageGenerationProvider {
     this.#pollIntervalMs = options.pollIntervalMs ?? 500;
     this.#timeoutMs = options.timeoutMs ?? 10 * 60_000;
     if (this.#pollIntervalMs < 0 || this.#timeoutMs <= 0) throw new TypeError('Invalid ComfyUI polling configuration');
+  }
+
+  async releaseResources(): Promise<void> {
+    const response = await this.#fetch(endpointUrl(this.options.endpoint, 'free'), {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({unload_models: true, free_memory: true}),
+    });
+    if (!response.ok) throw new Error(`Release ComfyUI resources failed with HTTP ${response.status}: ${await response.text()}`);
   }
 
   async #uploadReferences(request: ActionGenerationRequest): Promise<Map<string, string>> {
@@ -137,7 +159,7 @@ export class ComfyUiProvider implements ImageGenerationProvider {
         );
       }
       const form = new FormData();
-      const filename = resolved.filename ?? `${safeName(reference.assetId)}.png`;
+      const filename = `${safeName(reference.assetId)}-${contentHash.slice(0, 16)}.png`;
       form.set('image', new Blob([resolved.bytes.slice().buffer as ArrayBuffer], {type: 'image/png'}), filename);
       form.set('type', 'input');
       form.set('overwrite', 'true');
@@ -150,12 +172,15 @@ export class ComfyUiProvider implements ImageGenerationProvider {
     return uploaded;
   }
 
-  async #waitForImages(promptId: string): Promise<ComfyImageDescriptor[]> {
+  async #waitForImages(
+    promptId: string,
+    selector: GenerationOutputSelector,
+  ): Promise<ComfyImageDescriptor[]> {
     const startedAt = Date.now();
     while (Date.now() - startedAt <= this.#timeoutMs) {
       const response = await this.#fetch(endpointUrl(this.options.endpoint, `history/${encodeURIComponent(promptId)}`));
       const history = asRecord(await responseJson(response, `Read ComfyUI history ${promptId}`), 'ComfyUI history response');
-      const images = collectImages(history, promptId);
+      const images = collectImages(history, promptId, selector);
       if (images !== undefined) return images;
       await new Promise<void>((resolve) => setTimeout(resolve, this.#pollIntervalMs));
     }
@@ -196,7 +221,7 @@ export class ComfyUiProvider implements ImageGenerationProvider {
         provenance: {
           inputHash: request.inputHash,
           promptHash,
-          modelId: request.model.modelId,
+          modelId: request.runtimeModels.find((model) => model.role === 'diffusion-model')?.modelId,
           seed: request.seed,
           producer: {name: 'comfyui-provider', version: '0.1.0'},
           createdAt: (this.options.now ?? (() => new Date()))().toISOString(),
@@ -233,14 +258,17 @@ export class ComfyUiProvider implements ImageGenerationProvider {
     const promptRecord = Array.isArray(entry.prompt) && entry.prompt.length >= 4
       ? asRecord(entry.prompt[3], 'ComfyUI prompt metadata')
       : undefined;
-    const expectedClientId = `pose-clip-${request.inputHash.slice(0, 16)}`;
-    if (promptRecord?.client_id !== expectedClientId) {
+    const expectedClientId = `pose-clip-${request.inputHash}`;
+    if (
+      promptRecord?.client_id !== expectedClientId
+      || promptRecord.generationRequestHash !== request.inputHash
+    ) {
       throw new AssetGenerationIntegrityError(
         'GENERATION_PROMPT_BINDING_MISMATCH',
         `ComfyUI prompt ${promptId} is not bound to Generation Request ${request.inputHash}`,
       );
     }
-    const images = collectImages(history, promptId);
+    const images = collectImages(history, promptId, request.output);
     if (images === undefined) throw new Error(`ComfyUI prompt ${promptId} has not completed`);
     return this.#downloadArtifacts(request, promptId, images);
   }
@@ -261,20 +289,26 @@ export class ComfyUiProvider implements ImageGenerationProvider {
       ['{{prompt}}', request.prompt],
       ['{{negativePrompt}}', request.negativePrompt ?? ''],
       ['{{seed}}', request.seed],
-      ['{{modelId}}', request.model.modelId],
       ['{{filenamePrefix}}', `pose-clip/${safeName(request.output.assetId)}`],
     ]);
+    for (const model of request.runtimeModels) {
+      replacements.set(`{{runtimeModel:${model.role}}}`, model.modelId);
+    }
     for (const [assetId, filename] of uploaded) replacements.set(`{{reference:${assetId}}}`, filename);
     const prompt = asRecord(materializeWorkflow(workflow, replacements), 'Materialized ComfyUI workflow');
 
     const queueResponse = await this.#fetch(endpointUrl(this.options.endpoint, 'prompt'), {
       method: 'POST',
       headers: {'content-type': 'application/json'},
-      body: JSON.stringify({prompt, client_id: `pose-clip-${request.inputHash.slice(0, 16)}`}),
+      body: JSON.stringify({
+        prompt,
+        client_id: `pose-clip-${request.inputHash}`,
+        extra_data: {generationRequestHash: request.inputHash},
+      }),
     });
     const queue = asRecord(await responseJson(queueResponse, 'Queue ComfyUI prompt'), 'ComfyUI queue response');
     if (typeof queue.prompt_id !== 'string') throw new TypeError('ComfyUI queue response lacks prompt_id');
-    const images = await this.#waitForImages(queue.prompt_id);
+    const images = await this.#waitForImages(queue.prompt_id, request.output);
     return this.#downloadArtifacts(request, queue.prompt_id, images);
   }
 }

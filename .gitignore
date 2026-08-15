@@ -15,6 +15,7 @@ experiments/asset-feasibility/reports/
 !experiments/asset-feasibility/reports/README.md
 experiments/asset-feasibility/output/
 experiments/comfyui-feasibility/generated/
+experiments/comfyui-feasibility/reports/
 **/__pycache__/
 *.pyc
 *.log

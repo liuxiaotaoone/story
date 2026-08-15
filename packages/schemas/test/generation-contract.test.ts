@@ -17,12 +17,17 @@ function payload() {
     direction: 'left' as const,
     workflowId: 'flux2-klein-single-frame-v1',
     workflowHash: HASH,
-    model: {provider: 'comfyui' as const, modelId: 'flux-2-klein-4b-fp8.safetensors'},
+    provider: 'comfyui' as const,
+    runtimeModels: [
+      {role: 'diffusion-model' as const, modelId: 'flux-2.safetensors', contentHash: '3'.repeat(64)},
+      {role: 'text-encoder' as const, modelId: 'qwen.safetensors', contentHash: '4'.repeat(64)},
+      {role: 'vae' as const, modelId: 'flux2-vae.safetensors', contentHash: '5'.repeat(64)},
+    ],
     prompt: 'A whole-body paper-cut rabbit, left-facing, transparent background.',
     negativePrompt: 'cropped feet, extra limbs',
     seed: 42,
     referenceAssets: [{assetId: 'rabbit.reference', contentHash: '2'.repeat(64)}],
-    output: {assetId: 'rabbit.idle-left.01', kind: 'animal-frame' as const},
+    output: {assetId: 'rabbit.idle-left.01', kind: 'animal-frame' as const, nodeId: '17', expectedCount: 1 as const},
   };
 }
 
@@ -33,7 +38,7 @@ describe('M3 generation request contract', () => {
 
     const variants = [
       {...payload(), workflowHash: '3'.repeat(64)},
-      {...payload(), model: {...payload().model, modelHash: '4'.repeat(64)}},
+      {...payload(), runtimeModels: payload().runtimeModels.map((model, index) => index === 0 ? {...model, contentHash: '6'.repeat(64)} : model)},
       {...payload(), prompt: 'A different prompt'},
       {...payload(), seed: 43},
       {...payload(), referenceAssets: [{assetId: 'rabbit.reference', contentHash: '5'.repeat(64)}]},
@@ -49,6 +54,20 @@ describe('M3 generation request contract', () => {
       ...payload(),
       referenceAssets: [reference, reference],
       inputHash: HASH,
+    }).success).toBe(false);
+  });
+
+  it('requires unique runtime model roles and exact single-image output', () => {
+    expect(ActionGenerationRequestSchema.safeParse({
+      ...payload(),
+      runtimeModels: [payload().runtimeModels[0]!, {...payload().runtimeModels[0]!, modelId: 'other.safetensors'}],
+      inputHash: HASH,
+    }).success).toBe(false);
+    expect(ActionGenerationRequestSchema.safeParse({
+      ...payload(), runtimeModels: [payload().runtimeModels[0]!], inputHash: HASH,
+    }).success).toBe(false);
+    expect(ActionGenerationRequestSchema.safeParse({
+      ...payload(), output: {...payload().output, expectedCount: 2}, inputHash: HASH,
     }).success).toBe(false);
   });
 });

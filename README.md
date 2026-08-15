@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 2 — Asset Generation Provider / ComfyUI Integration / Implemented, Awaiting Review**。Action Package v1 保持 PASS / Frozen；Generation Request → ComfyUI/Flux.2 → 真实 PNG bytes → SHA-256 → AssetRecord 已在 Intel Arc XPU 上跑通。连续生成显存可靠性仍为 Warning，尚未宣告 Production Ready。
+当前里程碑：**M3 Commit 2 / 2.1 — Asset Generation Provider / ComfyUI Integration / PASS / Frozen**。Action Package v1 保持 PASS / Frozen；Generation Request → ComfyUI/Flux.2 → 真实 PNG bytes → SHA-256 → AssetRecord 已跑通，5-job 串行 Reliability Gate 为 5/5 PASS。Production Resolution、吞吐与多帧 PoseClip Production 尚未宣告 Ready。
 
 ## 已冻结的实现边界
 

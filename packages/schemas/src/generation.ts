@@ -9,15 +9,23 @@ export const GenerationReferenceAssetSchema = z.object({
   contentHash: ContentHashSchema,
 }).strict();
 
-export const GenerationModelSchema = z.object({
-  provider: z.literal('comfyui'),
+export const RuntimeModelRoleSchema = z.enum([
+  'diffusion-model',
+  'text-encoder',
+  'vae',
+]);
+
+export const RuntimeModelDependencySchema = z.object({
+  role: RuntimeModelRoleSchema,
   modelId: IdSchema,
-  modelHash: ContentHashSchema.optional(),
+  contentHash: ContentHashSchema,
 }).strict();
 
 export const GenerationOutputSpecSchema = z.object({
   assetId: IdSchema,
   kind: VisualAssetKindSchema,
+  nodeId: IdSchema,
+  expectedCount: z.literal(1),
 }).strict();
 
 const ActionGenerationRequestPayloadShape = {
@@ -28,7 +36,8 @@ const ActionGenerationRequestPayloadShape = {
   direction: DirectionSchema,
   workflowId: IdSchema,
   workflowHash: ContentHashSchema,
-  model: GenerationModelSchema,
+  provider: z.literal('comfyui'),
+  runtimeModels: z.array(RuntimeModelDependencySchema).min(1),
   prompt: z.string().trim().min(1),
   negativePrompt: z.string().trim().min(1).optional(),
   seed: z.number().int().nonnegative().safe(),
@@ -37,7 +46,10 @@ const ActionGenerationRequestPayloadShape = {
 } as const;
 
 function validateUniqueReferences(
-  request: {referenceAssets: Array<{assetId: string}>},
+  request: {
+    referenceAssets: Array<{assetId: string}>;
+    runtimeModels: Array<{role: string; modelId: string}>;
+  },
   context: z.RefinementCtx,
 ): void {
   const ids = new Set<string>();
@@ -51,6 +63,25 @@ function validateUniqueReferences(
     }
     ids.add(reference.assetId);
   }
+  const roles = new Set<string>();
+  const modelIds = new Set<string>();
+  for (const [index, model] of request.runtimeModels.entries()) {
+    if (roles.has(model.role)) context.addIssue({
+      code: 'custom', message: `Duplicate runtime model role: ${model.role}`, path: ['runtimeModels', index, 'role'],
+    });
+    if (modelIds.has(model.modelId)) context.addIssue({
+      code: 'custom', message: `Duplicate runtime model id: ${model.modelId}`, path: ['runtimeModels', index, 'modelId'],
+    });
+    roles.add(model.role);
+    modelIds.add(model.modelId);
+  }
+  for (const requiredRole of RuntimeModelRoleSchema.options) {
+    if (!roles.has(requiredRole)) context.addIssue({
+      code: 'custom',
+      message: `Missing required runtime model role: ${requiredRole}`,
+      path: ['runtimeModels'],
+    });
+  }
 }
 
 export const ActionGenerationRequestPayloadSchema = z.object(
@@ -63,7 +94,8 @@ export const ActionGenerationRequestSchema = z.object({
 }).strict().superRefine(validateUniqueReferences);
 
 export type GenerationReferenceAsset = z.infer<typeof GenerationReferenceAssetSchema>;
-export type GenerationModel = z.infer<typeof GenerationModelSchema>;
+export type RuntimeModelRole = z.infer<typeof RuntimeModelRoleSchema>;
+export type RuntimeModelDependency = z.infer<typeof RuntimeModelDependencySchema>;
 export type GenerationOutputSpec = z.infer<typeof GenerationOutputSpecSchema>;
 export type ActionGenerationRequestPayload = z.infer<typeof ActionGenerationRequestPayloadSchema>;
 export type ActionGenerationRequest = z.infer<typeof ActionGenerationRequestSchema>;

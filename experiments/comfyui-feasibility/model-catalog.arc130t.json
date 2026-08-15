@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "verifiedAt": "2026-08-13T12:30:00.000Z",
+  "models": [
+    {
+      "role": "diffusion-model",
+      "modelId": "flux-2-klein-4b-fp8.safetensors",
+      "contentHash": "97ed34fe0567e436200f2faee3939b88f2b5d99f8af2a4dc16532c4245c0ccb6"
+    },
+    {
+      "role": "text-encoder",
+      "modelId": "qwen_3_4b_fp4_flux2.safetensors",
+      "contentHash": "3eab03a77adb0ee5304a4e677d5c10ac22f9049c1d7c894adca4f8bb39206ca8"
+    },
+    {
+      "role": "vae",
+      "modelId": "flux2-vae.safetensors",
+      "contentHash": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"
+    }
+  ]
+}

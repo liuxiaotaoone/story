@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "PASS",
+  "policy": {
+    "requiredJobs": 5,
+    "maxAttemptsPerJob": 1,
+    "automaticRetry": false,
+    "sequential": true
+  },
+  "environment": {
+    "comfyUiVersion": "0.27.1",
+    "pytorchVersion": "2.13.0+xpu",
+    "device": "Intel Arc 130T 16GB",
+    "startupFlags": ["--deterministic", "--lowvram", "--cpu-vae"],
+    "width": 512,
+    "height": 768,
+    "steps": 6
+  },
+  "workflow": {
+    "id": "flux2-klein-reference-single-frame-v1",
+    "contentHash": "e95bb3acd6928270e574985804eb2ac17fc206c14ae6fa56315fd2abe65a4116"
+  },
+  "referenceAsset": {
+    "assetId": "rabbit.reference",
+    "contentHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+    "uploadedFilename": "rabbit.reference-5af3024d3e5372b2.png"
+  },
+  "runtimeModels": [
+    {
+      "role": "diffusion-model",
+      "modelId": "flux-2-klein-4b-fp8.safetensors",
+      "contentHash": "97ed34fe0567e436200f2faee3939b88f2b5d99f8af2a4dc16532c4245c0ccb6"
+    },
+    {
+      "role": "text-encoder",
+      "modelId": "qwen_3_4b_fp4_flux2.safetensors",
+      "contentHash": "3eab03a77adb0ee5304a4e677d5c10ac22f9049c1d7c894adca4f8bb39206ca8"
+    },
+    {
+      "role": "vae",
+      "modelId": "flux2-vae.safetensors",
+      "contentHash": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"
+    }
+  ],
+  "startedAt": "2026-08-13T12:40:09.594Z",
+  "completedAt": "2026-08-13T13:04:56.783Z",
+  "completedJobs": 5,
+  "uniqueContentHashes": 5,
+  "totalElapsedMs": 1487189,
+  "jobs": [
+    {
+      "jobId": "reliability-1",
+      "attemptCount": 1,
+      "inputHash": "f2ebd186240acd3b0badd24ccc3cd005fdeead0c37269b0335e20d400a030167",
+      "promptId": "58de9b7f-ec00-45f1-ac55-e6af0ec6bdf2",
+      "contentHash": "321366ec66acd5eb3a447043ba7fa07e8ac5e005a461fcbbe6c938f28aee1201",
+      "elapsedMs": 299222.7046,
+      "resourceCleanup": "PASS"
+    },
+    {
+      "jobId": "reliability-2",
+      "attemptCount": 1,
+      "inputHash": "dd177778e0245edd1450e0fe97d8c37b154aaa1980f076aec24aefe4a01f0396",
+      "promptId": "ae2385e5-bf7b-4be7-a463-c96190de6ac2",
+      "contentHash": "bb2c34eb7bbd374da60c21e923383a9d9ecdc8674980ad57f72e3fad604d896c",
+      "elapsedMs": 302053.60229999997,
+      "resourceCleanup": "PASS"
+    },
+    {
+      "jobId": "reliability-3",
+      "attemptCount": 1,
+      "inputHash": "65075551f8137f02df1601f12a5561b9c538550ad744bb6f5802b1a0eec9dcee",
+      "promptId": "e6b9dde7-3a94-4472-9436-7fe9030f572d",
+      "contentHash": "07e34c109ed67c1f7bf64034ac17563dc61ac3c84ace9a4528505ad7ac56c402",
+      "elapsedMs": 292443.3925000001,
+      "resourceCleanup": "PASS"
+    },
+    {
+      "jobId": "reliability-4",
+      "attemptCount": 1,
+      "inputHash": "fe361f4df1312252c25c8aa5067a64277771fb70021738fc2994c7516d2197a0",
+      "promptId": "d35c0efd-672a-4a3c-8ec4-196b426834d2",
+      "contentHash": "8925ea19456790b735a2f69283f7b77b849611d4d6ae78b0ddb5fea72592009c",
+      "elapsedMs": 300905.09970000014,
+      "resourceCleanup": "PASS"
+    },
+    {
+      "jobId": "reliability-5",
+      "attemptCount": 1,
+      "inputHash": "44345e80b46e52daa2688beae6818dcd09c6b82e649d55180cccd325156f0be6",
+      "promptId": "3240743d-02b1-4c5b-ab7c-1a29c51e4131",
+      "contentHash": "36ff8a45a32d699fa45d8ee1d81cb31c65c27d6e027ec003adc9c3e5c1c03331",
+      "elapsedMs": 277428.00340000005,
+      "resourceCleanup": "PASS"
+    }
+  ]
+}

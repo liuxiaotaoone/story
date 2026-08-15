@@ -1,6 +1,6 @@
 # M3 Commit 2 — Asset Generation Provider / ComfyUI Integration
 
-状态：**Implemented / Awaiting Review**
+状态：**PASS / Frozen**（Commit 2 Provider Integration + Commit 2.1 Provider Hardening）
 
 ## 冻结边界
 
@@ -19,13 +19,20 @@ ActionGenerationRequest
 `ActionGenerationRequest.inputHash` 使用 `canonicalHash('action-generation-request-v1', payload)`，绑定：
 
 - Workflow ID 与 Workflow 文件字节 Hash
-- Provider / Model ID 与可选 Model Hash
+- Provider，以及 Diffusion Model / Text Encoder / VAE 三类 Runtime Model 的 ID 与真实 Content Hash
 - Prompt / Negative Prompt
 - Seed
 - Reference Asset ID 与真实 Content Hash
 - Output Asset ID / Kind
 
 Provider 会再次验证 Request Hash、Workflow bytes Hash 与 Reference bytes Hash。任何一项漂移均在向 ComfyUI 排队前失败。ComfyUI 返回的 Hash、文件名或模型声明不作为资产真实性依据；`AssetRecord.contentHash` 始终来自本系统读取的最终 PNG bytes。
+
+Commit 2.1 进一步冻结：
+
+- Output Contract 显式声明 `nodeId` 与 `expectedCount=1`；Provider 只读取该节点，缺失或多图均报 `GENERATION_OUTPUT_COUNT_MISMATCH`。
+- Reference 上传名固定为 `<safeAssetId>-<contentHash前16位>.png`，相同内容可安全复用，不同内容永不覆盖同名输入。
+- Runtime Model Catalog 已独立读取三个本地模型文件 bytes 并记录 SHA-256；三种角色缺一不可。
+- ComfyUI `extra_data.generationRequestHash` 保存完整 64 字符 Hash，Resume 同时核对完整 `client_id` 和 Request Hash。
 
 ## 本机真实 Gate
 
@@ -64,14 +71,28 @@ Cold execution:
 
 生成结果为完整、左朝向、身份与纸片水彩风格一致的兔子，未裁头、耳或脚；绿色背景符合后续 Matting 输入要求。当前 AssetRecord 保持 `qaStatus=pending`，本提交不冒充资产生产 QA。
 
-## 已知限制
+## Commit 2.1 Sequential Reliability Gate
 
-第一次真实任务成功后，立即重复同一 Reference Workflow 曾在 `VAEEncode` 返回：
+初版第一次真实任务成功后，立即重复同一 Reference Workflow 曾在 `VAEEncode` 返回：
 
 ```text
 UR_RESULT_ERROR_OUT_OF_RESOURCES
 ```
 
-因此当前结论是“本地 ComfyUI + Flux.2 可用，Provider 链路成立”，不是“连续生产可靠性已通过”。后续 Commit 2 hardening 应验证显存释放、串行队列策略与较低 Gate 分辨率；不得通过跳过错误或复用未经绑定的历史输出制造假 PASS。
+Commit 2.1 使用 `512×768 / 6 steps / --lowvram / --cpu-vae`，并在每项完成后调用 `/free`：
 
-为处理中断恢复，`ComfyUiProvider.collectCompleted()` 只允许收集 History `client_id` 与 Request `inputHash` 一致的完成任务。
+```text
+requiredJobs:          5
+completedJobs:         5
+attempts per job:      1
+automaticRetry:        false
+OOM / History errors:  0
+unique PNG hashes:     5
+resource cleanup:      5 / 5 PASS
+total elapsed:         1,487,189 ms
+per-image elapsed:     277,428–302,054 ms
+```
+
+这一结果冻结“本机低分辨率串行生成可靠性”，不冻结 Production Resolution，也不代表吞吐性能达标。正式多帧生产仍需独立容量计划。
+
+为处理中断恢复，`ComfyUiProvider.collectCompleted()` 只允许收集 History 完整 Request Hash 一致的完成任务。

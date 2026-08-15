@@ -2,15 +2,20 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ComfyUiProvider} from '@pose-clip/asset-generation';
-import {createActionGenerationRequest, sha256Bytes} from '@pose-clip/schemas';
+import {RuntimeModelDependencySchema, createActionGenerationRequest, sha256Bytes} from '@pose-clip/schemas';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const workflowId = 'flux2-klein-reference-single-frame-v1';
 const workflowPath = resolve(root, 'workflows', `${workflowId}.api.json`);
+const modelCatalogPath = resolve(root, 'model-catalog.arc130t.json');
 const referencePath = resolve(root, '..', 'asset-feasibility', 'processed', 'rabbit', 'rabbit-reference.png');
 const outputRoot = resolve(root, 'generated');
 const workflowBytes = await readFile(workflowPath);
 const referenceBytes = await readFile(referencePath);
+const modelCatalog = JSON.parse(new TextDecoder().decode(await readFile(modelCatalogPath))) as {
+  models: Array<{role: 'diffusion-model' | 'text-encoder' | 'vae'; modelId: string; contentHash: string}>;
+};
+const runtimeModels = modelCatalog.models.map((model) => RuntimeModelDependencySchema.parse(model));
 
 const request = await createActionGenerationRequest({
   schemaVersion: '1.0.0',
@@ -20,7 +25,8 @@ const request = await createActionGenerationRequest({
   direction: 'left',
   workflowId,
   workflowHash: await sha256Bytes(workflowBytes),
-  model: {provider: 'comfyui', modelId: 'flux-2-klein-4b-fp8.safetensors'},
+  provider: 'comfyui',
+  runtimeModels,
   prompt: [
     'Use the reference rabbit as the exact character identity and paper-cut watercolor style.',
     'Create one complete whole-body rabbit in a calm idle pose, facing left.',
@@ -30,7 +36,7 @@ const request = await createActionGenerationRequest({
   negativePrompt: 'cropped body, missing feet, extra limbs, duplicate rabbit, text, scenery, shadow, photorealistic',
   seed: 20260813,
   referenceAssets: [{assetId: 'rabbit.reference', contentHash: await sha256Bytes(referenceBytes)}],
-  output: {assetId: 'rabbit.idle-left.comfyui.01', kind: 'animal-frame'},
+  output: {assetId: 'rabbit.idle-left.comfyui.01', kind: 'animal-frame', nodeId: '17', expectedCount: 1},
 });
 
 const provider = new ComfyUiProvider({

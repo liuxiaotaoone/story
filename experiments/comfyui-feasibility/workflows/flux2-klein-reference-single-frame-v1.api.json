@@ -2,14 +2,14 @@
   "1": {
     "class_type": "UNETLoader",
     "inputs": {
-      "unet_name": "{{modelId}}",
+      "unet_name": "{{runtimeModel:diffusion-model}}",
       "weight_dtype": "default"
     }
   },
   "2": {
     "class_type": "CLIPLoader",
     "inputs": {
-      "clip_name": "qwen_3_4b_fp4_flux2.safetensors",
+      "clip_name": "{{runtimeModel:text-encoder}}",
       "type": "flux2",
       "device": "default"
     }
@@ -17,7 +17,7 @@
   "3": {
     "class_type": "VAELoader",
     "inputs": {
-      "vae_name": "flux2-vae.safetensors"
+      "vae_name": "{{runtimeModel:vae}}"
     }
   },
   "4": {
@@ -64,8 +64,8 @@
   "10": {
     "class_type": "EmptyFlux2LatentImage",
     "inputs": {
-      "width": 768,
-      "height": 1024,
+      "width": 512,
+      "height": 768,
       "batch_size": 1
     }
   },
@@ -93,9 +93,9 @@
   "14": {
     "class_type": "Flux2Scheduler",
     "inputs": {
-      "steps": 20,
-      "width": 768,
-      "height": 1024
+      "steps": 6,
+      "width": 512,
+      "height": 768
     }
   },
   "15": {
