@@ -77,10 +77,17 @@ describe('ComfyUI image generation provider', () => {
       }
       if (url.pathname.endsWith('/history/prompt-1')) {
         return new Response(JSON.stringify({
-          'prompt-1': {status: {status_str: 'success'}, outputs: {
-            '2': {images: [{filename: 'rabbit.png', subfolder: 'pose-clip', type: 'output'}]},
-            '99': {images: [{filename: 'debug.png', subfolder: '', type: 'temp'}]},
-          }},
+          'prompt-1': {
+            prompt: [0, 'prompt-1', {}, {
+              client_id: `pose-clip-${request.inputHash}`,
+              generationRequestHash: request.inputHash,
+            }],
+            status: {status_str: 'success'},
+            outputs: {
+              '2': {images: [{filename: 'rabbit.png', subfolder: 'pose-clip', type: 'output'}]},
+              '99': {images: [{filename: 'debug.png', subfolder: '', type: 'temp'}]},
+            },
+          },
         }));
       }
       if (url.pathname.endsWith('/view')) return new Response(PNG, {headers: {'content-type': 'image/png'}});

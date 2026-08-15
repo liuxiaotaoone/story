@@ -206,14 +206,18 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
   }
 
   async #waitForImages(
+    request: ActionGenerationRequest,
     promptId: string,
-    selector: GenerationOutputSelector,
   ): Promise<ComfyImageDescriptor[]> {
     const startedAt = Date.now();
     while (Date.now() - startedAt <= this.#timeoutMs) {
       const response = await this.#request(endpointUrl(this.options.endpoint, `history/${encodeURIComponent(promptId)}`));
       const history = asRecord(await responseJson(response, `Read ComfyUI history ${promptId}`), 'ComfyUI history response');
-      const images = collectImages(history, promptId, selector);
+      if (!this.#assertHistoryPromptBinding(request, promptId, history)) {
+        await new Promise<void>((resolve) => setTimeout(resolve, this.#pollIntervalMs));
+        continue;
+      }
+      const images = collectImages(history, promptId, request.output);
       if (images !== undefined) return images;
       await new Promise<void>((resolve) => setTimeout(resolve, this.#pollIntervalMs));
     }
@@ -221,6 +225,30 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
       'GENERATION_TIMEOUT',
       `ComfyUI prompt ${promptId} timed out after ${this.#timeoutMs}ms`,
     );
+  }
+
+  #assertHistoryPromptBinding(
+    request: ActionGenerationRequest,
+    promptId: string,
+    history: JsonRecord,
+  ): boolean {
+    const entryValue = history[promptId];
+    if (entryValue === undefined) return false;
+    const entry = asRecord(entryValue, `ComfyUI history ${promptId}`);
+    const promptRecord = Array.isArray(entry.prompt) && entry.prompt.length >= 4
+      ? asRecord(entry.prompt[3], 'ComfyUI prompt metadata')
+      : undefined;
+    const expectedClientId = `pose-clip-${request.inputHash}`;
+    if (
+      promptRecord?.client_id !== expectedClientId
+      || promptRecord.generationRequestHash !== request.inputHash
+    ) {
+      throw new AssetGenerationIntegrityError(
+        'GENERATION_PROMPT_BINDING_MISMATCH',
+        `ComfyUI prompt ${promptId} is not bound to Generation Request ${request.inputHash}`,
+      );
+    }
+    return true;
   }
 
   async #downloadArtifacts(
@@ -296,19 +324,8 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
     const request = await assertGenerationRequestIntegrity(input);
     const response = await this.#request(endpointUrl(this.options.endpoint, `history/${encodeURIComponent(promptId)}`));
     const history = asRecord(await responseJson(response, `Read ComfyUI history ${promptId}`), 'ComfyUI history response');
-    const entry = asRecord(history[promptId], `ComfyUI history ${promptId}`);
-    const promptRecord = Array.isArray(entry.prompt) && entry.prompt.length >= 4
-      ? asRecord(entry.prompt[3], 'ComfyUI prompt metadata')
-      : undefined;
-    const expectedClientId = `pose-clip-${request.inputHash}`;
-    if (
-      promptRecord?.client_id !== expectedClientId
-      || promptRecord.generationRequestHash !== request.inputHash
-    ) {
-      throw new AssetGenerationIntegrityError(
-        'GENERATION_PROMPT_BINDING_MISMATCH',
-        `ComfyUI prompt ${promptId} is not bound to Generation Request ${request.inputHash}`,
-      );
+    if (!this.#assertHistoryPromptBinding(request, promptId, history)) {
+      throw new Error(`ComfyUI prompt ${promptId} has not completed`);
     }
     const images = collectImages(history, promptId, request.output);
     if (images === undefined) throw new Error(`ComfyUI prompt ${promptId} has not completed`);
@@ -364,7 +381,7 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
         `ComfyUI submission is not bound to Generation Request ${request.inputHash}`,
       );
     }
-    const images = await this.#waitForImages(submission.promptId, request.output);
+    const images = await this.#waitForImages(request, submission.promptId);
     return this.#downloadArtifacts(request, submission.promptId, images);
   }
 

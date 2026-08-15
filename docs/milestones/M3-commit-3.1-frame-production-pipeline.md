@@ -1,4 +1,4 @@
-# M3 Commit 3.1.2 — Frame Production Pipeline / Result Evidence & Generation Resume Closure
+# M3 Commit 3.1.2.1 — Frame Production Pipeline / Prompt Resume Binding Closure
 
 状态：**PASS / Frozen**
 
@@ -108,6 +108,18 @@ submit(request)
 
 Submit 成功后，Poll、History、Timeout 或 Download 的显式瞬态错误只重试 `collect`，不会再次调用 `POST /prompt`。未完成任务的 submission 会保留在可替换的 Resume Cache 中，后续 Executor 可以继续收集同一个 promptId；生成产物写入 Generation Cache 后才清除 Resume Record。普通非分阶段 Provider 继续使用兼容的 `generate()` 路径。
 
+本地 Submission 绑定并不足以证明服务端任务归属。`collect()`、轮询和 `collectCompleted()` 共用同一 History Binding Validator；当 History 出现 promptId 后，必须先满足：
+
+```text
+history.prompt.client_id
+=== pose-clip-<generationInputHash>
+
+history.prompt.generationRequestHash
+=== generationInputHash
+```
+
+任一不匹配均以 `GENERATION_PROMPT_BINDING_MISMATCH` fail-fast，且不得读取 `/view` 或重新提交任务。这样 Provider 不会把另一个 Request 的真实图片重新包装成当前 Request 的 Provenance。
+
 如果网络在 `POST /prompt` 已被服务端接收、但客户端尚未获得 promptId 时断开，仍属于未知提交状态；按 `generationInputHash` 查询 ComfyUI Queue/History 的服务端恢复能力留给后续持久化 Worker，不在 3.1.2 内伪造保证。
 
 ## 失效范围
@@ -126,6 +138,7 @@ Submit 成功后，Poll、History、Timeout 或 Download 的显式瞬态错误�
 - QA 配置变化但 QA 输出相同：`frameExecutionKey` 与 `resultHash` 都必须改变；
 - History 或 `/view` 首次返回 503：继续使用原 promptId，`POST /prompt` 总调用次数保持 1；
 - Collect 中断后使用共享 Resume Cache 再执行：恢复原 promptId，不提交第二个 Job；
+- Resume Cache 指向其他 Request 的服务端 Prompt：History Binding fail-fast，`/view` 与 `POST /prompt` 调用次数均为 0；
 - Processor 首次修改输入 bytes 并瞬时失败：第二次仍收到未经修改的原始 bytes。
 
 ## Retry Contract
@@ -141,6 +154,6 @@ Processor 每次 Attempt 都收到 `bytes.slice()` 与 `structuredClone(spec)`�
 
 ## 当前边界
 
-本版本的 Cache 是可替换接口加内存 Reference 实现；Local CAS 已实际写入 `<contentHash>.png`。持久化 Result/Resume Cache、未知 Submit 状态恢复、CAS 崩溃恢复、并发调度和运行时模型文件 Hash 复核不在 3.1.2 范围内。
+本版本的 Cache 是可替换接口加内存 Reference 实现；Local CAS 已实际写入 `<contentHash>.png`。持久化 Result/Resume Cache、Provider Server Scope、未知 Submit 状态恢复、CAS 崩溃恢复、并发调度和运行时模型文件 Hash 复核不在 3.1.2.1 范围内。Provider Server Scope 只属于恢复域，不进入 Asset 或 Generation Semantic Identity。
 
 下一阶段 M3 Commit 3.2 实现跨帧 Continuity QA，包括 Identity、Scale、Canvas、Body Proportion、Foot Contact、Anchor Movement、Silhouette 与 Loop Closure。

@@ -60,6 +60,19 @@ function append(bytes: Uint8Array, text: string): Uint8Array {
   return output;
 }
 
+function completedHistory(promptId: string, generationInputHash: string): Record<string, unknown> {
+  return {
+    [promptId]: {
+      prompt: [0, promptId, {}, {
+        client_id: `pose-clip-${generationInputHash}`,
+        generationRequestHash: generationInputHash,
+      }],
+      status: {status_str: 'success'},
+      outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
+    },
+  };
+}
+
 class CountingComfyProvider implements ImageGenerationProvider {
   readonly id = 'comfyui';
   calls = 0;
@@ -266,12 +279,9 @@ describe('M3 Frame Production Pipeline', () => {
       fetch: async (input) => {
         const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input : input.url);
         if (url.pathname.endsWith('/prompt')) return new Response(JSON.stringify({prompt_id: 'frame-prompt'}));
-        if (url.pathname.endsWith('/history/frame-prompt')) return new Response(JSON.stringify({
-          'frame-prompt': {
-            status: {status_str: 'success'},
-            outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
-          },
-        }));
+        if (url.pathname.endsWith('/history/frame-prompt')) {
+          return new Response(JSON.stringify(completedHistory('frame-prompt', generationRequest.inputHash)));
+        }
         if (url.pathname.endsWith('/view')) return new Response(PNG);
         return new Response('not found', {status: 404});
       },
@@ -442,6 +452,7 @@ describe('M3 Frame Production Pipeline', () => {
     const workflowHash = await sha256Bytes(workflow);
     let promptCalls = 0;
     let historyCalls = 0;
+    const job = await withWorkflowHash(await frameJob(), workflowHash);
     const provider = new ComfyUiProvider({
       endpoint: 'http://127.0.0.1:8188', outputRoot: await testRoot(),
       workflowResolver: async () => workflow,
@@ -454,10 +465,7 @@ describe('M3 Frame Production Pipeline', () => {
         if (url.pathname.endsWith('/history/P1')) {
           historyCalls += 1;
           if (historyCalls === 1) return new Response('temporarily unavailable', {status: 503});
-          return new Response(JSON.stringify({P1: {
-            status: {status_str: 'success'},
-            outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
-          }}));
+          return new Response(JSON.stringify(completedHistory('P1', job.generationRequest.inputHash)));
         }
         if (url.pathname.endsWith('/view')) return new Response(PNG);
         return new Response('not found', {status: 404});
@@ -468,7 +476,7 @@ describe('M3 Frame Production Pipeline', () => {
       provider,
       cas: new LocalContentAddressedAssetStore(await testRoot()),
       stages: await pipeline(), maxAttempts: 2,
-    }).execute(await withWorkflowHash(await frameJob(), workflowHash));
+    }).execute(job);
     expect(promptCalls).toBe(1);
     expect(historyCalls).toBe(2);
     expect(execution.generation.attempts).toBe(2);
@@ -479,6 +487,7 @@ describe('M3 Frame Production Pipeline', () => {
     const workflowHash = await sha256Bytes(workflow);
     let promptCalls = 0;
     let viewCalls = 0;
+    const job = await withWorkflowHash(await frameJob(), workflowHash);
     const provider = new ComfyUiProvider({
       endpoint: 'http://127.0.0.1:8188', outputRoot: await testRoot(),
       workflowResolver: async () => workflow,
@@ -488,10 +497,9 @@ describe('M3 Frame Production Pipeline', () => {
           promptCalls += 1;
           return new Response(JSON.stringify({prompt_id: 'P1'}));
         }
-        if (url.pathname.endsWith('/history/P1')) return new Response(JSON.stringify({P1: {
-          status: {status_str: 'success'},
-          outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
-        }}));
+        if (url.pathname.endsWith('/history/P1')) {
+          return new Response(JSON.stringify(completedHistory('P1', job.generationRequest.inputHash)));
+        }
         if (url.pathname.endsWith('/view')) {
           viewCalls += 1;
           return viewCalls === 1
@@ -506,7 +514,7 @@ describe('M3 Frame Production Pipeline', () => {
       provider,
       cas: new LocalContentAddressedAssetStore(await testRoot()),
       stages: await pipeline(), maxAttempts: 2,
-    }).execute(await withWorkflowHash(await frameJob(), workflowHash));
+    }).execute(job);
     expect(promptCalls).toBe(1);
     expect(viewCalls).toBe(2);
   });
@@ -517,6 +525,7 @@ describe('M3 Frame Production Pipeline', () => {
     const resumeCache = new InMemoryPoseFrameGenerationResumeCache();
     let promptCalls = 0;
     let historyCalls = 0;
+    const job = await withWorkflowHash(await frameJob(), workflowHash);
     const provider = new ComfyUiProvider({
       endpoint: 'http://127.0.0.1:8188', outputRoot: await testRoot(),
       workflowResolver: async () => workflow,
@@ -529,17 +538,13 @@ describe('M3 Frame Production Pipeline', () => {
         if (url.pathname.endsWith('/history/P1')) {
           historyCalls += 1;
           if (historyCalls === 1) return new Response('temporarily unavailable', {status: 503});
-          return new Response(JSON.stringify({P1: {
-            status: {status_str: 'success'},
-            outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
-          }}));
+          return new Response(JSON.stringify(completedHistory('P1', job.generationRequest.inputHash)));
         }
         if (url.pathname.endsWith('/view')) return new Response(PNG);
         return new Response('not found', {status: 404});
       },
       pollIntervalMs: 0, timeoutMs: 100,
     });
-    const job = await withWorkflowHash(await frameJob(), workflowHash);
     const options = {
       provider,
       cas: new LocalContentAddressedAssetStore(await testRoot()),
@@ -553,6 +558,66 @@ describe('M3 Frame Production Pipeline', () => {
     await expect(new PoseFrameProductionExecutor(options).execute(job)).resolves.toBeDefined();
     expect(promptCalls).toBe(1);
     expect(historyCalls).toBe(2);
+  });
+
+  it('rejects a resumed prompt whose server-side binding belongs to another request', async () => {
+    const job = await frameJob();
+    for (const promptMetadata of [
+      {
+        client_id: 'pose-clip-another-request',
+        generationRequestHash: job.generationRequest.inputHash,
+      },
+      {
+        client_id: `pose-clip-${job.generationRequest.inputHash}`,
+        generationRequestHash: 'f'.repeat(64),
+      },
+    ]) {
+      const resumeCache = new InMemoryPoseFrameGenerationResumeCache();
+      await resumeCache.set(job.generationRequest.inputHash, {
+        generationInputHash: job.generationRequest.inputHash,
+        promptId: 'P1',
+      });
+      let promptCalls = 0;
+      let historyCalls = 0;
+      let viewCalls = 0;
+      const provider = new ComfyUiProvider({
+        endpoint: 'http://127.0.0.1:8188', outputRoot: await testRoot(),
+        workflowResolver: async () => { throw new Error('resume must not resolve a workflow'); },
+        fetch: async (input) => {
+          const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input : input.url);
+          if (url.pathname.endsWith('/prompt')) {
+            promptCalls += 1;
+            return new Response(JSON.stringify({prompt_id: 'P2'}));
+          }
+          if (url.pathname.endsWith('/history/P1')) {
+            historyCalls += 1;
+            return new Response(JSON.stringify({P1: {
+              prompt: [0, 'P1', {}, promptMetadata],
+              status: {status_str: 'success'},
+              outputs: {'17': {images: [{filename: 'wrong.png', subfolder: '', type: 'output'}]}},
+            }}));
+          }
+          if (url.pathname.endsWith('/view')) {
+            viewCalls += 1;
+            return new Response(PNG);
+          }
+          return new Response('not found', {status: 404});
+        },
+        pollIntervalMs: 0, timeoutMs: 100,
+      });
+      await expect(new PoseFrameProductionExecutor({
+        provider,
+        cas: new LocalContentAddressedAssetStore(await testRoot()),
+        stages: await pipeline(),
+        generationResumeCache: resumeCache,
+        maxAttempts: 3,
+      }).execute(job)).rejects.toMatchObject({
+        code: 'GENERATION_PROMPT_BINDING_MISMATCH',
+      });
+      expect(promptCalls).toBe(0);
+      expect(historyCalls).toBe(1);
+      expect(viewCalls).toBe(0);
+    }
   });
 
   it('fails fast for ComfyUI integrity errors and retries an explicit HTTP 503', async () => {
@@ -599,6 +664,7 @@ describe('M3 Frame Production Pipeline', () => {
     expect(referenceReads).toBe(1);
 
     let promptCalls = 0;
+    const transientJob = await withWorkflowHash(await frameJob(), workflowHash);
     const transientProvider = new ComfyUiProvider({
       endpoint: 'http://127.0.0.1:8188',
       outputRoot: await testRoot(),
@@ -611,12 +677,12 @@ describe('M3 Frame Production Pipeline', () => {
             ? new Response('temporarily unavailable', {status: 503})
             : new Response(JSON.stringify({prompt_id: 'retry-prompt'}));
         }
-        if (url.pathname.endsWith('/history/retry-prompt')) return new Response(JSON.stringify({
-          'retry-prompt': {
-            status: {status_str: 'success'},
-            outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
-          },
-        }));
+        if (url.pathname.endsWith('/history/retry-prompt')) {
+          return new Response(JSON.stringify(completedHistory(
+            'retry-prompt',
+            transientJob.generationRequest.inputHash,
+          )));
+        }
         if (url.pathname.endsWith('/view')) return new Response(PNG);
         return new Response('not found', {status: 404});
       },
@@ -624,7 +690,6 @@ describe('M3 Frame Production Pipeline', () => {
       pollIntervalMs: 0,
       timeoutMs: 100,
     });
-    const transientJob = await withWorkflowHash(await frameJob(), workflowHash);
     const execution = await new PoseFrameProductionExecutor({
       provider: transientProvider,
       cas: new LocalContentAddressedAssetStore(await testRoot()),
