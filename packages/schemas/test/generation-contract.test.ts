@@ -42,6 +42,7 @@ describe('M3 generation request contract', () => {
       {...payload(), prompt: 'A different prompt'},
       {...payload(), seed: 43},
       {...payload(), referenceAssets: [{assetId: 'rabbit.reference', contentHash: '5'.repeat(64)}]},
+      {...payload(), frameSpecHash: '6'.repeat(64)},
     ];
     for (const variant of variants) {
       expect((await createActionGenerationRequest(variant)).inputHash).not.toBe(request.inputHash);

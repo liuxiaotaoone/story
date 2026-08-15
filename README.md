@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 2.2.1 — Asset Resolution Closure / PASS / Frozen**。Action Package v1 与 ComfyUI Provider 2/2.1 保持 PASS / Frozen；生成资产使用 `asset://sha256/<hash>` 逻辑地址，Local CAS Adapter 负责物理寻址，Pixi 在创建 Texture 前验证真实 bytes。下一阶段进入 Multi-frame PoseClip Production Contract。
+当前里程碑：**M3 Commit 3.0 — Multi-frame PoseClip Production Contract / PASS**。Action Package v1、ComfyUI Provider 2/2.1 与 Asset Resolution Closure 保持 PASS / Frozen；多帧 PoseClip 生产已冻结为“每帧独立生成、缓存、重试、处理和 QA”的契约，尚未接入真实多帧工作流或 Task Graph Executor。
 
 ## 已冻结的实现边界
 

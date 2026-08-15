@@ -41,6 +41,7 @@ const ActionGenerationRequestPayloadShape = {
   prompt: z.string().trim().min(1),
   negativePrompt: z.string().trim().min(1).optional(),
   seed: z.number().int().nonnegative().safe(),
+  frameSpecHash: ContentHashSchema.optional(),
   referenceAssets: z.array(GenerationReferenceAssetSchema),
   output: GenerationOutputSpecSchema,
 } as const;
