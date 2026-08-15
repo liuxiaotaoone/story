@@ -4,15 +4,18 @@ import {
   PoseFrameArtifactSchema,
   assertPoseClipProductionRequestIntegrity,
   assertPoseClipProductionResultIntegrity,
+  assertPoseFrameProcessorSpecIntegrity,
   contentAddressedAssetUri,
   createActionGenerationRequest,
   createPoseClipFrameJob,
   createPoseClipFrameSpec,
   createPoseClipProductionRequest,
+  createPoseFrameProcessorSpec,
   hashPoseClipContent,
   hashPoseClipFrameProductionResultPayload,
   hashPoseClipProductionResultPayload,
   hashPoseFrameArtifactPayload,
+  poseFrameStageCacheKey,
 } from '../src/index.js';
 import type {
   PoseClipFrameJob,
@@ -216,6 +219,37 @@ async function createResult(
 }
 
 describe('M3 PoseClip production contract', () => {
+  it('binds processor configuration and upstream bytes into independent stage cache identity', async () => {
+    const spec = await createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0',
+      stage: 'matted',
+      processor: {name: 'rmbg', version: '1.0.0'},
+      model: {modelId: 'rmbg-2.0', contentHash: 'a'.repeat(64)},
+      config: {threshold: 0.5},
+    });
+    const cacheKey = await poseFrameStageCacheKey({
+      stage: spec.stage,
+      inputContentHash: 'b'.repeat(64),
+      processorSpecHash: spec.processorSpecHash,
+    });
+    expect(spec.processorSpecHash).toBe('3a5299b31e0dfdfedc7a2f8954b2b5cb7590dc2f48e071c30f60c389b9490c77');
+    expect(cacheKey).toBe('1d00b42d7789d0a8454d3b30b67a36c7dff8d0247d44d8d0bb96cd51dc6b9725');
+    await expect(assertPoseFrameProcessorSpecIntegrity(spec)).resolves.toEqual(spec);
+    const changed = await createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0',
+      stage: 'matted',
+      processor: {name: 'rmbg', version: '1.0.0'},
+      model: {modelId: 'rmbg-2.0', contentHash: 'a'.repeat(64)},
+      config: {threshold: 0.7},
+    });
+    expect(changed.processorSpecHash).not.toBe(spec.processorSpecHash);
+    expect(await poseFrameStageCacheKey({
+      stage: spec.stage,
+      inputContentHash: 'c'.repeat(64),
+      processorSpecHash: spec.processorSpecHash,
+    })).not.toBe(cacheKey);
+  });
+
   it('keeps every frame independently generated, cached and bound to its FrameSpec', async () => {
     const request = await createRequest();
     expect(request.requestHash).toBe('c1248b8a854e368cb9c53f57eafb6684de07b5c08bfad6bd3af19eb83402f139');

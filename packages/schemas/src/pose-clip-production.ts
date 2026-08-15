@@ -449,6 +449,50 @@ function hasRequiredAnchor(
   return anchors[directAnchor] !== undefined;
 }
 
+export async function assertPoseClipFrameProductionResultIntegrity(
+  frameJobInput: unknown,
+  frameResultInput: unknown,
+): Promise<PoseClipFrameProductionResult> {
+  const job = await assertPoseClipFrameJobIntegrity(frameJobInput);
+  const frameResult = PoseClipFrameProductionResultSchema.parse(frameResultInput);
+  const frameIndex = job.spec.frameIndex;
+  if (
+    frameResult.frameIndex !== frameIndex
+    || frameResult.frameJobHash !== job.frameJobHash
+    || frameResult.frameSpecHash !== job.spec.frameSpecHash
+    || frameResult.generationInputHash !== job.generationRequest.inputHash
+  ) throw new PoseClipProductionIntegrityError('FRAME_RESULT_BINDING_MISMATCH', `Frame ${frameIndex}`);
+  for (const requiredAnchor of job.spec.requiredAnchors) {
+    if (!hasRequiredAnchor(frameResult.poseFrame.anchors, requiredAnchor)) {
+      throw new PoseClipProductionIntegrityError(
+        'REQUIRED_POSE_FRAME_ANCHOR_MISSING',
+        `Frame ${frameIndex} is missing ${requiredAnchor}`,
+      );
+    }
+  }
+  for (const artifact of frameResult.artifacts) {
+    const {outputHash: _outputHash, ...artifactPayload} = artifact;
+    if (await hashPoseFrameArtifactPayload(artifactPayload) !== artifact.outputHash) throw new PoseClipProductionIntegrityError(
+      'FRAME_ARTIFACT_HASH_MISMATCH', `Frame ${frameIndex} stage ${artifact.stage}`,
+    );
+  }
+  const {resultHash: _frameResultHash, ...framePayload} = frameResult;
+  if (await hashPoseClipFrameProductionResultPayload(framePayload) !== frameResult.resultHash) {
+    throw new PoseClipProductionIntegrityError('FRAME_RESULT_HASH_MISMATCH', `Frame ${frameIndex}`);
+  }
+  const expectedFrame = {
+    assetId: job.spec.output.assetId,
+    durationFrames: job.spec.durationFrames,
+    anchors: frameResult.poseFrame.anchors,
+    contact: {type: job.spec.contact},
+    referenceFoot: job.spec.referenceFoot,
+  };
+  if (canonicalizeJson(frameResult.poseFrame) !== canonicalizeJson(expectedFrame)) throw new PoseClipProductionIntegrityError(
+    'POSE_FRAME_SPEC_MISMATCH', `Frame ${frameIndex}`,
+  );
+  return frameResult;
+}
+
 export async function assertPoseClipProductionResultIntegrity(
   requestInput: unknown,
   resultInput: unknown,
@@ -463,40 +507,7 @@ export async function assertPoseClipProductionResultIntegrity(
   );
   for (const [index, frameResult] of result.frameResults.entries()) {
     const job = request.frames[index]!;
-    if (
-      frameResult.frameIndex !== index
-      || frameResult.frameJobHash !== job.frameJobHash
-      || frameResult.frameSpecHash !== job.spec.frameSpecHash
-      || frameResult.generationInputHash !== job.generationRequest.inputHash
-    ) throw new PoseClipProductionIntegrityError('FRAME_RESULT_BINDING_MISMATCH', `Frame ${index}`);
-    for (const requiredAnchor of job.spec.requiredAnchors) {
-      if (!hasRequiredAnchor(frameResult.poseFrame.anchors, requiredAnchor)) {
-        throw new PoseClipProductionIntegrityError(
-          'REQUIRED_POSE_FRAME_ANCHOR_MISSING',
-          `Frame ${index} is missing ${requiredAnchor}`,
-        );
-      }
-    }
-    for (const artifact of frameResult.artifacts) {
-      const {outputHash: _outputHash, ...artifactPayload} = artifact;
-      if (await hashPoseFrameArtifactPayload(artifactPayload) !== artifact.outputHash) throw new PoseClipProductionIntegrityError(
-        'FRAME_ARTIFACT_HASH_MISMATCH', `Frame ${index} stage ${artifact.stage}`,
-      );
-    }
-    const {resultHash: _frameResultHash, ...framePayload} = frameResult;
-    if (await hashPoseClipFrameProductionResultPayload(framePayload) !== frameResult.resultHash) {
-      throw new PoseClipProductionIntegrityError('FRAME_RESULT_HASH_MISMATCH', `Frame ${index}`);
-    }
-    const expectedFrame = {
-      assetId: job.spec.output.assetId,
-      durationFrames: job.spec.durationFrames,
-      anchors: frameResult.poseFrame.anchors,
-      contact: {type: job.spec.contact},
-      referenceFoot: job.spec.referenceFoot,
-    };
-    if (canonicalizeJson(frameResult.poseFrame) !== canonicalizeJson(expectedFrame)) throw new PoseClipProductionIntegrityError(
-      'POSE_FRAME_SPEC_MISMATCH', `Frame ${index}`,
-    );
+    await assertPoseClipFrameProductionResultIntegrity(job, frameResult);
   }
   const expectedClip = {
     id: request.poseClipId,
