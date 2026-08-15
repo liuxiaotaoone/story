@@ -8,7 +8,7 @@ import {
   compileFinal, compilePreflight, createEffectiveDirectorPlan, hashResolvedAssetCatalogPayload,
 } from '@pose-clip/compiler';
 import {
-  DirectorPlanSchema, StorySchema, canonicalHash, semanticRenderPlanHash,
+  DirectorPlanSchema, StorySchema, canonicalHash, semanticRenderPlanHashV1,
   type AssetRecord, type CapabilityCatalog, type PoseAnchors, type ResolvedAssetCatalog,
 } from '@pose-clip/schemas';
 import {assembleNarrationWav, timelineToSrt} from '../src/timeline-media.ts';
@@ -207,7 +207,7 @@ const renderPlan = await compileFinal({
   context: {seed: 20260812, compilerVersion: '0.1.0', compiledAt: '2026-08-12T00:00:00.000Z'},
 });
 const narrationMaster = assembleNarrationWav({timeline: renderPlan.timeline, wavByAssetId: new Map(ttsArtifacts.map(result => [result.artifact.asset.id, result.wavBytes]))});
-const renderPlanHash = await semanticRenderPlanHash(renderPlan);
+const renderPlanHash = await semanticRenderPlanHashV1(renderPlan);
 await writeFile(resolve(artifacts, 'story.json'), `${JSON.stringify(story, null, 2)}\n`);
 await writeFile(resolve(artifacts, 'director-plan.json'), `${JSON.stringify(directorPlan, null, 2)}\n`);
 await writeFile(resolve(artifacts, 'preflight.json'), `${JSON.stringify(preflight, null, 2)}\n`);

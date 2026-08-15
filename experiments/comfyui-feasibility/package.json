@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@pose-clip/asset-generation": "workspace:*",
+    "@pose-clip/paper-pixi": "workspace:*",
     "@pose-clip/schemas": "workspace:*"
   }
 }

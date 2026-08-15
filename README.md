@@ -2,14 +2,14 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 2.2 — Asset Identity Hardening / PASS / Frozen**。Action Package v1 与 ComfyUI Provider 2/2.1 保持 PASS / Frozen；生成资产使用 `asset://sha256/<hash>` 逻辑地址，Pixi 在创建 Texture 前验证真实 bytes，Semantic RenderPlan Hash v2 不再依赖本机 URI 或资产创建时间。下一阶段进入 Multi-frame PoseClip Production Contract。
+当前里程碑：**M3 Commit 2.2.1 — Asset Resolution Closure / PASS / Frozen**。Action Package v1 与 ComfyUI Provider 2/2.1 保持 PASS / Frozen；生成资产使用 `asset://sha256/<hash>` 逻辑地址，Local CAS Adapter 负责物理寻址，Pixi 在创建 Texture 前验证真实 bytes。下一阶段进入 Multi-frame PoseClip Production Contract。
 
 ## 已冻结的实现边界
 
 - `packages/schemas`：唯一的跨模块数据契约，包含严格 SHA-256 Hash、PoseClip/Composite Slot、Ownership、Timeline、RenderPlan/RenderState 和 Task Graph。
 - `packages/paper-engine`：纯 TypeScript、无副作用、无逐帧历史依赖的确定性求值器。
 - `packages/paper-pixi`：只消费 `RenderState` 的 PixiJS v8 Adapter；Texture Cache 仅接收经 `VerifiedAssetResolver` 按真实 bytes 校验过的资产，并负责 Sprite Registry、Canonical Camera Transform 与 PNG Frame Export。
-- `packages/compiler` v0.2：在唯一 Final Compile 中生成 Landmark、Interaction Contact、Effect Cue、Baked Ownership、Composition Camera 和 Canonical Timeline。
+- `packages/compiler` v0.3.3：在唯一 Final Compile 中生成 Landmark、Interaction Contact、Effect Cue、Baked Ownership、Composition Camera 和 Canonical Timeline。
 - `packages/audio` v0.2：正式 `ITtsProvider` 与 Qwen3 provider，声音绑定 `TtsRequest.voiceId`，raw cache 绑定模型、Speaker、Instruct、Seed、Text 和 Language。
 - `packages/visual-qa`：已产品化的 Final-frame Meaningful Motion 与 Visual Event Cadence 判定。
 - `experiments/renderer-feasibility`：真实 Chrome/WebGL → 300 PNG → FFmpeg → 10 秒 MP4 的 M0 Renderer Gate，并对关键帧执行 Preview/Final 精确 RGBA 比较。

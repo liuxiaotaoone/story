@@ -24,7 +24,7 @@ function warningProjection(diagnostic: CompileDiagnostic) {
 export async function compileFinal(input: FinalCompileInput): Promise<RenderPlan> {
   const parsed = await assertFinalCompileInputIntegrity(input);
   if (parsed.effectiveDirectorPlan.plan.scenes.length !== 1) {
-    throw new CompileIntegrityError('M2 Final Compiler v0.1 requires exactly one Director scene');
+    throw new CompileIntegrityError('Final Compiler currently requires exactly one Director scene');
   }
   const duration = solveDurations({
     effectiveDirectorPlan: parsed.effectiveDirectorPlan,

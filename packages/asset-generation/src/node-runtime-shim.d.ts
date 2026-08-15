@@ -7,4 +7,7 @@ declare module 'node:fs/promises' {
   export const writeFile: (...args: any[]) => Promise<any>;
 }
 declare module 'node:os' { export const tmpdir: () => string; }
-declare module 'node:path' { export const join: (...args: string[]) => string; }
+declare module 'node:path' {
+  export const join: (...args: string[]) => string;
+  export const resolve: (...args: string[]) => string;
+}

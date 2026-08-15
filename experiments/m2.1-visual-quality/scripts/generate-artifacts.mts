@@ -10,7 +10,7 @@ import {
   RenderPlanSchema,
   StorySchema,
   canonicalHash,
-  semanticRenderPlanHash,
+  semanticRenderPlanHashV1,
   type AssetRecord,
   type CapabilityCatalog,
   type PoseAnchors,
@@ -401,7 +401,7 @@ function applyVisualRecovery(plan: RenderPlan): RenderPlan {
 
 const renderPlan = applyVisualRecovery(basePlan);
 const narrationMaster = assembleNarrationWav({timeline: renderPlan.timeline, wavByAssetId: new Map(ttsArtifacts.map(result => [result.artifact.asset.id, result.wavBytes]))});
-const renderPlanHash = await semanticRenderPlanHash(renderPlan);
+const renderPlanHash = await semanticRenderPlanHashV1(renderPlan);
 await writeFile(resolve(artifacts, 'story.json'), `${JSON.stringify(story, null, 2)}\n`);
 await writeFile(resolve(artifacts, 'director-plan.json'), `${JSON.stringify(directorPlan, null, 2)}\n`);
 await writeFile(resolve(artifacts, 'preflight.json'), `${JSON.stringify(preflight, null, 2)}\n`);

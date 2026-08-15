@@ -39,6 +39,9 @@ importers:
       '@pose-clip/asset-generation':
         specifier: workspace:*
         version: link:../../packages/asset-generation
+      '@pose-clip/paper-pixi':
+        specifier: workspace:*
+        version: link:../../packages/paper-pixi
       '@pose-clip/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas

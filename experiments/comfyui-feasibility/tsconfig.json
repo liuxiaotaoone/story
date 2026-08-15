@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": ".",
-    "types": []
+    "types": ["vitest/globals"]
   },
-  "include": ["scripts/**/*.mts", "src/**/*.d.ts"]
+  "include": ["scripts/**/*.mts", "src/**/*.d.ts", "test/**/*.ts"]
 }
