@@ -1,19 +1,58 @@
 import {Assets, Texture} from 'pixi.js';
 import type {RenderPlan, VisualAssetRecord} from '@pose-clip/schemas';
+import {VerifiedAssetResolver, type VerifiedAsset} from '../assets/verified-asset-resolver.js';
 
-export type TextureLoader = (asset: VisualAssetRecord) => Promise<Texture>;
+export type TextureLoader = (asset: Readonly<VisualAssetRecord>, verified: Readonly<VerifiedAsset>) => Promise<Texture>;
 
-async function defaultTextureLoader(asset: VisualAssetRecord): Promise<Texture> {
-  return Assets.load<Texture>({alias: `paper:${asset.id}`, src: asset.uri});
+function textureAlias(asset: Readonly<VisualAssetRecord>): string {
+  return `paper:${asset.id}:${asset.contentHash}`;
+}
+
+function textureFormat(mediaType: string | undefined): string {
+  switch (mediaType?.toLowerCase()) {
+    case 'image/svg+xml': return 'svg';
+    case 'image/jpeg': return 'jpg';
+    case 'image/webp': return 'webp';
+    case 'image/avif': return 'avif';
+    default: return 'png';
+  }
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  const chunkSize = 0x8000;
+  let binary = '';
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+  }
+  return btoa(binary);
+}
+
+async function defaultTextureLoader(asset: Readonly<VisualAssetRecord>, verified: Readonly<VerifiedAsset>): Promise<Texture> {
+  const mediaType = verified.mediaType ?? 'image/png';
+  const format = textureFormat(mediaType);
+  const src = `data:${mediaType};base64,${bytesToBase64(verified.bytes)}`;
+  return Assets.load<Texture>({
+    alias: textureAlias(asset),
+    src,
+    format,
+    parser: format === 'svg' ? 'svg' : 'texture',
+  });
+}
+
+export interface TextureCacheOptions {
+  readonly resolver?: VerifiedAssetResolver;
+  readonly loader?: TextureLoader;
 }
 
 export class TextureCache {
   readonly #textures = new Map<string, Texture>();
   readonly #assets = new Map<string, VisualAssetRecord>();
+  readonly #resolver: VerifiedAssetResolver;
   readonly #loader: TextureLoader;
 
-  constructor(loader: TextureLoader = defaultTextureLoader) {
-    this.#loader = loader;
+  constructor(options: TextureCacheOptions = {}) {
+    this.#resolver = options.resolver ?? new VerifiedAssetResolver();
+    this.#loader = options.loader ?? defaultTextureLoader;
   }
 
   async preload(plan: Readonly<RenderPlan>): Promise<void> {
@@ -23,8 +62,15 @@ export class TextureCache {
 
   async load(asset: VisualAssetRecord): Promise<Texture> {
     const existing = this.#textures.get(asset.id);
-    if (existing !== undefined) return existing;
-    const texture = await this.#loader(asset);
+    if (existing !== undefined) {
+      const loadedAsset = this.#assets.get(asset.id)!;
+      if (loadedAsset.contentHash !== asset.contentHash) {
+        throw new Error(`Texture ${asset.id} was already loaded with a different contentHash`);
+      }
+      return existing;
+    }
+    const verified = await this.#resolver.resolve(asset);
+    const texture = await this.#loader(asset, verified);
     this.#textures.set(asset.id, texture);
     this.#assets.set(asset.id, asset);
     return texture;
@@ -45,7 +91,7 @@ export class TextureCache {
   }
 
   async destroy(): Promise<void> {
-    const aliases = [...this.#assets.values()].map((asset) => `paper:${asset.id}`);
+    const aliases = [...this.#assets.values()].map(textureAlias);
     this.#textures.clear();
     this.#assets.clear();
     await Promise.all(aliases.map(async (alias) => Assets.unload(alias).catch(() => undefined)));

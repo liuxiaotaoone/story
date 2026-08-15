@@ -62,6 +62,7 @@ export const JsonValueSchema: z.ZodType<JsonValue> = z.lazy(() => z.union([
 ]));
 
 export type Id = z.infer<typeof IdSchema>;
+export type ContentHash = z.infer<typeof ContentHashSchema>;
 export type Frame = z.infer<typeof FrameSchema>;
 export type Point = z.infer<typeof PointSchema>;
 export type Size = z.infer<typeof SizeSchema>;

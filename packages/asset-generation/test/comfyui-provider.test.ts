@@ -115,6 +115,7 @@ describe('ComfyUI image generation provider', () => {
       id: request.output.assetId,
       kind: 'animal-frame',
       contentHash: await sha256Bytes(PNG),
+      uri: `asset://sha256/${await sha256Bytes(PNG)}`,
       width: 1,
       height: 1,
       alphaMode: 'straight',
@@ -122,6 +123,7 @@ describe('ComfyUI image generation provider', () => {
       qaStatus: 'pending',
       provenance: expect.objectContaining({inputHash: request.inputHash, seed: 42}),
     }));
+    expect(artifact?.filePath).toBe(join(outputRoot, `${await sha256Bytes(PNG)}.png`));
   });
 
   it('fails before queueing when request or workflow content drifts', async () => {

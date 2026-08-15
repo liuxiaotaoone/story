@@ -45,7 +45,7 @@ declare global {
   interface Window { rendererFeasibility: RendererFeasibilityApi; }
 }
 
-const plan = createRendererFeasibilityPlan();
+const plan = await createRendererFeasibilityPlan();
 const prepared = prepareRenderPlan(plan);
 const application = await createPaperPixiApplication();
 const renderer = new PaperPixiRenderer(application);

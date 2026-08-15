@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {
   AssetRecordSchema,
+  ContentAddressedAssetUriSchema,
   DirectorOverrideSchema,
   FinalCompileInputSchema,
   OwnershipEventSchema,
@@ -81,6 +82,15 @@ function renderState(sprites: unknown[]) {
 }
 
 describe('asset contracts', () => {
+  it('binds content-addressed URIs to the declared SHA-256', () => {
+    expect(ContentAddressedAssetUriSchema.safeParse(`asset://sha256/${HASH}`).success).toBe(true);
+    const result = AssetRecordSchema.safeParse({
+      id: 'narration-1', kind: 'audio', uri: `asset://sha256/${'1'.repeat(64)}`,
+      contentHash: HASH, source: 'manual', qaStatus: 'passed',
+    });
+    expect(result.success).toBe(false);
+  });
+
   it('requires dimensions for every visual asset', () => {
     const result = AssetRecordSchema.safeParse({
       id: 'farmer-idle',

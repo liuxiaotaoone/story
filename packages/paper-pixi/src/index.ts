@@ -1,4 +1,5 @@
 export * from './application/create-application.js';
+export * from './assets/verified-asset-resolver.js';
 export * from './camera/apply-camera-transform.js';
 export * from './export/png-export.js';
 export * from './renderer/paper-pixi-renderer.js';

@@ -1,32 +1,69 @@
 import {Container, Texture} from 'pixi.js';
 import type {CameraState, SpriteRenderState, VisualAssetRecord} from '@pose-clip/schemas';
+import {sha256Bytes} from '@pose-clip/schemas';
 import {describe, expect, it, vi} from 'vitest';
+import {AssetIntegrityError, VerifiedAssetResolver} from '../src/assets/verified-asset-resolver.js';
 import {resolveSpriteForPixi} from '../src/camera/apply-camera-transform.js';
 import {SpriteRegistry} from '../src/sprites/sprite-registry.js';
 import {TextureCache} from '../src/textures/texture-cache.js';
 
-const visualAsset: VisualAssetRecord = {
+const ASSET_BYTES = new TextEncoder().encode('trusted visual asset bytes');
+
+async function visualAsset(): Promise<VisualAssetRecord> {
+  return {
   id: 'farmer-idle',
   kind: 'character-frame',
-  uri: 'memory://farmer-idle',
-  contentHash: 'a'.repeat(64),
+  uri: 'asset://sha256/pending',
+  contentHash: await sha256Bytes(ASSET_BYTES),
   source: 'manual',
   qaStatus: 'passed',
   width: 240,
   height: 400,
   alphaMode: 'premultiplied',
   attachmentAnchors: [{id: 'foot', point: {x: 0.5, y: 0.95}}],
-};
+  };
+}
 
 describe('TextureCache', () => {
-  it('loads an asset once and rejects access before preload', async () => {
+  it('verifies bytes, loads an asset once and rejects access before preload', async () => {
+    const asset = await visualAsset();
+    const byteResolver = vi.fn(async () => ({bytes: ASSET_BYTES, mediaType: 'image/png'}));
     const loader = vi.fn(async () => Texture.EMPTY);
-    const cache = new TextureCache(loader);
-    expect(() => cache.get(visualAsset.id)).toThrow('was not preloaded');
-    await cache.load(visualAsset);
-    await cache.load(visualAsset);
+    const cache = new TextureCache({resolver: new VerifiedAssetResolver(byteResolver), loader});
+    expect(() => cache.get(asset.id)).toThrow('was not preloaded');
+    await cache.load(asset);
+    await cache.load(asset);
+    expect(byteResolver).toHaveBeenCalledTimes(1);
     expect(loader).toHaveBeenCalledTimes(1);
-    expect(cache.get(visualAsset.id)).toBe(Texture.EMPTY);
+    expect(loader).toHaveBeenCalledWith(asset, expect.objectContaining({
+      assetId: asset.id,
+      contentHash: asset.contentHash,
+      bytes: ASSET_BYTES,
+    }));
+    expect(cache.get(asset.id)).toBe(Texture.EMPTY);
+  });
+
+  it('fails before texture creation when resolved bytes do not match contentHash', async () => {
+    const asset = await visualAsset();
+    const loader = vi.fn(async () => Texture.EMPTY);
+    const cache = new TextureCache({
+      resolver: new VerifiedAssetResolver(async () => ({bytes: new TextEncoder().encode('tampered')})),
+      loader,
+    });
+    await expect(cache.load(asset)).rejects.toBeInstanceOf(AssetIntegrityError);
+    expect(loader).not.toHaveBeenCalled();
+  });
+
+  it('rejects content identity drift for an already cached asset id', async () => {
+    const asset = await visualAsset();
+    const cache = new TextureCache({
+      resolver: new VerifiedAssetResolver(async () => ({bytes: ASSET_BYTES})),
+      loader: async () => Texture.EMPTY,
+    });
+    await cache.load(asset);
+    await expect(cache.load({...asset, contentHash: 'f'.repeat(64)})).rejects.toThrow(
+      'already loaded with a different contentHash',
+    );
   });
 });
 

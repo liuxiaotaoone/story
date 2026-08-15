@@ -14,6 +14,7 @@ import {
   canonicalHash,
   sha256Canonical,
   semanticRenderPlanHash,
+  semanticRenderPlanHashV1,
   validateRenderPlanIntegrity,
 } from '../src/index.js';
 
@@ -267,6 +268,19 @@ describe('canonical hashing and render-plan integrity', () => {
     second.provenance.compiledAt = '2026-08-12T00:00:00.000Z';
     second.provenance.warnings = [{code: 'AUDIT_NOTE', message: 'Review only'}];
     await expect(semanticRenderPlanHash(first as never)).resolves.toBe(await semanticRenderPlanHash(second as never));
+    second.assets.assets[0]!.uri = 'asset://sha256/' + second.assets.assets[0]!.contentHash;
+    second.assets.assets[0]!.provenance = {
+      inputHash: 'b'.repeat(64),
+      producer: {name: 'fixture', version: '1.0.0'},
+      createdAt: '2026-08-13T00:00:00.000Z',
+    };
+    first.assets.assets[0]!.provenance = {
+      inputHash: 'b'.repeat(64),
+      producer: {name: 'fixture', version: '1.0.0'},
+      createdAt: '2026-08-12T00:00:00.000Z',
+    };
+    await expect(semanticRenderPlanHash(first as never)).resolves.toBe(await semanticRenderPlanHash(second as never));
+    await expect(semanticRenderPlanHashV1(first as never)).resolves.not.toBe(await semanticRenderPlanHashV1(second as never));
     second.timeline.durationFrames = 61;
     await expect(semanticRenderPlanHash(first as never)).resolves.not.toBe(await semanticRenderPlanHash(second as never));
   });

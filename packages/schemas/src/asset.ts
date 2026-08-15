@@ -19,6 +19,28 @@ export const VisualAssetKindSchema = z.enum([
 export const NonVisualAssetKindSchema = z.enum(['audio', 'font']);
 export const AssetKindSchema = z.union([VisualAssetKindSchema, NonVisualAssetKindSchema]);
 export const AlphaModeSchema = z.enum(['straight', 'premultiplied', 'opaque']);
+export const ContentAddressedAssetUriSchema = z.string().regex(
+  /^asset:\/\/sha256\/[0-9a-f]{64}$/,
+  'Expected asset://sha256/<lowercase SHA-256>',
+);
+
+export function contentAddressedAssetUri(contentHash: string): string {
+  const hash = ContentHashSchema.parse(contentHash);
+  return `asset://sha256/${hash}`;
+}
+
+function validateContentAddressedUri(
+  asset: {uri: string; contentHash: string},
+  context: z.RefinementCtx,
+): void {
+  if (asset.uri.startsWith('asset://sha256/') && asset.uri !== contentAddressedAssetUri(asset.contentHash)) {
+    context.addIssue({
+      code: 'custom',
+      message: 'Content-addressed asset URI must contain the AssetRecord contentHash',
+      path: ['uri'],
+    });
+  }
+}
 
 export const AssetProvenanceSchema = z.object({
   inputHash: ContentHashSchema,
@@ -48,6 +70,7 @@ export const VisualAssetRecordSchema = z.object({
   alphaMode: AlphaModeSchema,
   attachmentAnchors: z.array(AttachmentAnchorSchema).optional(),
 }).strict().superRefine((asset, context) => {
+  validateContentAddressedUri(asset, context);
   if (asset.source === 'generated' && asset.provenance === undefined) {
     context.addIssue({code: 'custom', message: 'Generated assets require provenance', path: ['provenance']});
   }
@@ -68,6 +91,7 @@ export const NonVisualAssetRecordSchema = z.object({
   ...AssetRecordBaseShape,
   kind: NonVisualAssetKindSchema,
 }).strict().superRefine((asset, context) => {
+  validateContentAddressedUri(asset, context);
   if (asset.source === 'generated' && asset.provenance === undefined) {
     context.addIssue({code: 'custom', message: 'Generated assets require provenance', path: ['provenance']});
   }

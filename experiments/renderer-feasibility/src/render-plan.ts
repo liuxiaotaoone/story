@@ -1,4 +1,4 @@
-import type {RenderPlan, VisualAssetRecord} from '@pose-clip/schemas';
+import {sha256Bytes, type RenderPlan, type VisualAssetRecord} from '@pose-clip/schemas';
 import {goldenFixtureV2} from '../../../packages/paper-engine/test/fixture.ts';
 
 function svgDataUrl(asset: VisualAssetRecord): string {
@@ -30,13 +30,22 @@ function characterSvg(id: string, width: number, height: number, color: string):
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><g stroke="#5b3829" stroke-width="12" stroke-linecap="round"><line x1="${width * .5}" y1="245" x2="${width * .5 + stride}" y2="382"/><line x1="${width * .5}" y1="245" x2="${width * .5 - stride}" y2="382"/><line x1="${width * .48}" y1="150" x2="${holding ? width * .68 : width * .76}" y2="220"/></g><path d="M${width * .28} 132 Q${width * .5} 100 ${width * .7} 132 L${width * .64} 285 H${width * .34}Z" fill="${color}" stroke="#69402d" stroke-width="6"/><circle cx="${width * .5}" cy="82" r="48" fill="#d9a775"/><path d="M${width * .25} 61 H${width * .75} Q${width * .68} 15 ${width * .5} 18 Q${width * .32} 15 ${width * .25} 61" fill="#80643e"/>${holding ? `<ellipse cx="${width * .63}" cy="205" rx="42" ry="28" fill="#eee2cd" stroke="#6c5b4e" stroke-width="5"/>` : ''}</svg>`;
 }
 
-export function createRendererFeasibilityPlan(): RenderPlan {
+function dataUrlBytes(uri: string): Uint8Array {
+  const separator = uri.indexOf(',');
+  if (separator < 0) throw new Error('Invalid renderer fixture data URL');
+  return new TextEncoder().encode(decodeURIComponent(uri.slice(separator + 1)));
+}
+
+export async function createRendererFeasibilityPlan(): Promise<RenderPlan> {
   const plan = structuredClone(goldenFixtureV2);
   plan.timeline.durationFrames = 300;
   plan.timeline.shots[0]!.range.endFrame = 300;
   for (const instance of plan.instances) instance.activeRange.endFrame = 300;
   for (const asset of plan.assets.assets) {
-    if ('width' in asset) asset.uri = svgDataUrl(asset);
+    if ('width' in asset) {
+      asset.uri = svgDataUrl(asset);
+      asset.contentHash = await sha256Bytes(dataUrlBytes(asset.uri));
+    }
   }
   return plan;
 }

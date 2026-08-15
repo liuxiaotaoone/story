@@ -1,7 +1,7 @@
 import {readdir, readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {hashPreflightCompileResultPayload} from '@pose-clip/compiler';
-import {PreflightCompileResultSchema, RenderPlanSchema, semanticRenderPlanHash} from '@pose-clip/schemas';
+import {PreflightCompileResultSchema, RenderPlanSchema, semanticRenderPlanHashV1} from '@pose-clip/schemas';
 import {sha256File} from './visual-review.mjs';
 
 const MANIFEST_NAME = 'artifact-manifest.json';
@@ -47,7 +47,7 @@ export async function verifyFrozenEvidence(frozenRoot) {
   const mp4Hashes = [manifest.artifactSha256, technicalReport.mp4Sha256, visualReview.artifactSha256];
   if (mp4Hashes.some(hash => hash !== mp4Sha256)) throw new Error('Frozen MP4 SHA-256 does not match manifest, technical report and visual review');
 
-  const renderPlanSemanticHash = await semanticRenderPlanHash(renderPlan);
+  const renderPlanSemanticHash = await semanticRenderPlanHashV1(renderPlan);
   if (renderPlanSemanticHash !== manifest.renderPlanSemanticHash || renderPlanSemanticHash !== technicalReport.renderPlanSemanticHash) {
     throw new Error('Frozen RenderPlan semantic hash does not match manifest and technical report');
   }

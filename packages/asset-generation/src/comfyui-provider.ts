@@ -3,6 +3,7 @@ import {join} from 'node:path';
 import {
   VisualAssetRecordSchema,
   canonicalHash,
+  contentAddressedAssetUri,
   sha256Bytes,
   type ActionGenerationRequest,
 } from '@pose-clip/schemas';
@@ -210,12 +211,12 @@ export class ComfyUiProvider implements ImageGenerationProvider {
       const metadata = inspectPng(bytes);
       const suffix = images.length === 1 ? '' : `.${String(index + 1).padStart(2, '0')}`;
       const assetId = `${request.output.assetId}${suffix}`;
-      const filePath = join(this.options.outputRoot, `${safeName(assetId)}-${request.inputHash.slice(0, 12)}.png`);
+      const filePath = join(this.options.outputRoot, `${contentHash}.png`);
       await writeFile(filePath, bytes);
       const asset = VisualAssetRecordSchema.parse({
         id: assetId,
         kind: request.output.kind,
-        uri: filePath.replaceAll('\\', '/'),
+        uri: contentAddressedAssetUri(contentHash),
         contentHash,
         source: 'generated',
         provenance: {
@@ -223,7 +224,7 @@ export class ComfyUiProvider implements ImageGenerationProvider {
           promptHash,
           modelId: request.runtimeModels.find((model) => model.role === 'diffusion-model')?.modelId,
           seed: request.seed,
-          producer: {name: 'comfyui-provider', version: '0.1.0'},
+          producer: {name: 'comfyui-provider', version: '0.1.2'},
           createdAt: (this.options.now ?? (() => new Date()))().toISOString(),
         },
         qaStatus: 'pending',

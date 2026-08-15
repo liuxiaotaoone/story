@@ -3,7 +3,7 @@ import {resolve} from 'node:path';
 import {
   PreflightCompileResultSchema,
   RenderPlanSchema,
-  semanticRenderPlanHash,
+  semanticRenderPlanHashV1,
 } from '@pose-clip/schemas';
 import {describe, expect, it} from 'vitest';
 
@@ -20,7 +20,7 @@ describe('M2 frozen evidence', () => {
     ]);
     const renderPlan = RenderPlanSchema.parse(renderPlanJson);
     const preflight = PreflightCompileResultSchema.parse(preflightJson);
-    expect(await semanticRenderPlanHash(renderPlan)).toBe(manifest.renderPlanSemanticHash);
+    expect(await semanticRenderPlanHashV1(renderPlan)).toBe(manifest.renderPlanSemanticHash);
     expect(preflight.preflightHash).toBe(manifest.preflightHash);
     expect(report.status).toBe('PASS');
     expect(report.mp4Sha256).toBe(manifest.mp4Sha256);

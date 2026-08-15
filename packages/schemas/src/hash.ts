@@ -52,11 +52,34 @@ export async function canonicalHash(domain: string, payload: unknown): Promise<s
   });
 }
 
-export async function semanticRenderPlanHash(plan: import('./render.js').RenderPlan): Promise<string> {
+/** Legacy M2/M2.1 hash retained solely for verification of already-frozen evidence. */
+export async function semanticRenderPlanHashV1(plan: import('./render.js').RenderPlan): Promise<string> {
   return canonicalHash('render-plan-semantic-v1', {
     schemaVersion: plan.schemaVersion,
     project: plan.project,
     assets: plan.assets,
+    environments: plan.environments,
+    entities: plan.entities,
+    instances: plan.instances,
+    poseClips: plan.poseClips,
+    timeline: plan.timeline,
+  });
+}
+
+export async function semanticRenderPlanHash(plan: import('./render.js').RenderPlan): Promise<string> {
+  const semanticAssets = {
+    schemaVersion: plan.assets.schemaVersion,
+    assets: plan.assets.assets.map((asset) => {
+      const {uri: _uri, provenance, ...identity} = asset;
+      if (provenance === undefined) return identity;
+      const {createdAt: _createdAt, ...semanticProvenance} = provenance;
+      return {...identity, provenance: semanticProvenance};
+    }),
+  };
+  return canonicalHash('render-plan-semantic-v2', {
+    schemaVersion: plan.schemaVersion,
+    project: plan.project,
+    assets: semanticAssets,
     environments: plan.environments,
     entities: plan.entities,
     instances: plan.instances,
