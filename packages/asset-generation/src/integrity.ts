@@ -12,6 +12,13 @@ export class AssetGenerationIntegrityError extends Error {
   }
 }
 
+export class AssetGenerationTransientError extends Error {
+  constructor(readonly code: string, message: string, options?: ErrorOptions) {
+    super(`${code}: ${message}`, options);
+    this.name = 'AssetGenerationTransientError';
+  }
+}
+
 export async function assertGenerationRequestIntegrity(
   input: ActionGenerationRequest,
 ): Promise<ActionGenerationRequest> {

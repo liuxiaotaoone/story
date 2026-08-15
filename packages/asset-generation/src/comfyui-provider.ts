@@ -7,7 +7,11 @@ import {
   sha256Bytes,
   type ActionGenerationRequest,
 } from '@pose-clip/schemas';
-import {AssetGenerationIntegrityError, assertGenerationRequestIntegrity} from './integrity.js';
+import {
+  AssetGenerationIntegrityError,
+  AssetGenerationTransientError,
+  assertGenerationRequestIntegrity,
+} from './integrity.js';
 import {inspectPng} from './png.js';
 import type {GeneratedImageArtifact, ImageGenerationProvider} from './provider.js';
 
@@ -71,7 +75,13 @@ function materializeWorkflow(value: unknown, replacements: ReadonlyMap<string, u
 }
 
 async function responseJson(response: Response, context: string): Promise<unknown> {
-  if (!response.ok) throw new Error(`${context} failed with HTTP ${response.status}: ${await response.text()}`);
+  if (!response.ok) {
+    const message = `${context} failed with HTTP ${response.status}: ${await response.text()}`;
+    if (response.status === 408 || response.status === 429 || response.status >= 500) {
+      throw new AssetGenerationTransientError('GENERATION_HTTP_TRANSIENT', message);
+    }
+    throw new AssetGenerationIntegrityError('GENERATION_HTTP_PERMANENT', message);
+  }
   return response.json();
 }
 
@@ -133,13 +143,31 @@ export class ComfyUiProvider implements ImageGenerationProvider {
     if (this.#pollIntervalMs < 0 || this.#timeoutMs <= 0) throw new TypeError('Invalid ComfyUI polling configuration');
   }
 
+  async #request(input: URL, init?: RequestInit): Promise<Response> {
+    try {
+      return await this.#fetch(input, init);
+    } catch (error) {
+      throw new AssetGenerationTransientError(
+        'GENERATION_TRANSPORT_FAILURE',
+        `ComfyUI request failed: ${input.pathname}`,
+        {cause: error},
+      );
+    }
+  }
+
   async releaseResources(): Promise<void> {
-    const response = await this.#fetch(endpointUrl(this.options.endpoint, 'free'), {
+    const response = await this.#request(endpointUrl(this.options.endpoint, 'free'), {
       method: 'POST',
       headers: {'content-type': 'application/json'},
       body: JSON.stringify({unload_models: true, free_memory: true}),
     });
-    if (!response.ok) throw new Error(`Release ComfyUI resources failed with HTTP ${response.status}: ${await response.text()}`);
+    if (!response.ok) {
+      const message = `Release ComfyUI resources failed with HTTP ${response.status}: ${await response.text()}`;
+      if (response.status === 408 || response.status === 429 || response.status >= 500) {
+        throw new AssetGenerationTransientError('GENERATION_HTTP_TRANSIENT', message);
+      }
+      throw new AssetGenerationIntegrityError('GENERATION_HTTP_PERMANENT', message);
+    }
   }
 
   async #uploadReferences(request: ActionGenerationRequest): Promise<Map<string, string>> {
@@ -164,7 +192,7 @@ export class ComfyUiProvider implements ImageGenerationProvider {
       form.set('image', new Blob([resolved.bytes.slice().buffer as ArrayBuffer], {type: 'image/png'}), filename);
       form.set('type', 'input');
       form.set('overwrite', 'true');
-      const response = await this.#fetch(endpointUrl(this.options.endpoint, 'upload/image'), {method: 'POST', body: form});
+      const response = await this.#request(endpointUrl(this.options.endpoint, 'upload/image'), {method: 'POST', body: form});
       const result = asRecord(await responseJson(response, `Upload reference ${reference.assetId}`), 'ComfyUI upload response');
       if (typeof result.name !== 'string') throw new TypeError('ComfyUI upload response lacks image name');
       const subfolder = typeof result.subfolder === 'string' ? result.subfolder : '';
@@ -179,13 +207,16 @@ export class ComfyUiProvider implements ImageGenerationProvider {
   ): Promise<ComfyImageDescriptor[]> {
     const startedAt = Date.now();
     while (Date.now() - startedAt <= this.#timeoutMs) {
-      const response = await this.#fetch(endpointUrl(this.options.endpoint, `history/${encodeURIComponent(promptId)}`));
+      const response = await this.#request(endpointUrl(this.options.endpoint, `history/${encodeURIComponent(promptId)}`));
       const history = asRecord(await responseJson(response, `Read ComfyUI history ${promptId}`), 'ComfyUI history response');
       const images = collectImages(history, promptId, selector);
       if (images !== undefined) return images;
       await new Promise<void>((resolve) => setTimeout(resolve, this.#pollIntervalMs));
     }
-    throw new Error(`ComfyUI prompt ${promptId} timed out after ${this.#timeoutMs}ms`);
+    throw new AssetGenerationTransientError(
+      'GENERATION_TIMEOUT',
+      `ComfyUI prompt ${promptId} timed out after ${this.#timeoutMs}ms`,
+    );
   }
 
   async #downloadArtifacts(
@@ -204,8 +235,14 @@ export class ComfyUiProvider implements ImageGenerationProvider {
       view.searchParams.set('filename', image.filename);
       view.searchParams.set('subfolder', image.subfolder);
       view.searchParams.set('type', image.type);
-      const response = await this.#fetch(view);
-      if (!response.ok) throw new Error(`Read ComfyUI output ${image.filename} failed with HTTP ${response.status}`);
+      const response = await this.#request(view);
+      if (!response.ok) {
+        const message = `Read ComfyUI output ${image.filename} failed with HTTP ${response.status}`;
+        if (response.status === 408 || response.status === 429 || response.status >= 500) {
+          throw new AssetGenerationTransientError('GENERATION_HTTP_TRANSIENT', message);
+        }
+        throw new AssetGenerationIntegrityError('GENERATION_HTTP_PERMANENT', message);
+      }
       const bytes = new Uint8Array(await response.arrayBuffer());
       const contentHash = await sha256Bytes(bytes);
       const metadata = inspectPng(bytes);
@@ -253,7 +290,7 @@ export class ComfyUiProvider implements ImageGenerationProvider {
     promptId: string,
   ): Promise<GeneratedImageArtifact[]> {
     const request = await assertGenerationRequestIntegrity(input);
-    const response = await this.#fetch(endpointUrl(this.options.endpoint, `history/${encodeURIComponent(promptId)}`));
+    const response = await this.#request(endpointUrl(this.options.endpoint, `history/${encodeURIComponent(promptId)}`));
     const history = asRecord(await responseJson(response, `Read ComfyUI history ${promptId}`), 'ComfyUI history response');
     const entry = asRecord(history[promptId], `ComfyUI history ${promptId}`);
     const promptRecord = Array.isArray(entry.prompt) && entry.prompt.length >= 4
@@ -298,7 +335,7 @@ export class ComfyUiProvider implements ImageGenerationProvider {
     for (const [assetId, filename] of uploaded) replacements.set(`{{reference:${assetId}}}`, filename);
     const prompt = asRecord(materializeWorkflow(workflow, replacements), 'Materialized ComfyUI workflow');
 
-    const queueResponse = await this.#fetch(endpointUrl(this.options.endpoint, 'prompt'), {
+    const queueResponse = await this.#request(endpointUrl(this.options.endpoint, 'prompt'), {
       method: 'POST',
       headers: {'content-type': 'application/json'},
       body: JSON.stringify({

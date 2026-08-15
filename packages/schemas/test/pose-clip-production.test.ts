@@ -11,6 +11,7 @@ import {
   createPoseClipFrameSpec,
   createPoseClipProductionRequest,
   createPoseFrameProcessorSpec,
+  createPoseFrameQaEvaluatorSpec,
   hashPoseClipContent,
   hashPoseClipFrameProductionResultPayload,
   hashPoseClipProductionResultPayload,
@@ -248,6 +249,21 @@ describe('M3 PoseClip production contract', () => {
       inputContentHash: 'c'.repeat(64),
       processorSpecHash: spec.processorSpecHash,
     })).not.toBe(cacheKey);
+
+    const qaSpec = await createPoseFrameQaEvaluatorSpec({
+      schemaVersion: '1.0.0',
+      evaluator: {name: 'frame-qa', version: '1.0.0'},
+      config: {anchorTolerance: 0.05},
+    });
+    const changedQaSpec = await createPoseFrameQaEvaluatorSpec({
+      schemaVersion: '1.0.0',
+      evaluator: {name: 'frame-qa', version: '1.0.0'},
+      config: {anchorTolerance: 0.1},
+    });
+    expect(qaSpec.qaEvaluatorSpecHash).toBe(
+      'b3d635ee34e602432ba4fd3cc9ab60afaf0d60b40936877ced8f3f041ad1cb9d',
+    );
+    expect(changedQaSpec.qaEvaluatorSpecHash).not.toBe(qaSpec.qaEvaluatorSpecHash);
   });
 
   it('keeps every frame independently generated, cached and bound to its FrameSpec', async () => {

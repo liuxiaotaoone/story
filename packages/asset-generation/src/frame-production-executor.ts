@@ -3,6 +3,8 @@ import {
   assertPoseClipFrameJobIntegrity,
   assertPoseClipFrameProductionResultIntegrity,
   assertPoseFrameProcessorSpecIntegrity,
+  assertPoseFrameQaEvaluatorSpecIntegrity,
+  createPoseFrameQaEvaluatorSpec,
   hashPoseClipFrameProductionResultPayload,
   hashPoseFrameArtifactPayload,
   poseFrameExecutionKey,
@@ -15,6 +17,7 @@ import {
   type PoseFrameProcessStage,
   type PoseFrameProcessorSpec,
   type PoseFrameProductionQa,
+  type PoseFrameQaEvaluatorSpec,
   type VisualAssetRecord,
 } from '@pose-clip/schemas';
 import {inspectPng} from './png.js';
@@ -27,12 +30,16 @@ import {
   type PoseFrameResultCache,
   type PoseFrameStageCache,
 } from './pose-frame-cache.js';
-import type {PoseFrameProcessor} from './pose-frame-processor.js';
+import {
+  PoseFrameProcessorTransientError,
+  type PoseFrameProcessor,
+} from './pose-frame-processor.js';
 import type {GeneratedImageArtifact, ImageGenerationProvider} from './provider.js';
 import type {ContentAddressedAssetStore} from './local-cas-store.js';
+import {AssetGenerationTransientError} from './integrity.js';
 
 const PROCESS_STAGES = ['matted', 'normalized', 'anchored'] as const;
-const EXECUTOR_PRODUCER = {name: 'pose-frame-production-executor', version: '0.1.0'} as const;
+const EXECUTOR_PRODUCER = {name: 'pose-frame-production-executor', version: '0.1.1'} as const;
 
 export type FrameProductionCacheStatus = 'hit' | 'miss' | 'covered-by-frame-result';
 
@@ -45,12 +52,18 @@ export interface PoseFrameQaEvaluatorInput {
   readonly frameJob: PoseClipFrameJob;
   readonly artifacts: readonly PoseFrameArtifact[];
   readonly anchors: PoseAnchors;
+  readonly spec: PoseFrameQaEvaluatorSpec;
 }
 
 export interface PoseFrameQaEvaluator {
   readonly id: string;
   readonly version: string;
   evaluate(input: PoseFrameQaEvaluatorInput): Promise<PoseFrameProductionQa>;
+}
+
+export interface PoseFrameQaBinding {
+  readonly spec: PoseFrameQaEvaluatorSpec;
+  readonly evaluator: PoseFrameQaEvaluator;
 }
 
 export class RequiredAnchorPoseFrameQaEvaluator implements PoseFrameQaEvaluator {
@@ -105,7 +118,7 @@ export interface PoseFrameProductionExecutorOptions {
   readonly generationCache?: PoseFrameGenerationCache;
   readonly stageCache?: PoseFrameStageCache;
   readonly resultCache?: PoseFrameResultCache;
-  readonly qaEvaluator?: PoseFrameQaEvaluator;
+  readonly qa?: PoseFrameQaBinding;
   readonly maxAttempts?: number;
   readonly now?: () => Date;
 }
@@ -115,6 +128,11 @@ export class PoseFrameProductionExecutionError extends Error {
     super(`${code}: ${message}`, options);
     this.name = 'PoseFrameProductionExecutionError';
   }
+}
+
+export function isRetryableProductionError(error: unknown): boolean {
+  return error instanceof AssetGenerationTransientError
+    || error instanceof PoseFrameProcessorTransientError;
 }
 
 interface AttemptResult<T> {
@@ -132,7 +150,7 @@ async function retry<T>(
     try {
       return {value: await operation(), attempts: attempt};
     } catch (error) {
-      if (error instanceof PoseFrameProductionExecutionError) throw error;
+      if (!isRetryableProductionError(error)) throw error;
       lastError = error;
     }
   }
@@ -167,18 +185,36 @@ export class PoseFrameProductionExecutor {
   readonly #generationCache: PoseFrameGenerationCache;
   readonly #stageCache: PoseFrameStageCache;
   readonly #resultCache: PoseFrameResultCache;
-  readonly #qaEvaluator: PoseFrameQaEvaluator;
   readonly #maxAttempts: number;
 
   constructor(private readonly options: PoseFrameProductionExecutorOptions) {
     this.#generationCache = options.generationCache ?? new InMemoryPoseFrameGenerationCache();
     this.#stageCache = options.stageCache ?? new InMemoryPoseFrameStageCache();
     this.#resultCache = options.resultCache ?? new InMemoryPoseFrameResultCache();
-    this.#qaEvaluator = options.qaEvaluator ?? new RequiredAnchorPoseFrameQaEvaluator();
     this.#maxAttempts = options.maxAttempts ?? 2;
     if (!Number.isInteger(this.#maxAttempts) || this.#maxAttempts <= 0) {
       throw new TypeError('Frame production maxAttempts must be a positive integer');
     }
+  }
+
+  async #prepareQa(): Promise<PoseFrameQaBinding> {
+    const binding = this.options.qa ?? {
+      spec: await createPoseFrameQaEvaluatorSpec({
+        schemaVersion: '1.0.0',
+        evaluator: {name: 'required-anchor-frame-qa', version: '1.0.0'},
+        config: {},
+      }),
+      evaluator: new RequiredAnchorPoseFrameQaEvaluator(),
+    };
+    const spec = await assertPoseFrameQaEvaluatorSpecIntegrity(binding.spec);
+    if (
+      binding.evaluator.id !== spec.evaluator.name
+      || binding.evaluator.version !== spec.evaluator.version
+    ) throw new PoseFrameProductionExecutionError(
+      'FRAME_QA_EVALUATOR_BINDING_INVALID',
+      `Expected ${spec.evaluator.name}@${spec.evaluator.version}`,
+    );
+    return {spec, evaluator: binding.evaluator};
   }
 
   async #prepareStages(): Promise<readonly PoseFramePipelineStage[]> {
@@ -205,12 +241,16 @@ export class PoseFrameProductionExecutor {
     return stages;
   }
 
-  async #frameExecutionKey(frameJob: PoseClipFrameJob, stages: readonly PoseFramePipelineStage[]): Promise<string> {
+  async #frameExecutionKey(
+    frameJob: PoseClipFrameJob,
+    stages: readonly PoseFramePipelineStage[],
+    qa: PoseFrameQaBinding,
+  ): Promise<string> {
     const specHashes = Object.fromEntries(stages.map(({spec}) => [spec.stage, spec.processorSpecHash]));
     return poseFrameExecutionKey({
       frameJobHash: frameJob.frameJobHash,
       processorSpecHashes: specHashes,
-      qaEvaluator: {name: this.#qaEvaluator.id, version: this.#qaEvaluator.version},
+      qaEvaluatorSpecHash: qa.spec.qaEvaluatorSpecHash,
       executor: EXECUTOR_PRODUCER,
     });
   }
@@ -402,7 +442,8 @@ export class PoseFrameProductionExecutor {
   async execute(input: PoseClipFrameJob): Promise<PoseFrameProductionExecution> {
     const frameJob = await assertPoseClipFrameJobIntegrity(input);
     const stages = await this.#prepareStages();
-    const frameExecutionKey = await this.#frameExecutionKey(frameJob, stages);
+    const qaBinding = await this.#prepareQa();
+    const frameExecutionKey = await this.#frameExecutionKey(frameJob, stages, qaBinding);
     const cachedResult = await this.#resultCache.get(frameExecutionKey);
     if (cachedResult !== undefined) {
       const result = await assertPoseClipFrameProductionResultIntegrity(frameJob, cachedResult);
@@ -448,7 +489,12 @@ export class PoseFrameProductionExecutor {
     if (anchors === undefined) throw new PoseFrameProductionExecutionError(
       'ANCHOR_PROCESSOR_OUTPUT_MISSING', `Frame ${frameJob.spec.frameIndex}`,
     );
-    const qa = await this.#qaEvaluator.evaluate({frameJob, artifacts, anchors});
+    const qa = await qaBinding.evaluator.evaluate({
+      frameJob,
+      artifacts,
+      anchors,
+      spec: qaBinding.spec,
+    });
     const framePayload = {
       schemaVersion: '1.0.0' as const,
       frameJobHash: frameJob.frameJobHash,

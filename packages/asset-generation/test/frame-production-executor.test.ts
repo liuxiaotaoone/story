@@ -9,12 +9,14 @@ import {
   createPoseClipFrameJob,
   createPoseClipFrameSpec,
   createPoseFrameProcessorSpec,
+  createPoseFrameQaEvaluatorSpec,
   sha256Bytes,
   type PoseAnchors,
   type PoseClipFrameJob,
   type PoseFrameProcessorSpec,
 } from '@pose-clip/schemas';
 import {
+  AssetGenerationTransientError,
   ComfyUiProvider,
   DeterministicReferencePoseFrameProcessor,
   InMemoryPoseFrameGenerationCache,
@@ -22,9 +24,12 @@ import {
   InMemoryPoseFrameStageCache,
   LocalContentAddressedAssetStore,
   PoseFrameProductionExecutor,
+  PoseFrameProcessorTransientError,
+  RequiredAnchorPoseFrameQaEvaluator,
   type GeneratedImageArtifact,
   type ImageGenerationProvider,
   type PoseFramePipelineStage,
+  type PoseFrameQaBinding,
   type PoseFrameProcessor,
   type PoseFrameProcessorInput,
   type PoseFrameProcessorOutput,
@@ -64,7 +69,7 @@ class CountingComfyProvider implements ImageGenerationProvider {
     this.calls += 1;
     if (this.failuresRemaining > 0) {
       this.failuresRemaining -= 1;
-      throw new Error('transient ComfyUI failure');
+      throw new AssetGenerationTransientError('TEST_TRANSIENT', 'transient ComfyUI failure');
     }
     const bytes = append(PNG, `\nraw:${request.inputHash}`);
     const contentHash = await sha256Bytes(bytes);
@@ -107,14 +112,17 @@ class FailingOnceProcessor implements PoseFrameProcessor {
     this.calls += 1;
     if (this.failuresRemaining > 0) {
       this.failuresRemaining -= 1;
-      throw new Error('transient processor failure');
+      throw new PoseFrameProcessorTransientError('transient processor failure');
     }
     return this.inner.process(input);
   }
 }
 
-async function frameJob(frameIndex = 0, poseIntent?: string): Promise<PoseClipFrameJob> {
-  const referenceAssets: Array<{assetId: string; contentHash: string}> = [];
+async function frameJob(
+  frameIndex = 0,
+  poseIntent?: string,
+  referenceAssets: Array<{assetId: string; contentHash: string}> = [],
+): Promise<PoseClipFrameJob> {
   const output = {assetId: `rabbit.run-left.${frameIndex + 1}`, kind: 'animal-frame' as const};
   const spec = await createPoseClipFrameSpec({
     frameIndex,
@@ -152,9 +160,16 @@ async function frameJob(frameIndex = 0, poseIntent?: string): Promise<PoseClipFr
   return createPoseClipFrameJob({spec, generationRequest});
 }
 
+async function withWorkflowHash(job: PoseClipFrameJob, workflowHash: string): Promise<PoseClipFrameJob> {
+  const {inputHash: _inputHash, ...payload} = job.generationRequest;
+  const generationRequest = await createActionGenerationRequest({...payload, workflowHash});
+  return createPoseClipFrameJob({spec: job.spec, generationRequest});
+}
+
 interface PipelineConfig {
   mattingThreshold?: number;
   anchorMethod?: string;
+  anchors?: PoseAnchors;
   mattingProcessor?: PoseFrameProcessor;
 }
 
@@ -174,7 +189,7 @@ async function pipeline(config: PipelineConfig = {}): Promise<readonly PoseFrame
     {
       stage: 'anchored' as const,
       processor: {name: 'fake-anchor', version: '1.0.0'},
-      config: {method: config.anchorMethod ?? 'reference-v1'},
+      config: {method: config.anchorMethod ?? 'reference-v1', anchors: config.anchors ?? ANCHORS},
     },
   ];
   const specs: PoseFrameProcessorSpec[] = [];
@@ -190,9 +205,19 @@ async function pipeline(config: PipelineConfig = {}): Promise<readonly PoseFrame
         spec.stage,
         spec.processor.name,
         spec.processor.version,
-        spec.stage === 'anchored' ? ANCHORS : undefined,
       ),
   }));
+}
+
+async function qaBinding(anchorTolerance: number): Promise<PoseFrameQaBinding> {
+  return {
+    spec: await createPoseFrameQaEvaluatorSpec({
+      schemaVersion: '1.0.0',
+      evaluator: {name: 'required-anchor-frame-qa', version: '1.0.0'},
+      config: {anchorTolerance},
+    }),
+    evaluator: new RequiredAnchorPoseFrameQaEvaluator(),
+  };
 }
 
 async function testRoot(): Promise<string> {
@@ -299,6 +324,39 @@ describe('M3 Frame Production Pipeline', () => {
     expect(changedAnchor.resultCache).toBe('miss');
     expect(changedAnchor.generation.cache).toBe('hit');
     expect(changedAnchor.stages.map(({cache}) => cache)).toEqual(['hit', 'hit', 'miss']);
+
+    const movedAnchors = structuredClone(ANCHORS);
+    movedAnchors.foot.y = 0.8;
+    const changedAnchorData = await new PoseFrameProductionExecutor({
+      provider, cas, generationCache, stageCache, resultCache,
+      stages: await pipeline({anchors: movedAnchors}),
+    }).execute(job);
+    expect(changedAnchorData.resultCache).toBe('miss');
+    expect(changedAnchorData.generation.cache).toBe('hit');
+    expect(changedAnchorData.stages.map(({cache}) => cache)).toEqual(['hit', 'hit', 'miss']);
+    expect(changedAnchorData.result.poseFrame.anchors.foot.y).toBe(0.8);
+  });
+
+  it('invalidates Frame Result cache when QA configuration changes without rerunning image stages', async () => {
+    const provider = new CountingComfyProvider();
+    const generationCache = new InMemoryPoseFrameGenerationCache();
+    const stageCache = new InMemoryPoseFrameStageCache();
+    const resultCache = new InMemoryPoseFrameResultCache();
+    const cas = new LocalContentAddressedAssetStore(await testRoot());
+    const stages = await pipeline();
+    const job = await frameJob();
+    const first = await new PoseFrameProductionExecutor({
+      provider, cas, stages, generationCache, stageCache, resultCache,
+      qa: await qaBinding(0.05),
+    }).execute(job);
+    const changed = await new PoseFrameProductionExecutor({
+      provider, cas, stages, generationCache, stageCache, resultCache,
+      qa: await qaBinding(0.1),
+    }).execute(job);
+    expect(changed.frameExecutionKey).not.toBe(first.frameExecutionKey);
+    expect(changed.resultCache).toBe('miss');
+    expect(changed.generation.cache).toBe('hit');
+    expect(changed.stages.map(({cache}) => cache)).toEqual(['hit', 'hit', 'hit']);
   });
 
   it('keys stage caches by upstream bytes and ProcessorSpec rather than evidence timestamps', async () => {
@@ -340,6 +398,86 @@ describe('M3 Frame Production Pipeline', () => {
     expect(execution.stages[0]).toMatchObject({cache: 'miss', attempts: 2});
     expect(provider.calls).toBe(2);
     expect(flakyMatting.calls).toBe(2);
+  });
+
+  it('fails fast for ComfyUI integrity errors and retries an explicit HTTP 503', async () => {
+    const workflow = new TextEncoder().encode(JSON.stringify({'17': {class_type: 'SaveImage', inputs: {}}}));
+    const workflowHash = await sha256Bytes(workflow);
+
+    let workflowReads = 0;
+    const workflowMismatchProvider = new ComfyUiProvider({
+      endpoint: 'http://127.0.0.1:8188',
+      outputRoot: await testRoot(),
+      workflowResolver: async () => { workflowReads += 1; return workflow; },
+      fetch: async () => new Response('should not be called', {status: 500}),
+    });
+    await expect(new PoseFrameProductionExecutor({
+      provider: workflowMismatchProvider,
+      cas: new LocalContentAddressedAssetStore(await testRoot()),
+      stages: await pipeline(),
+      maxAttempts: 3,
+    }).execute(await frameJob())).rejects.toMatchObject({
+      code: 'GENERATION_WORKFLOW_HASH_MISMATCH',
+    });
+    expect(workflowReads).toBe(1);
+
+    let referenceReads = 0;
+    const referenceMismatchProvider = new ComfyUiProvider({
+      endpoint: 'http://127.0.0.1:8188',
+      outputRoot: await testRoot(),
+      workflowResolver: async () => workflow,
+      referenceResolver: async () => { referenceReads += 1; return {bytes: PNG}; },
+      fetch: async () => new Response('should not be called', {status: 500}),
+    });
+    const referenceJob = await withWorkflowHash(
+      await frameJob(0, undefined, [{assetId: 'rabbit.reference', contentHash: 'e'.repeat(64)}]),
+      workflowHash,
+    );
+    await expect(new PoseFrameProductionExecutor({
+      provider: referenceMismatchProvider,
+      cas: new LocalContentAddressedAssetStore(await testRoot()),
+      stages: await pipeline(),
+      maxAttempts: 3,
+    }).execute(referenceJob)).rejects.toMatchObject({
+      code: 'GENERATION_REFERENCE_HASH_MISMATCH',
+    });
+    expect(referenceReads).toBe(1);
+
+    let promptCalls = 0;
+    const transientProvider = new ComfyUiProvider({
+      endpoint: 'http://127.0.0.1:8188',
+      outputRoot: await testRoot(),
+      workflowResolver: async () => workflow,
+      fetch: async (input) => {
+        const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input : input.url);
+        if (url.pathname.endsWith('/prompt')) {
+          promptCalls += 1;
+          return promptCalls === 1
+            ? new Response('temporarily unavailable', {status: 503})
+            : new Response(JSON.stringify({prompt_id: 'retry-prompt'}));
+        }
+        if (url.pathname.endsWith('/history/retry-prompt')) return new Response(JSON.stringify({
+          'retry-prompt': {
+            status: {status_str: 'success'},
+            outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
+          },
+        }));
+        if (url.pathname.endsWith('/view')) return new Response(PNG);
+        return new Response('not found', {status: 404});
+      },
+      now: () => new Date('2026-08-15T12:00:00.000Z'),
+      pollIntervalMs: 0,
+      timeoutMs: 100,
+    });
+    const transientJob = await withWorkflowHash(await frameJob(), workflowHash);
+    const execution = await new PoseFrameProductionExecutor({
+      provider: transientProvider,
+      cas: new LocalContentAddressedAssetStore(await testRoot()),
+      stages: await pipeline(),
+      maxAttempts: 2,
+    }).execute(transientJob);
+    expect(execution.generation).toMatchObject({cache: 'miss', attempts: 2});
+    expect(promptCalls).toBe(2);
   });
 
   it('fails without retry when Raw Asset provenance is not bound to the Generation Request', async () => {

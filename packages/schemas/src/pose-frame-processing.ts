@@ -31,6 +31,22 @@ export const PoseFrameProcessorSpecSchema = z.object({
   processorSpecHash: ContentHashSchema,
 }).strict();
 
+const PoseFrameQaEvaluatorSpecPayloadShape = {
+  schemaVersion: z.literal('1.0.0'),
+  evaluator: ProducerRefSchema,
+  model: PoseFrameProcessorModelSchema.optional(),
+  config: JsonValueSchema,
+} as const;
+
+export const PoseFrameQaEvaluatorSpecPayloadSchema = z.object(
+  PoseFrameQaEvaluatorSpecPayloadShape,
+).strict();
+
+export const PoseFrameQaEvaluatorSpecSchema = z.object({
+  ...PoseFrameQaEvaluatorSpecPayloadShape,
+  qaEvaluatorSpecHash: ContentHashSchema,
+}).strict();
+
 export const PoseFrameStageCacheKeyPayloadSchema = z.object({
   stage: PoseFrameProcessStageSchema,
   inputContentHash: ContentHashSchema,
@@ -44,7 +60,7 @@ export const PoseFrameExecutionKeyPayloadSchema = z.object({
     normalized: ContentHashSchema,
     anchored: ContentHashSchema,
   }).strict(),
-  qaEvaluator: ProducerRefSchema,
+  qaEvaluatorSpecHash: ContentHashSchema,
   executor: ProducerRefSchema,
 }).strict();
 
@@ -79,6 +95,30 @@ export async function assertPoseFrameProcessorSpecIntegrity(input: unknown): Pro
   return spec;
 }
 
+export async function hashPoseFrameQaEvaluatorSpecPayload(input: unknown): Promise<string> {
+  return canonicalHash('pose-frame-qa-evaluator-spec-v1', PoseFrameQaEvaluatorSpecPayloadSchema.parse(input));
+}
+
+export async function createPoseFrameQaEvaluatorSpec(input: unknown): Promise<PoseFrameQaEvaluatorSpec> {
+  const payload = PoseFrameQaEvaluatorSpecPayloadSchema.parse(input);
+  return PoseFrameQaEvaluatorSpecSchema.parse({
+    ...payload,
+    qaEvaluatorSpecHash: await hashPoseFrameQaEvaluatorSpecPayload(payload),
+  });
+}
+
+export async function assertPoseFrameQaEvaluatorSpecIntegrity(input: unknown): Promise<PoseFrameQaEvaluatorSpec> {
+  const spec = PoseFrameQaEvaluatorSpecSchema.parse(input);
+  const {qaEvaluatorSpecHash: _qaEvaluatorSpecHash, ...payload} = spec;
+  if (await hashPoseFrameQaEvaluatorSpecPayload(payload) !== spec.qaEvaluatorSpecHash) {
+    throw new PoseFrameProcessorSpecIntegrityError(
+      'POSE_FRAME_QA_EVALUATOR_SPEC_HASH_MISMATCH',
+      spec.evaluator.name,
+    );
+  }
+  return spec;
+}
+
 export async function poseFrameStageCacheKey(input: unknown): Promise<string> {
   return canonicalHash('pose-frame-stage-cache-v1', PoseFrameStageCacheKeyPayloadSchema.parse(input));
 }
@@ -93,3 +133,5 @@ export type PoseFrameProcessorSpecPayload = z.infer<typeof PoseFrameProcessorSpe
 export type PoseFrameProcessorSpec = z.infer<typeof PoseFrameProcessorSpecSchema>;
 export type PoseFrameStageCacheKeyPayload = z.infer<typeof PoseFrameStageCacheKeyPayloadSchema>;
 export type PoseFrameExecutionKeyPayload = z.infer<typeof PoseFrameExecutionKeyPayloadSchema>;
+export type PoseFrameQaEvaluatorSpecPayload = z.infer<typeof PoseFrameQaEvaluatorSpecPayloadSchema>;
+export type PoseFrameQaEvaluatorSpec = z.infer<typeof PoseFrameQaEvaluatorSpecSchema>;
