@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {
   VisualAssetRecordSchema,
+  contentAddressedAssetUri,
 } from './asset.js';
 import {
   ContentHashSchema,
@@ -98,10 +99,15 @@ export const PoseClipFrameSpecSchema = z.object({
   frameSpecHash: ContentHashSchema,
 }).strict().superRefine(refineFrameSpec);
 
-export const PoseClipFrameJobSchema = z.object({
+const PoseClipFrameJobPayloadShape = {
   spec: PoseClipFrameSpecSchema,
   generationRequest: ActionGenerationRequestSchema,
-}).strict().superRefine((job, context) => {
+} as const;
+
+function refineFrameJob(
+  job: z.output<z.ZodObject<typeof PoseClipFrameJobPayloadShape>>,
+  context: z.RefinementCtx,
+): void {
   const request = job.generationRequest;
   const spec = job.spec;
   if (request.frameSpecHash !== spec.frameSpecHash) context.addIssue({
@@ -118,7 +124,16 @@ export const PoseClipFrameJobSchema = z.object({
     code: 'custom', message: 'Generation references must match FrameSpec references',
     path: ['generationRequest', 'referenceAssets'],
   });
-});
+}
+
+export const PoseClipFrameJobPayloadSchema = z.object(
+  PoseClipFrameJobPayloadShape,
+).strict().superRefine(refineFrameJob);
+
+export const PoseClipFrameJobSchema = z.object({
+  ...PoseClipFrameJobPayloadShape,
+  frameJobHash: ContentHashSchema,
+}).strict().superRefine(refineFrameJob);
 
 const PoseClipProductionRequestPayloadShape = {
   schemaVersion: z.literal('1.0.0'),
@@ -214,11 +229,18 @@ export const PoseFrameProductionQaSchema = z.object({
 });
 
 export const PoseFrameArtifactStageSchema = z.enum(['raw', 'matted', 'normalized', 'anchored']);
+export const ProductionVisualAssetSchema = VisualAssetRecordSchema.superRefine((asset, context) => {
+  if (asset.uri !== contentAddressedAssetUri(asset.contentHash)) context.addIssue({
+    code: 'custom',
+    message: 'Production artifacts require asset://sha256/<contentHash> identity',
+    path: ['uri'],
+  });
+});
 const PoseFrameArtifactPayloadShape = {
   stage: PoseFrameArtifactStageSchema,
   inputHash: ContentHashSchema,
   producer: ProducerRefSchema,
-  asset: VisualAssetRecordSchema,
+  asset: ProductionVisualAssetSchema,
 } as const;
 export const PoseFrameArtifactPayloadSchema = z.object(PoseFrameArtifactPayloadShape).strict();
 export const PoseFrameArtifactSchema = z.object({
@@ -228,7 +250,7 @@ export const PoseFrameArtifactSchema = z.object({
 
 const PoseClipFrameProductionResultPayloadShape = {
   schemaVersion: z.literal('1.0.0'),
-  productionRequestHash: ContentHashSchema,
+  frameJobHash: ContentHashSchema,
   frameIndex: z.number().int().nonnegative(),
   frameSpecHash: ContentHashSchema,
   generationInputHash: ContentHashSchema,
@@ -337,6 +359,35 @@ export async function createPoseClipFrameSpec(input: unknown): Promise<PoseClipF
   return PoseClipFrameSpecSchema.parse({...payload, frameSpecHash: await hashPoseClipFrameSpecPayload(payload)});
 }
 
+export async function hashPoseClipFrameJobPayload(input: unknown): Promise<string> {
+  return canonicalHash('pose-clip-frame-job-v1', PoseClipFrameJobPayloadSchema.parse(input));
+}
+
+export async function assertPoseClipFrameJobIntegrity(input: unknown): Promise<PoseClipFrameJob> {
+  const job = PoseClipFrameJobSchema.parse(input);
+  const {frameSpecHash: _frameSpecHash, ...specPayload} = job.spec;
+  if (await hashPoseClipFrameSpecPayload(specPayload) !== job.spec.frameSpecHash) {
+    throw new PoseClipProductionIntegrityError('FRAME_SPEC_HASH_MISMATCH', `Frame ${job.spec.frameIndex}`);
+  }
+  const generationHash = await hashActionGenerationRequestPayload(actionGenerationRequestPayload(job.generationRequest));
+  if (generationHash !== job.generationRequest.inputHash) {
+    throw new PoseClipProductionIntegrityError('GENERATION_INPUT_HASH_MISMATCH', `Frame ${job.spec.frameIndex}`);
+  }
+  const {frameJobHash: _frameJobHash, ...payload} = job;
+  if (await hashPoseClipFrameJobPayload(payload) !== job.frameJobHash) {
+    throw new PoseClipProductionIntegrityError('FRAME_JOB_HASH_MISMATCH', `Frame ${job.spec.frameIndex}`);
+  }
+  return job;
+}
+
+export async function createPoseClipFrameJob(input: unknown): Promise<PoseClipFrameJob> {
+  const payload = PoseClipFrameJobPayloadSchema.parse(input);
+  return assertPoseClipFrameJobIntegrity({
+    ...payload,
+    frameJobHash: await hashPoseClipFrameJobPayload(payload),
+  });
+}
+
 export async function hashPoseClipProductionRequestPayload(input: unknown): Promise<string> {
   return canonicalHash('pose-clip-production-request-v1', PoseClipProductionRequestPayloadSchema.parse(input));
 }
@@ -344,14 +395,7 @@ export async function hashPoseClipProductionRequestPayload(input: unknown): Prom
 export async function assertPoseClipProductionRequestIntegrity(input: unknown): Promise<PoseClipProductionRequest> {
   const request = PoseClipProductionRequestSchema.parse(input);
   for (const frame of request.frames) {
-    const {frameSpecHash: _frameSpecHash, ...specPayload} = frame.spec;
-    if (await hashPoseClipFrameSpecPayload(specPayload) !== frame.spec.frameSpecHash) {
-      throw new PoseClipProductionIntegrityError('FRAME_SPEC_HASH_MISMATCH', `Frame ${frame.spec.frameIndex}`);
-    }
-    const generationHash = await hashActionGenerationRequestPayload(actionGenerationRequestPayload(frame.generationRequest));
-    if (generationHash !== frame.generationRequest.inputHash) {
-      throw new PoseClipProductionIntegrityError('GENERATION_INPUT_HASH_MISMATCH', `Frame ${frame.spec.frameIndex}`);
-    }
+    await assertPoseClipFrameJobIntegrity(frame);
   }
   const {requestHash: _requestHash, ...payload} = request;
   if (await hashPoseClipProductionRequestPayload(payload) !== request.requestHash) {
@@ -421,9 +465,9 @@ export async function assertPoseClipProductionResultIntegrity(
     const job = request.frames[index]!;
     if (
       frameResult.frameIndex !== index
+      || frameResult.frameJobHash !== job.frameJobHash
       || frameResult.frameSpecHash !== job.spec.frameSpecHash
       || frameResult.generationInputHash !== job.generationRequest.inputHash
-      || frameResult.productionRequestHash !== request.requestHash
     ) throw new PoseClipProductionIntegrityError('FRAME_RESULT_BINDING_MISMATCH', `Frame ${index}`);
     for (const requiredAnchor of job.spec.requiredAnchors) {
       if (!hasRequiredAnchor(frameResult.poseFrame.anchors, requiredAnchor)) {
@@ -478,6 +522,9 @@ export async function assertPoseClipProductionResultIntegrity(
   if (request.loop && result.qa.productionReady && result.qa.loopClosure !== 'passed') throw new PoseClipProductionIntegrityError(
     'LOOP_CLOSURE_NOT_PASSED', result.poseClip.id,
   );
+  if (request.loop && result.qa.loopClosure === 'not-applicable') throw new PoseClipProductionIntegrityError(
+    'LOOP_CLOSURE_REQUIRED', result.poseClip.id,
+  );
   if (!request.loop && result.qa.loopClosure !== 'not-applicable') throw new PoseClipProductionIntegrityError(
     'LOOP_CLOSURE_MUST_BE_NOT_APPLICABLE', result.poseClip.id,
   );
@@ -492,11 +539,14 @@ export type PoseFramePhase = z.infer<typeof PoseFramePhaseSchema>;
 export type PoseAnchorRequirement = z.infer<typeof PoseAnchorRequirementSchema>;
 export type PoseClipFrameSpecPayload = z.infer<typeof PoseClipFrameSpecPayloadSchema>;
 export type PoseClipFrameSpec = z.infer<typeof PoseClipFrameSpecSchema>;
+export type PoseClipFrameJobPayload = z.infer<typeof PoseClipFrameJobPayloadSchema>;
 export type PoseClipFrameJob = z.infer<typeof PoseClipFrameJobSchema>;
 export type PoseClipProductionRequestPayload = z.infer<typeof PoseClipProductionRequestPayloadSchema>;
 export type PoseClipProductionRequest = z.infer<typeof PoseClipProductionRequestSchema>;
 export type PoseProductionDiagnostic = z.infer<typeof PoseProductionDiagnosticSchema>;
 export type PoseFrameProductionQa = z.infer<typeof PoseFrameProductionQaSchema>;
+export type PoseFrameArtifactStage = z.infer<typeof PoseFrameArtifactStageSchema>;
+export type ProductionVisualAsset = z.infer<typeof ProductionVisualAssetSchema>;
 export type PoseFrameArtifact = z.infer<typeof PoseFrameArtifactSchema>;
 export type PoseClipFrameProductionResult = z.infer<typeof PoseClipFrameProductionResultSchema>;
 export type PoseClipProductionQa = z.infer<typeof PoseClipProductionQaSchema>;

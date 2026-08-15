@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 3.0 — Multi-frame PoseClip Production Contract / PASS**。Action Package v1、ComfyUI Provider 2/2.1 与 Asset Resolution Closure 保持 PASS / Frozen；多帧 PoseClip 生产已冻结为“每帧独立生成、缓存、重试、处理和 QA”的契约，尚未接入真实多帧工作流或 Task Graph Executor。
+当前里程碑：**M3 Commit 3.0.1 — Multi-frame PoseClip Production Contract / PASS / Frozen**。Action Package v1、ComfyUI Provider 2/2.1 与 Asset Resolution Closure 保持 PASS / Frozen；`frameJobHash` 使每帧生成与完整处理结果都可独立缓存和重试，Production Artifact 统一使用 `asset://sha256/<contentHash>` 身份。尚未接入真实多帧工作流或 Task Graph Executor。
 
 ## 已冻结的实现边界
 

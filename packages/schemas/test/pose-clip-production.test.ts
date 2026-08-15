@@ -1,10 +1,12 @@
 import {describe, expect, it} from 'vitest';
 import {
-  PoseClipProductionIntegrityError,
   PoseClipProductionRequestSchema,
+  PoseFrameArtifactSchema,
   assertPoseClipProductionRequestIntegrity,
   assertPoseClipProductionResultIntegrity,
+  contentAddressedAssetUri,
   createActionGenerationRequest,
+  createPoseClipFrameJob,
   createPoseClipFrameSpec,
   createPoseClipProductionRequest,
   hashPoseClipContent,
@@ -32,7 +34,7 @@ const FRAME_DEFINITIONS = [
   {phase: 'airborne', contact: 'none', referenceFoot: 'auto'},
 ] as const;
 
-async function createFrameJob(frameIndex: number, poseIntent?: string): Promise<PoseClipFrameJob> {
+async function createTestFrameJob(frameIndex: number, poseIntent?: string): Promise<PoseClipFrameJob> {
   const definition = FRAME_DEFINITIONS[frameIndex]!;
   const requiredAnchors = ['foot', 'center'];
   if (definition.contact === 'left-foot') requiredAnchors.push('leftFoot');
@@ -72,11 +74,11 @@ async function createFrameJob(frameIndex: number, poseIntent?: string): Promise<
     referenceAssets,
     output: {...output, nodeId: '17', expectedCount: 1},
   });
-  return {spec, generationRequest};
+  return createPoseClipFrameJob({spec, generationRequest});
 }
 
 async function createRequest(): Promise<PoseClipProductionRequest> {
-  const frames = await Promise.all(FRAME_DEFINITIONS.map((_, index) => createFrameJob(index)));
+  const frames = await Promise.all(FRAME_DEFINITIONS.map((_, index) => createTestFrameJob(index)));
   return createPoseClipProductionRequest({
     schemaVersion: '1.0.0',
     id: 'production.rabbit.run-left.v1',
@@ -108,7 +110,7 @@ async function createArtifacts(job: PoseClipFrameJob): Promise<PoseFrameArtifact
       producer: PRODUCER,
       asset: {
         id: finalStage ? job.spec.output.assetId : `${job.spec.output.assetId}.${stage}`,
-        uri: `file:///pose-production/${job.spec.frameIndex}/${stage}.png`,
+        uri: contentAddressedAssetUri(contentHash(job.spec.frameIndex, stageIndex)),
         contentHash: contentHash(job.spec.frameIndex, stageIndex),
         source: 'manual' as const,
         qaStatus: 'passed' as const,
@@ -129,13 +131,12 @@ async function createArtifacts(job: PoseClipFrameJob): Promise<PoseFrameArtifact
 }
 
 async function createFrameResult(
-  request: PoseClipProductionRequest,
   job: PoseClipFrameJob,
 ): Promise<PoseClipFrameProductionResult> {
   const artifacts = await createArtifacts(job);
   const framePayload = {
     schemaVersion: '1.0.0' as const,
-    productionRequestHash: request.requestHash,
+    frameJobHash: job.frameJobHash,
     frameIndex: job.spec.frameIndex,
     frameSpecHash: job.spec.frameSpecHash,
     generationInputHash: job.generationRequest.inputHash,
@@ -167,8 +168,12 @@ async function createFrameResult(
   };
 }
 
-async function createResult(request: PoseClipProductionRequest): Promise<PoseClipProductionResult> {
-  const frameResults = await Promise.all(request.frames.map((job) => createFrameResult(request, job)));
+async function createResult(
+  request: PoseClipProductionRequest,
+  existingFrameResults?: PoseClipFrameProductionResult[],
+): Promise<PoseClipProductionResult> {
+  const frameResults = existingFrameResults
+    ?? await Promise.all(request.frames.map((job) => createFrameResult(job)));
   const poseClip = {
     id: request.poseClipId,
     entityType: request.entityType,
@@ -213,7 +218,7 @@ async function createResult(request: PoseClipProductionRequest): Promise<PoseCli
 describe('M3 PoseClip production contract', () => {
   it('keeps every frame independently generated, cached and bound to its FrameSpec', async () => {
     const request = await createRequest();
-    expect(request.requestHash).toBe('32775cd0952e16f7ea35d919f66af25e521704aa16fd0c5fdc065727eca87d7e');
+    expect(request.requestHash).toBe('c1248b8a854e368cb9c53f57eafb6684de07b5c08bfad6bd3af19eb83402f139');
     expect(request.frames.map(({spec}) => spec.frameSpecHash)).toEqual([
       'dee1d32ef98621d7412e2a8bb1430c8007811040a27bf2f4cdffd08790efd783',
       'aa320ff7f816d52b9102f17f8d0a5c2866b7f84fc7543b3af0fb2d3c8cddb63e',
@@ -226,13 +231,20 @@ describe('M3 PoseClip production contract', () => {
       '048b4f75521a1b2bf774bb575bc32628f6b2f49bc3e83581a3b1c591635fe599',
       '3175efed21e74ed071a509a0bfef71ed74ee39f23f8e7e9ad8938fdffa1c7881',
     ]);
+    expect(request.frames.map(({frameJobHash}) => frameJobHash)).toEqual([
+      'd32fbf582548c0436154980c3f1a9d22bb647d1a1b703895bf7ddd9d5aa9663b',
+      '873de09d154e7a957152ae0b38d8000607fdb6090e975d7112970277b511afdc',
+      '6c5a6acf37c29bb3061b3333fa77cdd7961dd3a89cd79de7705d4fc1eb2fd9cf',
+      '715bdb9c0e5406548cf208f5229581a94b815049d844734758328d386e83eef6',
+    ]);
+    expect(new Set(request.frames.map(({frameJobHash}) => frameJobHash)).size).toBe(4);
     expect(request.frames).toHaveLength(4);
     expect(new Set(request.frames.map(({spec}) => spec.frameSpecHash)).size).toBe(4);
     expect(new Set(request.frames.map(({generationRequest}) => generationRequest.inputHash)).size).toBe(4);
     expect(request.frames.every(({generationRequest}) => generationRequest.output.expectedCount === 1)).toBe(true);
     await expect(assertPoseClipProductionRequestIntegrity(request)).resolves.toEqual(request);
 
-    const changedJob = await createFrameJob(0, 'Rabbit lowers its body before pushing off');
+    const changedJob = await createTestFrameJob(0, 'Rabbit lowers its body before pushing off');
     expect(changedJob.spec.frameSpecHash).not.toBe(request.frames[0]!.spec.frameSpecHash);
     expect(changedJob.generationRequest.inputHash).not.toBe(request.frames[0]!.generationRequest.inputHash);
   });
@@ -261,10 +273,35 @@ describe('M3 PoseClip production contract', () => {
     );
   });
 
+  it('reuses unchanged processed frame results after one FrameSpec changes', async () => {
+    const originalRequest = await createRequest();
+    const originalResult = await createResult(originalRequest);
+    const changedJob = await createTestFrameJob(2, 'Rabbit extends its right leg at ground contact');
+    const {requestHash: _requestHash, ...requestPayload} = originalRequest;
+    const changedRequest = await createPoseClipProductionRequest({
+      ...requestPayload,
+      frames: originalRequest.frames.map((job, index) => index === 2 ? changedJob : job),
+    });
+    expect(changedRequest.requestHash).not.toBe(originalRequest.requestHash);
+    expect(changedRequest.frames[0]!.frameJobHash).toBe(originalRequest.frames[0]!.frameJobHash);
+    expect(changedRequest.frames[2]!.frameJobHash).not.toBe(originalRequest.frames[2]!.frameJobHash);
+
+    const changedFrameResult = await createFrameResult(changedJob);
+    const reusedFrameResults = originalResult.frameResults.map((result, index) => (
+      index === 2 ? changedFrameResult : result
+    ));
+    const changedResult = await createResult(changedRequest, reusedFrameResults);
+    await expect(assertPoseClipProductionResultIntegrity(changedRequest, changedResult)).resolves.toEqual(changedResult);
+    expect(changedResult.frameResults[0]!.resultHash).toBe(originalResult.frameResults[0]!.resultHash);
+    expect(changedResult.frameResults[1]!.resultHash).toBe(originalResult.frameResults[1]!.resultHash);
+    expect(changedResult.frameResults[3]!.resultHash).toBe(originalResult.frameResults[3]!.resultHash);
+  });
+
   it('fails closed when artifact bytes identity or required anchors no longer match evidence', async () => {
     const request = await createRequest();
     const tamperedArtifact = await createResult(request);
     tamperedArtifact.frameResults[0]!.artifacts[0]!.asset.contentHash = 'f'.repeat(64);
+    tamperedArtifact.frameResults[0]!.artifacts[0]!.asset.uri = contentAddressedAssetUri('f'.repeat(64));
     await expect(assertPoseClipProductionResultIntegrity(request, tamperedArtifact)).rejects.toMatchObject({
       code: 'FRAME_ARTIFACT_HASH_MISMATCH',
     });
@@ -281,15 +318,25 @@ describe('M3 PoseClip production contract', () => {
       ...sourceGenerationPayload,
       frameSpecHash: spec.frameSpecHash,
     });
+    const frameJob = await createPoseClipFrameJob({spec, generationRequest});
     const {requestHash: _oldRequestHash, ...requestPayload} = requiredAnchorRequest;
     const rebuiltRequest = await createPoseClipProductionRequest({
       ...requestPayload,
-      frames: [{spec, generationRequest}, ...requiredAnchorRequest.frames.slice(1)],
+      frames: [frameJob, ...requiredAnchorRequest.frames.slice(1)],
     });
     const missingAnchorResult = await createResult(rebuiltRequest);
     await expect(assertPoseClipProductionResultIntegrity(rebuiltRequest, missingAnchorResult)).rejects.toMatchObject({
       code: 'REQUIRED_POSE_FRAME_ANCHOR_MISSING',
     });
+  });
+
+  it('requires content-addressed identity for every production artifact', async () => {
+    const request = await createRequest();
+    const artifact = (await createArtifacts(request.frames[0]!))[0]!;
+    expect(PoseFrameArtifactSchema.safeParse({
+      ...artifact,
+      asset: {...artifact.asset, uri: 'file:///disk-a/rabbit.png'},
+    }).success).toBe(false);
   });
 
   it('records failed loop QA without falsely claiming production readiness', async () => {
@@ -306,5 +353,17 @@ describe('M3 PoseClip production contract', () => {
       resultHash: await hashPoseClipProductionResultPayload(payload),
     };
     await expect(assertPoseClipProductionResultIntegrity(request, failedQaResult)).resolves.toEqual(failedQaResult);
+
+    const notApplicablePayload = {
+      ...payload,
+      qa: {...result.qa, loopClosure: 'not-applicable' as const, productionReady: false},
+    };
+    const notApplicableResult = {
+      ...notApplicablePayload,
+      resultHash: await hashPoseClipProductionResultPayload(notApplicablePayload),
+    };
+    await expect(assertPoseClipProductionResultIntegrity(request, notApplicableResult)).rejects.toMatchObject({
+      code: 'LOOP_CLOSURE_REQUIRED',
+    });
   });
 });
