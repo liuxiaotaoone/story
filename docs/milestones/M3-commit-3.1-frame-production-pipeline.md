@@ -1,4 +1,4 @@
-# M3 Commit 3.1.1 — Frame Production Pipeline / Execution Identity Closure
+# M3 Commit 3.1.2 — Frame Production Pipeline / Result Evidence & Generation Resume Closure
 
 状态：**PASS / Frozen**
 
@@ -92,6 +92,24 @@ pose-frame-execution-v1
 
 这避免 Processor 配置变化后错误复用完整 Frame Result。
 
+`frameExecutionKey` 同时进入 `PoseClipFrameProductionResult` Payload 与 `resultHash`。因此 Processor、QA 或 Executor 身份变化时，即使最终 PNG 与 QA 状态碰巧相同，Production Evidence 的身份仍然不同。Result Cache 命中时还会校验结果内的 Key 与当前执行 Key 完全一致。
+
+## Generation Resume Contract
+
+ComfyUI Provider 暴露分阶段执行合同：
+
+```text
+submit(request)
+→ promptId + generationInputHash
+→ Generation Resume Cache
+→ collect(request, same submission)
+→ Poll / Download / Verify
+```
+
+Submit 成功后，Poll、History、Timeout 或 Download 的显式瞬态错误只重试 `collect`，不会再次调用 `POST /prompt`。未完成任务的 submission 会保留在可替换的 Resume Cache 中，后续 Executor 可以继续收集同一个 promptId；生成产物写入 Generation Cache 后才清除 Resume Record。普通非分阶段 Provider 继续使用兼容的 `generate()` 路径。
+
+如果网络在 `POST /prompt` 已被服务端接收、但客户端尚未获得 promptId 时断开，仍属于未知提交状态；按 `generationInputHash` 查询 ComfyUI Queue/History 的服务端恢复能力留给后续持久化 Worker，不在 3.1.2 内伪造保证。
+
 ## 失效范围
 
 回归测试冻结以下行为：
@@ -105,6 +123,10 @@ pose-frame-execution-v1
 - HTTP 408、429、5xx、网络失败、ComfyUI 超时及显式 Processor transient error 按有限次数重试；
 - Workflow Hash、Reference Hash、Provenance、Processor Contract 等完整性错误第一次即 fail-fast；
 - Raw Provenance 与 Generation Request 不一致时 fail-fast。
+- QA 配置变化但 QA 输出相同：`frameExecutionKey` 与 `resultHash` 都必须改变；
+- History 或 `/view` 首次返回 503：继续使用原 promptId，`POST /prompt` 总调用次数保持 1；
+- Collect 中断后使用共享 Resume Cache 再执行：恢复原 promptId，不提交第二个 Job；
+- Processor 首次修改输入 bytes 并瞬时失败：第二次仍收到未经修改的原始 bytes。
 
 ## Retry Contract
 
@@ -115,8 +137,10 @@ pose-frame-execution-v1
 
 `AssetGenerationIntegrityError`、Processor Contract Error、Execution Integrity Error 与未分类异常均 fail-fast。回归测试固定 Workflow Hash mismatch 和 Reference Hash mismatch 只调用 Provider 一次，HTTP 503 首次失败则第二次重试成功。
 
+Processor 每次 Attempt 都收到 `bytes.slice()` 与 `structuredClone(spec)`；QA Evaluator 同样收到 FrameJob、Artifacts、Anchors 与 Spec 的工作副本。执行插件无法通过修改输入污染后续重试或缓存身份。
+
 ## 当前边界
 
-本版本的 Cache 是可替换接口加内存 Reference 实现；Local CAS 已实际写入 `<contentHash>.png`。持久化 Result Cache / Task Graph、CAS 崩溃恢复、并发调度和运行时模型文件 Hash 复核不在 3.1.1 范围内。
+本版本的 Cache 是可替换接口加内存 Reference 实现；Local CAS 已实际写入 `<contentHash>.png`。持久化 Result/Resume Cache、未知 Submit 状态恢复、CAS 崩溃恢复、并发调度和运行时模型文件 Hash 复核不在 3.1.2 范围内。
 
 下一阶段 M3 Commit 3.2 实现跨帧 Continuity QA，包括 Identity、Scale、Canvas、Body Proportion、Foot Contact、Anchor Movement、Silhouette 与 Loop Closure。

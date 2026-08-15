@@ -23,10 +23,12 @@ import {
 import {inspectPng} from './png.js';
 import {
   InMemoryPoseFrameGenerationCache,
+  InMemoryPoseFrameGenerationResumeCache,
   InMemoryPoseFrameResultCache,
   InMemoryPoseFrameStageCache,
   type CachedPoseFrameStageOutput,
   type PoseFrameGenerationCache,
+  type PoseFrameGenerationResumeCache,
   type PoseFrameResultCache,
   type PoseFrameStageCache,
 } from './pose-frame-cache.js';
@@ -34,12 +36,17 @@ import {
   PoseFrameProcessorTransientError,
   type PoseFrameProcessor,
 } from './pose-frame-processor.js';
-import type {GeneratedImageArtifact, ImageGenerationProvider} from './provider.js';
+import {
+  isResumableImageGenerationProvider,
+  type GeneratedImageArtifact,
+  type GenerationSubmission,
+  type ImageGenerationProvider,
+} from './provider.js';
 import type {ContentAddressedAssetStore} from './local-cas-store.js';
 import {AssetGenerationTransientError} from './integrity.js';
 
 const PROCESS_STAGES = ['matted', 'normalized', 'anchored'] as const;
-const EXECUTOR_PRODUCER = {name: 'pose-frame-production-executor', version: '0.1.1'} as const;
+const EXECUTOR_PRODUCER = {name: 'pose-frame-production-executor', version: '0.1.2'} as const;
 
 export type FrameProductionCacheStatus = 'hit' | 'miss' | 'covered-by-frame-result';
 
@@ -116,6 +123,7 @@ export interface PoseFrameProductionExecutorOptions {
   readonly cas: ContentAddressedAssetStore;
   readonly stages: readonly PoseFramePipelineStage[];
   readonly generationCache?: PoseFrameGenerationCache;
+  readonly generationResumeCache?: PoseFrameGenerationResumeCache;
   readonly stageCache?: PoseFrameStageCache;
   readonly resultCache?: PoseFrameResultCache;
   readonly qa?: PoseFrameQaBinding;
@@ -183,12 +191,14 @@ function assertPngMetadata(bytes: Uint8Array, asset: VisualAssetRecord, context:
 
 export class PoseFrameProductionExecutor {
   readonly #generationCache: PoseFrameGenerationCache;
+  readonly #generationResumeCache: PoseFrameGenerationResumeCache;
   readonly #stageCache: PoseFrameStageCache;
   readonly #resultCache: PoseFrameResultCache;
   readonly #maxAttempts: number;
 
   constructor(private readonly options: PoseFrameProductionExecutorOptions) {
     this.#generationCache = options.generationCache ?? new InMemoryPoseFrameGenerationCache();
+    this.#generationResumeCache = options.generationResumeCache ?? new InMemoryPoseFrameGenerationResumeCache();
     this.#stageCache = options.stageCache ?? new InMemoryPoseFrameStageCache();
     this.#resultCache = options.resultCache ?? new InMemoryPoseFrameResultCache();
     this.#maxAttempts = options.maxAttempts ?? 2;
@@ -298,22 +308,69 @@ export class PoseFrameProductionExecutor {
     }
     const cacheKey = frameJob.generationRequest.inputHash;
     const cached = await this.#generationCache.get(cacheKey);
-    if (cached !== undefined) return {
-      artifact: await this.#validatedGeneratedArtifact(frameJob, cached),
-      report: {cache: 'hit', attempts: 0, cacheKey},
-    };
-    const generated = await retry(`generation frame ${frameJob.spec.frameIndex}`, this.#maxAttempts, async () => {
-      const outputs = await this.options.provider.generate(frameJob.generationRequest);
-      if (outputs.length !== 1 || outputs[0] === undefined) throw new PoseFrameProductionExecutionError(
-        'RAW_GENERATION_OUTPUT_COUNT_MISMATCH', `Frame ${frameJob.spec.frameIndex}`,
+    if (cached !== undefined) {
+      await this.#generationResumeCache.delete(cacheKey);
+      return {
+        artifact: await this.#validatedGeneratedArtifact(frameJob, cached),
+        report: {cache: 'hit', attempts: 0, cacheKey},
+      };
+    }
+
+    let generationAttempts: number;
+    let outputs: GeneratedImageArtifact[];
+    const provider = this.options.provider;
+    if (isResumableImageGenerationProvider(provider)) {
+      let submission = await this.#generationResumeCache.get(cacheKey);
+      let submitAttempts = 0;
+      if (submission === undefined) {
+        const submitted = await retry(
+          `generation submit frame ${frameJob.spec.frameIndex}`,
+          this.#maxAttempts,
+          () => provider.submit(frameJob.generationRequest),
+        );
+        submission = submitted.value;
+        submitAttempts = submitted.attempts;
+        this.#assertSubmissionBinding(frameJob, submission);
+        await this.#generationResumeCache.set(cacheKey, submission);
+      } else {
+        this.#assertSubmissionBinding(frameJob, submission);
+      }
+      const activeSubmission = submission;
+      const collected = await retry(
+        `generation collect frame ${frameJob.spec.frameIndex}`,
+        this.#maxAttempts,
+        () => provider.collect(frameJob.generationRequest, activeSubmission),
       );
-      return this.#validatedGeneratedArtifact(frameJob, outputs[0]);
-    });
-    await this.#generationCache.set(cacheKey, generated.value);
+      outputs = collected.value;
+      generationAttempts = Math.max(submitAttempts, collected.attempts);
+    } else {
+      const generated = await retry(`generation frame ${frameJob.spec.frameIndex}`, this.#maxAttempts, () => (
+        provider.generate(frameJob.generationRequest)
+      ));
+      outputs = generated.value;
+      generationAttempts = generated.attempts;
+    }
+
+    if (outputs.length !== 1 || outputs[0] === undefined) throw new PoseFrameProductionExecutionError(
+      'RAW_GENERATION_OUTPUT_COUNT_MISMATCH', `Frame ${frameJob.spec.frameIndex}`,
+    );
+    const artifact = await this.#validatedGeneratedArtifact(frameJob, outputs[0]);
+    await this.#generationCache.set(cacheKey, artifact);
+    await this.#generationResumeCache.delete(cacheKey);
     return {
-      artifact: generated.value,
-      report: {cache: 'miss', attempts: generated.attempts, cacheKey},
+      artifact,
+      report: {cache: 'miss', attempts: generationAttempts, cacheKey},
     };
+  }
+
+  #assertSubmissionBinding(frameJob: PoseClipFrameJob, submission: GenerationSubmission): void {
+    if (
+      submission.generationInputHash !== frameJob.generationRequest.inputHash
+      || submission.promptId.length === 0
+    ) throw new PoseFrameProductionExecutionError(
+      'GENERATION_SUBMISSION_BINDING_MISMATCH',
+      `Frame ${frameJob.spec.frameIndex}`,
+    );
   }
 
   async #rawEvidence(frameJob: PoseClipFrameJob, generated: GeneratedImageArtifact): Promise<PoseFrameArtifact> {
@@ -368,9 +425,9 @@ export class PoseFrameProductionExecutor {
       cache = 'miss';
       const processed = await retry(`${stage} frame ${frameJob.spec.frameIndex}`, this.#maxAttempts, () => (
         entry.processor.process({
-          bytes: input.bytes,
+          bytes: input.bytes.slice(),
           inputContentHash: input.asset.contentHash,
-          spec: entry.spec,
+          spec: structuredClone(entry.spec),
         })
       ));
       attempts = processed.attempts;
@@ -446,7 +503,11 @@ export class PoseFrameProductionExecutor {
     const frameExecutionKey = await this.#frameExecutionKey(frameJob, stages, qaBinding);
     const cachedResult = await this.#resultCache.get(frameExecutionKey);
     if (cachedResult !== undefined) {
-      const result = await assertPoseClipFrameProductionResultIntegrity(frameJob, cachedResult);
+      const result = await assertPoseClipFrameProductionResultIntegrity(
+        frameJob,
+        cachedResult,
+        frameExecutionKey,
+      );
       const coveredStages = await Promise.all(stages.map(async ({spec}, index) => ({
         cache: 'covered-by-frame-result' as const,
         attempts: 0,
@@ -490,13 +551,14 @@ export class PoseFrameProductionExecutor {
       'ANCHOR_PROCESSOR_OUTPUT_MISSING', `Frame ${frameJob.spec.frameIndex}`,
     );
     const qa = await qaBinding.evaluator.evaluate({
-      frameJob,
-      artifacts,
-      anchors,
-      spec: qaBinding.spec,
+      frameJob: structuredClone(frameJob),
+      artifacts: structuredClone(artifacts),
+      anchors: structuredClone(anchors),
+      spec: structuredClone(qaBinding.spec),
     });
     const framePayload = {
       schemaVersion: '1.0.0' as const,
+      frameExecutionKey,
       frameJobHash: frameJob.frameJobHash,
       frameIndex: frameJob.spec.frameIndex,
       frameSpecHash: frameJob.spec.frameSpecHash,
@@ -511,10 +573,14 @@ export class PoseFrameProductionExecutor {
       },
       qa,
     };
-    const result = await assertPoseClipFrameProductionResultIntegrity(frameJob, {
-      ...framePayload,
-      resultHash: await hashPoseClipFrameProductionResultPayload(framePayload),
-    });
+    const result = await assertPoseClipFrameProductionResultIntegrity(
+      frameJob,
+      {
+        ...framePayload,
+        resultHash: await hashPoseClipFrameProductionResultPayload(framePayload),
+      },
+      frameExecutionKey,
+    );
     await this.#resultCache.set(frameExecutionKey, result);
     return {
       frameExecutionKey,

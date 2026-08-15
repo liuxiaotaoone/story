@@ -140,6 +140,7 @@ async function createFrameResult(
   const artifacts = await createArtifacts(job);
   const framePayload = {
     schemaVersion: '1.0.0' as const,
+    frameExecutionKey: '9'.repeat(64),
     frameJobHash: job.frameJobHash,
     frameIndex: job.spec.frameIndex,
     frameSpecHash: job.spec.frameSpecHash,

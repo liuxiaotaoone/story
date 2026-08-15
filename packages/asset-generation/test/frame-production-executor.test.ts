@@ -20,6 +20,7 @@ import {
   ComfyUiProvider,
   DeterministicReferencePoseFrameProcessor,
   InMemoryPoseFrameGenerationCache,
+  InMemoryPoseFrameGenerationResumeCache,
   InMemoryPoseFrameResultCache,
   InMemoryPoseFrameStageCache,
   LocalContentAddressedAssetStore,
@@ -113,6 +114,25 @@ class FailingOnceProcessor implements PoseFrameProcessor {
     if (this.failuresRemaining > 0) {
       this.failuresRemaining -= 1;
       throw new PoseFrameProcessorTransientError('transient processor failure');
+    }
+    return this.inner.process(input);
+  }
+}
+
+class MutatingFailingOnceProcessor implements PoseFrameProcessor {
+  readonly observedFirstBytes: number[] = [];
+
+  constructor(private readonly inner: PoseFrameProcessor) {}
+
+  get id(): string { return this.inner.id; }
+  get version(): string { return this.inner.version; }
+  get stage() { return this.inner.stage; }
+
+  async process(input: PoseFrameProcessorInput): Promise<PoseFrameProcessorOutput> {
+    this.observedFirstBytes.push(input.bytes[0]!);
+    if (this.observedFirstBytes.length === 1) {
+      input.bytes[0] = 0;
+      throw new PoseFrameProcessorTransientError('mutated transient processor failure');
     }
     return this.inner.process(input);
   }
@@ -354,6 +374,9 @@ describe('M3 Frame Production Pipeline', () => {
       qa: await qaBinding(0.1),
     }).execute(job);
     expect(changed.frameExecutionKey).not.toBe(first.frameExecutionKey);
+    expect(changed.result.frameExecutionKey).toBe(changed.frameExecutionKey);
+    expect(changed.result.qa).toEqual(first.result.qa);
+    expect(changed.result.resultHash).not.toBe(first.result.resultHash);
     expect(changed.resultCache).toBe('miss');
     expect(changed.generation.cache).toBe('hit');
     expect(changed.stages.map(({cache}) => cache)).toEqual(['hit', 'hit', 'hit']);
@@ -398,6 +421,138 @@ describe('M3 Frame Production Pipeline', () => {
     expect(execution.stages[0]).toMatchObject({cache: 'miss', attempts: 2});
     expect(provider.calls).toBe(2);
     expect(flakyMatting.calls).toBe(2);
+  });
+
+  it('gives every Processor attempt a fresh copy of the original input bytes', async () => {
+    const processor = new MutatingFailingOnceProcessor(
+      new DeterministicReferencePoseFrameProcessor('matted', 'fake-matting', '1.0.0'),
+    );
+    const execution = await new PoseFrameProductionExecutor({
+      provider: new CountingComfyProvider(),
+      cas: new LocalContentAddressedAssetStore(await testRoot()),
+      stages: await pipeline({mattingProcessor: processor}),
+      maxAttempts: 2,
+    }).execute(await frameJob());
+    expect(processor.observedFirstBytes).toEqual([PNG[0], PNG[0]]);
+    expect(execution.stages[0]).toMatchObject({cache: 'miss', attempts: 2});
+  });
+
+  it('retries History for the submitted prompt without queueing a second ComfyUI job', async () => {
+    const workflow = new TextEncoder().encode(JSON.stringify({'17': {class_type: 'SaveImage', inputs: {}}}));
+    const workflowHash = await sha256Bytes(workflow);
+    let promptCalls = 0;
+    let historyCalls = 0;
+    const provider = new ComfyUiProvider({
+      endpoint: 'http://127.0.0.1:8188', outputRoot: await testRoot(),
+      workflowResolver: async () => workflow,
+      fetch: async (input) => {
+        const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input : input.url);
+        if (url.pathname.endsWith('/prompt')) {
+          promptCalls += 1;
+          return new Response(JSON.stringify({prompt_id: 'P1'}));
+        }
+        if (url.pathname.endsWith('/history/P1')) {
+          historyCalls += 1;
+          if (historyCalls === 1) return new Response('temporarily unavailable', {status: 503});
+          return new Response(JSON.stringify({P1: {
+            status: {status_str: 'success'},
+            outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
+          }}));
+        }
+        if (url.pathname.endsWith('/view')) return new Response(PNG);
+        return new Response('not found', {status: 404});
+      },
+      pollIntervalMs: 0, timeoutMs: 100,
+    });
+    const execution = await new PoseFrameProductionExecutor({
+      provider,
+      cas: new LocalContentAddressedAssetStore(await testRoot()),
+      stages: await pipeline(), maxAttempts: 2,
+    }).execute(await withWorkflowHash(await frameJob(), workflowHash));
+    expect(promptCalls).toBe(1);
+    expect(historyCalls).toBe(2);
+    expect(execution.generation.attempts).toBe(2);
+  });
+
+  it('retries output download for the same completed prompt without regenerating it', async () => {
+    const workflow = new TextEncoder().encode(JSON.stringify({'17': {class_type: 'SaveImage', inputs: {}}}));
+    const workflowHash = await sha256Bytes(workflow);
+    let promptCalls = 0;
+    let viewCalls = 0;
+    const provider = new ComfyUiProvider({
+      endpoint: 'http://127.0.0.1:8188', outputRoot: await testRoot(),
+      workflowResolver: async () => workflow,
+      fetch: async (input) => {
+        const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input : input.url);
+        if (url.pathname.endsWith('/prompt')) {
+          promptCalls += 1;
+          return new Response(JSON.stringify({prompt_id: 'P1'}));
+        }
+        if (url.pathname.endsWith('/history/P1')) return new Response(JSON.stringify({P1: {
+          status: {status_str: 'success'},
+          outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
+        }}));
+        if (url.pathname.endsWith('/view')) {
+          viewCalls += 1;
+          return viewCalls === 1
+            ? new Response('temporarily unavailable', {status: 503})
+            : new Response(PNG);
+        }
+        return new Response('not found', {status: 404});
+      },
+      pollIntervalMs: 0, timeoutMs: 100,
+    });
+    await new PoseFrameProductionExecutor({
+      provider,
+      cas: new LocalContentAddressedAssetStore(await testRoot()),
+      stages: await pipeline(), maxAttempts: 2,
+    }).execute(await withWorkflowHash(await frameJob(), workflowHash));
+    expect(promptCalls).toBe(1);
+    expect(viewCalls).toBe(2);
+  });
+
+  it('keeps a submitted prompt in the resume cache after collection is interrupted', async () => {
+    const workflow = new TextEncoder().encode(JSON.stringify({'17': {class_type: 'SaveImage', inputs: {}}}));
+    const workflowHash = await sha256Bytes(workflow);
+    const resumeCache = new InMemoryPoseFrameGenerationResumeCache();
+    let promptCalls = 0;
+    let historyCalls = 0;
+    const provider = new ComfyUiProvider({
+      endpoint: 'http://127.0.0.1:8188', outputRoot: await testRoot(),
+      workflowResolver: async () => workflow,
+      fetch: async (input) => {
+        const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input : input.url);
+        if (url.pathname.endsWith('/prompt')) {
+          promptCalls += 1;
+          return new Response(JSON.stringify({prompt_id: 'P1'}));
+        }
+        if (url.pathname.endsWith('/history/P1')) {
+          historyCalls += 1;
+          if (historyCalls === 1) return new Response('temporarily unavailable', {status: 503});
+          return new Response(JSON.stringify({P1: {
+            status: {status_str: 'success'},
+            outputs: {'17': {images: [{filename: 'rabbit.png', subfolder: '', type: 'output'}]}},
+          }}));
+        }
+        if (url.pathname.endsWith('/view')) return new Response(PNG);
+        return new Response('not found', {status: 404});
+      },
+      pollIntervalMs: 0, timeoutMs: 100,
+    });
+    const job = await withWorkflowHash(await frameJob(), workflowHash);
+    const options = {
+      provider,
+      cas: new LocalContentAddressedAssetStore(await testRoot()),
+      stages: await pipeline(),
+      generationResumeCache: resumeCache,
+      maxAttempts: 1,
+    };
+    await expect(new PoseFrameProductionExecutor(options).execute(job)).rejects.toMatchObject({
+      code: 'FRAME_PRODUCTION_RETRY_EXHAUSTED',
+    });
+    await expect(new PoseFrameProductionExecutor(options).execute(job)).resolves.toBeDefined();
+    expect(promptCalls).toBe(1);
+    expect(historyCalls).toBe(2);
   });
 
   it('fails fast for ComfyUI integrity errors and retries an explicit HTTP 503', async () => {

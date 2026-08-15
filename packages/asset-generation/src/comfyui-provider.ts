@@ -13,7 +13,11 @@ import {
   assertGenerationRequestIntegrity,
 } from './integrity.js';
 import {inspectPng} from './png.js';
-import type {GeneratedImageArtifact, ImageGenerationProvider} from './provider.js';
+import type {
+  GeneratedImageArtifact,
+  GenerationSubmission,
+  ResumableImageGenerationProvider,
+} from './provider.js';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -130,7 +134,7 @@ function collectImages(
   });
 }
 
-export class ComfyUiProvider implements ImageGenerationProvider {
+export class ComfyUiProvider implements ResumableImageGenerationProvider {
   readonly id = 'comfyui';
   readonly #fetch: typeof globalThis.fetch;
   readonly #pollIntervalMs: number;
@@ -311,7 +315,7 @@ export class ComfyUiProvider implements ImageGenerationProvider {
     return this.#downloadArtifacts(request, promptId, images);
   }
 
-  async generate(input: ActionGenerationRequest): Promise<GeneratedImageArtifact[]> {
+  async submit(input: ActionGenerationRequest): Promise<GenerationSubmission> {
     const request = await assertGenerationRequestIntegrity(input);
     const workflowBytes = await this.options.workflowResolver(request.workflowId);
     const workflowHash = await sha256Bytes(workflowBytes);
@@ -346,7 +350,26 @@ export class ComfyUiProvider implements ImageGenerationProvider {
     });
     const queue = asRecord(await responseJson(queueResponse, 'Queue ComfyUI prompt'), 'ComfyUI queue response');
     if (typeof queue.prompt_id !== 'string') throw new TypeError('ComfyUI queue response lacks prompt_id');
-    const images = await this.#waitForImages(queue.prompt_id, request.output);
-    return this.#downloadArtifacts(request, queue.prompt_id, images);
+    return {generationInputHash: request.inputHash, promptId: queue.prompt_id};
+  }
+
+  async collect(
+    input: ActionGenerationRequest,
+    submission: GenerationSubmission,
+  ): Promise<GeneratedImageArtifact[]> {
+    const request = await assertGenerationRequestIntegrity(input);
+    if (submission.generationInputHash !== request.inputHash || submission.promptId.length === 0) {
+      throw new AssetGenerationIntegrityError(
+        'GENERATION_SUBMISSION_BINDING_MISMATCH',
+        `ComfyUI submission is not bound to Generation Request ${request.inputHash}`,
+      );
+    }
+    const images = await this.#waitForImages(submission.promptId, request.output);
+    return this.#downloadArtifacts(request, submission.promptId, images);
+  }
+
+  async generate(input: ActionGenerationRequest): Promise<GeneratedImageArtifact[]> {
+    const submission = await this.submit(input);
+    return this.collect(input, submission);
   }
 }

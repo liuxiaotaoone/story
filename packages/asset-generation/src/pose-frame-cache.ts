@@ -3,7 +3,7 @@ import type {
   PoseClipFrameProductionResult,
   VisualAssetRecord,
 } from '@pose-clip/schemas';
-import type {GeneratedImageArtifact} from './provider.js';
+import type {GeneratedImageArtifact, GenerationSubmission} from './provider.js';
 
 function cloneAsset(asset: VisualAssetRecord): VisualAssetRecord {
   return structuredClone(asset);
@@ -41,6 +41,12 @@ export interface PoseFrameGenerationCache {
   set(generationInputHash: string, artifact: GeneratedImageArtifact): Promise<void>;
 }
 
+export interface PoseFrameGenerationResumeCache {
+  get(generationInputHash: string): Promise<GenerationSubmission | undefined>;
+  set(generationInputHash: string, submission: GenerationSubmission): Promise<void>;
+  delete(generationInputHash: string): Promise<void>;
+}
+
 export interface PoseFrameStageCache {
   get(stageCacheKey: string): Promise<CachedPoseFrameStageOutput | undefined>;
   set(stageCacheKey: string, output: CachedPoseFrameStageOutput): Promise<void>;
@@ -61,6 +67,23 @@ export class InMemoryPoseFrameGenerationCache implements PoseFrameGenerationCach
 
   async set(key: string, artifact: GeneratedImageArtifact): Promise<void> {
     this.#entries.set(key, cloneGenerated(artifact));
+  }
+}
+
+export class InMemoryPoseFrameGenerationResumeCache implements PoseFrameGenerationResumeCache {
+  readonly #entries = new Map<string, GenerationSubmission>();
+
+  async get(key: string): Promise<GenerationSubmission | undefined> {
+    const value = this.#entries.get(key);
+    return value === undefined ? undefined : structuredClone(value);
+  }
+
+  async set(key: string, submission: GenerationSubmission): Promise<void> {
+    this.#entries.set(key, structuredClone(submission));
+  }
+
+  async delete(key: string): Promise<void> {
+    this.#entries.delete(key);
   }
 }
 

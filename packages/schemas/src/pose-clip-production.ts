@@ -250,6 +250,7 @@ export const PoseFrameArtifactSchema = z.object({
 
 const PoseClipFrameProductionResultPayloadShape = {
   schemaVersion: z.literal('1.0.0'),
+  frameExecutionKey: ContentHashSchema,
   frameJobHash: ContentHashSchema,
   frameIndex: z.number().int().nonnegative(),
   frameSpecHash: ContentHashSchema,
@@ -452,10 +453,18 @@ function hasRequiredAnchor(
 export async function assertPoseClipFrameProductionResultIntegrity(
   frameJobInput: unknown,
   frameResultInput: unknown,
+  expectedFrameExecutionKey?: string,
 ): Promise<PoseClipFrameProductionResult> {
   const job = await assertPoseClipFrameJobIntegrity(frameJobInput);
   const frameResult = PoseClipFrameProductionResultSchema.parse(frameResultInput);
   const frameIndex = job.spec.frameIndex;
+  if (
+    expectedFrameExecutionKey !== undefined
+    && frameResult.frameExecutionKey !== ContentHashSchema.parse(expectedFrameExecutionKey)
+  ) throw new PoseClipProductionIntegrityError(
+    'FRAME_EXECUTION_KEY_MISMATCH',
+    `Frame ${frameIndex}`,
+  );
   if (
     frameResult.frameIndex !== frameIndex
     || frameResult.frameJobHash !== job.frameJobHash
