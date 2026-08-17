@@ -25,6 +25,10 @@ import {
   ReferenceFootSchema,
 } from './pose-clip.js';
 import type {PoseClipFrame} from './pose-clip.js';
+import {
+  PoseClipContinuityEvaluationSchema,
+  assertPoseClipContinuityEvaluationIntegrity,
+} from './pose-clip-continuity.js';
 
 export const PoseFramePhaseSchema = IdSchema;
 export const PoseAnchorRequirementSchema = z.union([
@@ -310,13 +314,14 @@ export const PoseClipProductionQaSchema = z.object({
   productionReady: z.boolean(),
   diagnostics: z.array(PoseProductionDiagnosticSchema),
 }).strict().superRefine((qa, context) => {
-  const automated = [
+  const requiredPassed = [
     qa.structural, qa.continuity, qa.anchors, qa.identityConsistency,
     qa.scaleConsistency, qa.canvasConsistency, qa.bodyProportion,
-    qa.footContact, qa.anchorMovement, qa.silhouetteContinuity,
+    qa.anchorMovement, qa.silhouetteContinuity,
   ];
   if (qa.productionReady && (
-    automated.some(status => status !== 'passed')
+    requiredPassed.some(status => status !== 'passed')
+    || !['passed', 'not-applicable'].includes(qa.footContact)
     || !['passed', 'not-applicable'].includes(qa.loopClosure)
     || qa.humanReview !== 'approved'
     || qa.diagnostics.some(({severity}) => severity === 'error')
@@ -333,6 +338,7 @@ const PoseClipProductionResultPayloadShape = {
   poseClip: PoseClipSchema,
   poseClipHash: ContentHashSchema,
   producer: ProducerRefSchema,
+  continuityEvaluation: PoseClipContinuityEvaluationSchema,
   qa: PoseClipProductionQaSchema,
 } as const;
 
@@ -535,6 +541,34 @@ export async function assertPoseClipProductionResultIntegrity(
   );
   if (await hashPoseClipContent(result.poseClip) !== result.poseClipHash) throw new PoseClipProductionIntegrityError(
     'POSE_CLIP_HASH_MISMATCH', result.poseClip.id,
+  );
+  const continuity = await assertPoseClipContinuityEvaluationIntegrity(result.continuityEvaluation);
+  if (
+    continuity.loop !== request.loop
+    || canonicalizeJson(continuity.frameResultHashes) !== canonicalizeJson(result.frameResults.map(({resultHash}) => resultHash))
+  ) throw new PoseClipProductionIntegrityError('CONTINUITY_EVALUATION_BINDING_MISMATCH', result.poseClip.id);
+  for (const metric of [
+    'identityConsistency',
+    'scaleConsistency',
+    'canvasConsistency',
+    'bodyProportion',
+    'footContact',
+    'anchorMovement',
+    'silhouetteContinuity',
+    'loopClosure',
+  ] as const) {
+    if (result.qa[metric] !== continuity.metrics[metric].status) throw new PoseClipProductionIntegrityError(
+      'CONTINUITY_QA_STATUS_MISMATCH',
+      `${result.poseClip.id} ${metric}`,
+    );
+  }
+  if (result.qa.continuity !== continuity.continuity) throw new PoseClipProductionIntegrityError(
+    'CONTINUITY_QA_STATUS_MISMATCH',
+    `${result.poseClip.id} continuity`,
+  );
+  if (result.qa.productionReady && !continuity.automatedReady) throw new PoseClipProductionIntegrityError(
+    'CONTINUITY_QA_NOT_READY',
+    result.poseClip.id,
   );
   if (result.qa.productionReady && result.frameResults.some(({qa}) => !qa.productionReady)) {
     throw new PoseClipProductionIntegrityError('FRAME_QA_NOT_READY', result.poseClip.id);

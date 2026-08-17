@@ -19,6 +19,7 @@ export * from './measured-audio.js';
 export * from './ownership-integrity.js';
 export * from './pose-clip.js';
 export * from './pose-clip-production.js';
+export * from './pose-clip-continuity.js';
 export * from './pose-frame-processing.js';
 export * from './preflight-plan.js';
 export * from './render.js';

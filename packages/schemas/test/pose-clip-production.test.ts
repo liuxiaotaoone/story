@@ -13,6 +13,7 @@ import {
   createPoseFrameProcessorSpec,
   createPoseFrameQaEvaluatorSpec,
   hashPoseClipContent,
+  hashPoseClipContinuityEvaluationPayload,
   hashPoseClipFrameProductionResultPayload,
   hashPoseClipProductionResultPayload,
   hashPoseFrameArtifactPayload,
@@ -190,6 +191,34 @@ async function createResult(
     groundLock: request.groundLock,
     tags: request.tags,
   };
+  const threshold = {warning: 0.1, failure: 0.2};
+  const passedMetric = {status: 'passed' as const, maxDelta: 0, thresholds: threshold};
+  const loopClosure = request.loop
+    ? passedMetric
+    : {status: 'not-applicable' as const, maxDelta: 0, thresholds: threshold};
+  const continuityPayload = {
+    schemaVersion: '1.0.0' as const,
+    continuityQaSpecHash: '8'.repeat(64),
+    frameResultHashes: frameResults.map(({resultHash}) => resultHash),
+    loop: request.loop,
+    metrics: {
+      identityConsistency: passedMetric,
+      scaleConsistency: passedMetric,
+      canvasConsistency: passedMetric,
+      bodyProportion: passedMetric,
+      footContact: passedMetric,
+      anchorMovement: passedMetric,
+      silhouetteContinuity: passedMetric,
+      loopClosure,
+    },
+    continuity: 'passed' as const,
+    automatedReady: true,
+    diagnostics: [],
+  };
+  const continuityEvaluation = {
+    ...continuityPayload,
+    evaluationHash: await hashPoseClipContinuityEvaluationPayload(continuityPayload),
+  };
   const resultPayload = {
     schemaVersion: '1.0.0' as const,
     productionRequestHash: request.requestHash,
@@ -197,6 +226,7 @@ async function createResult(
     poseClip,
     poseClipHash: await hashPoseClipContent(poseClip),
     producer: PRODUCER,
+    continuityEvaluation,
     qa: {
       structural: 'passed' as const,
       continuity: 'passed' as const,
@@ -208,7 +238,7 @@ async function createResult(
       footContact: 'passed' as const,
       anchorMovement: 'passed' as const,
       silhouetteContinuity: 'passed' as const,
-      loopClosure: 'passed' as const,
+      loopClosure: request.loop ? 'passed' as const : 'not-applicable' as const,
       humanReview: 'approved' as const,
       productionReady: true,
       diagnostics: [],
@@ -393,10 +423,34 @@ describe('M3 PoseClip production contract', () => {
   it('records failed loop QA without falsely claiming production readiness', async () => {
     const request = await createRequest();
     const result = await createResult(request);
+    const failedMetric = {
+      ...result.continuityEvaluation.metrics.loopClosure,
+      status: 'failed' as const,
+      maxDelta: 0.3,
+      worstPair: {fromFrame: 3, toFrame: 0},
+    };
+    const failedContinuityPayload = {
+      ...result.continuityEvaluation,
+      evaluationHash: undefined,
+      metrics: {...result.continuityEvaluation.metrics, loopClosure: failedMetric},
+      continuity: 'failed' as const,
+      automatedReady: false,
+    };
+    const {evaluationHash: _evaluationHash, ...continuityPayload} = failedContinuityPayload;
+    const failedContinuityEvaluation = {
+      ...continuityPayload,
+      evaluationHash: await hashPoseClipContinuityEvaluationPayload(continuityPayload),
+    };
     const resultPayload = {
       ...result,
       resultHash: undefined,
-      qa: {...result.qa, loopClosure: 'failed' as const, productionReady: false},
+      continuityEvaluation: failedContinuityEvaluation,
+      qa: {
+        ...result.qa,
+        continuity: 'failed' as const,
+        loopClosure: 'failed' as const,
+        productionReady: false,
+      },
     };
     const {resultHash: _ignored, ...payload} = resultPayload;
     const failedQaResult = {
@@ -414,7 +468,7 @@ describe('M3 PoseClip production contract', () => {
       resultHash: await hashPoseClipProductionResultPayload(notApplicablePayload),
     };
     await expect(assertPoseClipProductionResultIntegrity(request, notApplicableResult)).rejects.toMatchObject({
-      code: 'LOOP_CLOSURE_REQUIRED',
+      code: 'CONTINUITY_QA_STATUS_MISMATCH',
     });
   });
 });

@@ -6,4 +6,6 @@ export * from './local-cas-store.js';
 export * from './png.js';
 export * from './pose-frame-cache.js';
 export * from './pose-frame-processor.js';
+export * from './pose-clip-continuity-evaluator.js';
+export * from './pose-clip-production-assembler.js';
 export * from './provider.js';

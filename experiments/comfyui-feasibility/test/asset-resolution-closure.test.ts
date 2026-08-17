@@ -56,9 +56,16 @@ describe('ComfyUI to Renderer asset-resolution closure', () => {
         const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input : input.url);
         if (url.pathname.endsWith('/prompt')) return new Response(JSON.stringify({prompt_id: 'closure-1'}));
         if (url.pathname.endsWith('/history/closure-1')) return new Response(JSON.stringify({
-          'closure-1': {status: {status_str: 'success'}, outputs: {
-            '2': {images: [{filename: 'raw.png', subfolder: '', type: 'output'}]},
-          }},
+          'closure-1': {
+            prompt: [0, 'closure-1', {}, {
+              client_id: `pose-clip-${request.inputHash}`,
+              generationRequestHash: request.inputHash,
+            }],
+            status: {status_str: 'success'},
+            outputs: {
+              '2': {images: [{filename: 'raw.png', subfolder: '', type: 'output'}]},
+            },
+          },
         }));
         if (url.pathname.endsWith('/view')) return new Response(PNG, {headers: {'content-type': 'image/png'}});
         return new Response('not found', {status: 404});
