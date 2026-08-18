@@ -4,10 +4,11 @@
 
 本提交只关闭 M4 Commit 1 的 Raw Generation 完整性边界，不进入 Matting：
 
-- `PoseClipProductionRequest.frames` 与 `PoseClipRawGenerationResult.frameResults` 固定为四帧；
+- 通用 `PoseClipProductionRequest.frames` 保持 M3 的 2+ 帧合同，M4 Raw Generation Request Gate 与 `PoseClipRawGenerationResult.frameResults` 固定为四帧；
 - Raw Evidence 要求 `artifact.inputHash` 与 `asset.provenance.inputHash` 同时绑定 `generationInputHash`；
 - `artifact.producer` 必须与 `asset.provenance.producer` 一致；
 - PNG 必须具有完整 IHDR/IDAT/IEND、有效 chunk CRC、可解压的 IDAT 和合法 scanline 结构；
+- IDAT zlib stream 必须消费全部压缩输入，trailing compressed bytes 会被拒绝；
 - 截断、CRC 损坏或不可解压 PNG 在 Raw CAS 发布前 fail closed；
 - ComfyUI Provider 只返回 bytes 和 metadata，正式文件只由 Executor 验证后写入 CAS。
 

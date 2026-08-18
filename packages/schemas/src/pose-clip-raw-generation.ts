@@ -5,9 +5,9 @@ import {
 } from './common.js';
 import {
   PoseFrameArtifactSchema,
+  PoseClipProductionRequestSchema,
   assertPoseClipProductionRequestIntegrity,
   hashPoseFrameArtifactPayload,
-  type PoseClipProductionRequest,
 } from './pose-clip-production.js';
 import {canonicalHash} from './hash.js';
 
@@ -74,11 +74,31 @@ export const PoseClipRawGenerationResultSchema = z.object({
   resultHash: ContentHashSchema,
 }).strict();
 
+export const PoseClipRawGenerationRequestSchema = PoseClipProductionRequestSchema.superRefine((request, context) => {
+  if (request.frames.length !== 4) context.addIssue({
+    code: 'custom',
+    message: 'M4 Raw Generation requires exactly four frames',
+    path: ['frames'],
+  });
+});
+
 export class PoseClipRawGenerationIntegrityError extends Error {
   constructor(readonly code: string, message: string) {
     super(`${code}: ${message}`);
     this.name = 'PoseClipRawGenerationIntegrityError';
   }
+}
+
+export async function assertPoseClipRawGenerationRequestIntegrity(
+  input: unknown,
+): Promise<PoseClipRawGenerationRequest> {
+  const request = await assertPoseClipProductionRequestIntegrity(input);
+  const parsed = PoseClipRawGenerationRequestSchema.safeParse(request);
+  if (!parsed.success) throw new PoseClipRawGenerationIntegrityError(
+    'RAW_GENERATION_REQUEST_FRAME_COUNT_INVALID',
+    `Expected 4 frames, received ${request.frames.length}`,
+  );
+  return parsed.data;
 }
 
 export async function hashPoseClipRawFrameGenerationResultPayload(input: unknown): Promise<string> {
@@ -109,7 +129,7 @@ export async function assertPoseClipRawGenerationResultIntegrity(
 ): Promise<PoseClipRawGenerationResult> {
   const request = requestInput === undefined
     ? undefined
-    : await assertPoseClipProductionRequestIntegrity(requestInput);
+    : await assertPoseClipRawGenerationRequestIntegrity(requestInput);
   const result = PoseClipRawGenerationResultSchema.parse(resultInput);
   if (request !== undefined) {
     if (result.productionRequestHash !== request.requestHash) throw new PoseClipRawGenerationIntegrityError(
@@ -157,4 +177,4 @@ export type PoseClipRawFrameGenerationResultPayload = z.infer<typeof PoseClipRaw
 export type PoseClipRawFrameGenerationResult = z.infer<typeof PoseClipRawFrameGenerationResultSchema>;
 export type PoseClipRawGenerationResultPayload = z.infer<typeof PoseClipRawGenerationResultPayloadSchema>;
 export type PoseClipRawGenerationResult = z.infer<typeof PoseClipRawGenerationResultSchema>;
-export type PoseClipRawGenerationRequest = PoseClipProductionRequest;
+export type PoseClipRawGenerationRequest = z.infer<typeof PoseClipRawGenerationRequestSchema>;

@@ -420,7 +420,7 @@ describe('M3 PoseClip production contract', () => {
     expect(PoseClipProductionRequestSchema.safeParse({
       ...request,
       frames: request.frames.slice(0, 3),
-    }).success).toBe(false);
+    }).success).toBe(true);
     const nonContiguous = structuredClone(request);
     nonContiguous.frames[1]!.spec.frameIndex = 3;
     expect(PoseClipProductionRequestSchema.safeParse(nonContiguous).success).toBe(false);

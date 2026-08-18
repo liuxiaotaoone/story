@@ -215,17 +215,23 @@ export function inspectPng(bytes: Uint8Array): PngMetadata {
   }
 
   let inflated: Uint8Array;
+  let compressed: Uint8Array;
+  let inflateResult: ReturnType<typeof inflateSync>;
   try {
-    const compressed = new Uint8Array(idatChunks.reduce((total, chunk) => total + chunk.length, 0));
+    compressed = new Uint8Array(idatChunks.reduce((total, chunk) => total + chunk.length, 0));
     let compressedOffset = 0;
     for (const chunk of idatChunks) {
       compressed.set(chunk, compressedOffset);
       compressedOffset += chunk.length;
     }
-    inflated = new Uint8Array(inflateSync(compressed));
+    inflateResult = inflateSync(compressed, {info: true});
   } catch (error) {
     throw new TypeError('Generated PNG image data cannot be decoded', {cause: error});
   }
+  if (inflateResult.engine.bytesWritten !== compressed.length) {
+    throw new TypeError('Generated PNG has trailing compressed image data');
+  }
+  inflated = new Uint8Array(inflateResult.buffer);
   const channels = channelsForColorType(colorType);
   const expectedLength = expectedInflatedLength(width, height, channels, bitDepth, interlaceMethod);
   if (inflated.length !== expectedLength) throw new TypeError('Generated PNG has incomplete image data');

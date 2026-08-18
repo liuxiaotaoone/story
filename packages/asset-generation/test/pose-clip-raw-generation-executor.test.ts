@@ -123,7 +123,10 @@ async function frameJob(frameIndex: number, workflowHash = '1'.repeat(64)): Prom
   });
 }
 
-async function request(workflowHash = '1'.repeat(64)): Promise<Awaited<ReturnType<typeof createPoseClipProductionRequest>>> {
+async function request(
+  workflowHash = '1'.repeat(64),
+  frameCount = 4,
+): Promise<Awaited<ReturnType<typeof createPoseClipProductionRequest>>> {
   return createPoseClipProductionRequest({
     schemaVersion: '1.0.0',
     id: 'rabbit.run.production',
@@ -135,7 +138,7 @@ async function request(workflowHash = '1'.repeat(64)): Promise<Awaited<ReturnTyp
     loop: true,
     rootMotion: {mode: 'timeline'},
     groundLock: {mode: 'contact-only', maxCorrectionPx: 24},
-    frames: await Promise.all([0, 1, 2, 3].map((index) => frameJob(index, workflowHash))),
+    frames: await Promise.all(Array.from({length: frameCount}, (_, index) => frameJob(index, workflowHash))),
   });
 }
 
@@ -187,6 +190,20 @@ describe('M4 Commit 1 Raw Four-Frame Generation', () => {
     });
     await expect(executor.execute(await request())).rejects.toMatchObject({code: 'RAW_GENERATION_PNG_INVALID'});
     await expect(readdir(root)).resolves.toEqual([]);
+  });
+
+  it('keeps generic Production Requests variable-length but rejects non-four-frame Raw admission', async () => {
+    const threeFrameRequest = await request('1'.repeat(64), 3);
+    expect(threeFrameRequest.frames).toHaveLength(3);
+    const root = await mkdtemp(join(tmpdir(), 'm4-raw-generation-gate-'));
+    roots.push(root);
+    const executor = new PoseClipRawGenerationExecutor({
+      provider: new FixtureProvider(),
+      cas: new LocalContentAddressedAssetStore(root),
+    });
+    await expect(executor.execute(threeFrameRequest)).rejects.toMatchObject({
+      code: 'RAW_GENERATION_REQUEST_FRAME_COUNT_INVALID',
+    });
   });
 
   it('drives four independent ComfyUI prompt/history/view jobs into Raw CAS', async () => {

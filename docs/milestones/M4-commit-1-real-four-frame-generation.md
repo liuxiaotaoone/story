@@ -7,7 +7,7 @@ M4 Commit 1.1 的 Raw Generation Integrity Closure 已补齐：PNG 必须通过�
 本提交是 M4 的第一步，只负责：
 
 ```text
-PoseClipProductionRequest (FrameSpec × 4)
+PoseClipProductionRequest → M4 Raw Generation Request Gate (FrameSpec × 4)
 → ImageGenerationProvider / ComfyUiProvider
 → Raw PNG bytes
 → Local CAS

@@ -1,13 +1,13 @@
 import {
   ProductionVisualAssetSchema,
-  assertPoseClipProductionRequestIntegrity,
+  assertPoseClipRawGenerationRequestIntegrity,
   assertPoseClipRawGenerationResultIntegrity,
   hashPoseClipRawFrameGenerationResultPayload,
   hashPoseClipRawGenerationResultPayload,
   hashPoseFrameArtifactPayload,
   sha256Bytes,
   type PoseClipFrameJob,
-  type PoseClipProductionRequest,
+  type PoseClipRawGenerationRequest,
   type PoseClipRawFrameGenerationResult,
   type PoseClipRawGenerationResult,
   type PoseFrameArtifact,
@@ -234,8 +234,8 @@ export class PoseClipRawGenerationExecutor {
     };
   }
 
-  async execute(input: PoseClipProductionRequest): Promise<PoseClipRawGenerationExecution> {
-    const request = await assertPoseClipProductionRequestIntegrity(input);
+  async execute(input: PoseClipRawGenerationRequest): Promise<PoseClipRawGenerationExecution> {
+    const request = await assertPoseClipRawGenerationRequestIntegrity(input);
     const frameResults: PoseClipRawFrameGenerationResult[] = [];
     const reports: PoseClipRawGenerationFrameReport[] = [];
     for (const [index, frameJob] of request.frames.entries()) {

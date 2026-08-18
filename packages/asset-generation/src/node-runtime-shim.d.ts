@@ -7,7 +7,13 @@ declare module 'node:fs/promises' {
   export const rm: (...args: any[]) => Promise<any>;
   export const writeFile: (...args: any[]) => Promise<any>;
 }
-declare module 'node:zlib' { export const inflateSync: (input: Uint8Array) => Uint8Array; }
+declare module 'node:zlib' {
+  export interface InflateInfo {
+    buffer: Uint8Array;
+    engine: {bytesWritten: number};
+  }
+  export const inflateSync: (input: Uint8Array, options: {info: true}) => InflateInfo;
+}
 declare module 'node:os' { export const tmpdir: () => string; }
 declare module 'node:path' {
   export const join: (...args: string[]) => string;

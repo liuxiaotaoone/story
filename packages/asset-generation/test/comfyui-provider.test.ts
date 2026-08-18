@@ -21,6 +21,10 @@ const UNDECODABLE_PNG = Uint8Array.from(
   atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4MMDwHwAFAAH/wNYxVgAAAABJRU5ErkJggg=='),
   (character) => character.charCodeAt(0),
 );
+const TRAILING_COMPRESSED_PNG = Uint8Array.from(
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAE0lEQVR4nGP4z8DwHwAFAAH/AQIDBAUGSaOUdwAAAABJRU5ErkJggg=='),
+  (character) => character.charCodeAt(0),
+);
 
 const outputRoots: string[] = [];
 
@@ -262,5 +266,6 @@ describe('PNG contract', () => {
     crcCorrupt[crcCorrupt.length - 1] = crcCorrupt[crcCorrupt.length - 1]! ^ 0xff;
     expect(() => inspectPng(crcCorrupt)).toThrow(/CRC|decode|image data/u);
     expect(() => inspectPng(UNDECODABLE_PNG)).toThrow(/cannot be decoded/u);
+    expect(() => inspectPng(TRAILING_COMPRESSED_PNG)).toThrow(/trailing compressed/u);
   });
 });
