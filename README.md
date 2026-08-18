@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 3.2.2 — Trusted Production Admission / PASS / Frozen**。M3 Commit 3.1.2.1、3.2 与 3.2.1 保持 Frozen；Production Profile 除了绑定 Frame Execution Keys、QA Specs、模型 Hash 与批准状态，还必须匹配部署或 Release Manifest 提供的外部 trusted Profile Hash。ComfyUI `/prompt` 的未知提交状态不会 blind retry。当前仍为确定性 Reference Processor/Feature Extractor，生产级视觉算法与真实四帧 ComfyUI E2E 留待 M4。
+当前里程碑：**M4 Commit 1 — Real Four-Frame Generation / Implemented / Candidate**。M3 Commit 3.2.2 及之前保持 Frozen；新的 Raw Generation Executor 只消费 `PoseClipProductionRequest` 的四个 FrameJob，通过 ComfyUI `submit/collect` 验证 PNG 并写入 Raw CAS，暂不接 Matting、Normalize、Anchor 或真实 Continuity Feature。真实 GPU/模型运行留在可访问 ComfyUI 的环境执行。
 
 ## 已冻结的实现边界
 
