@@ -4,6 +4,7 @@ import {join} from 'node:path';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {
   ComfyUiProvider,
+  LocalContentAddressedAssetStore,
   LocalCasAssetByteResolver,
 } from '@pose-clip/asset-generation';
 import {
@@ -18,7 +19,7 @@ import {
 } from '@pose-clip/schemas';
 
 const PNG = Uint8Array.from(
-  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X1WzWQAAAABJRU5ErkJggg=='),
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg=='),
   (character) => character.charCodeAt(0),
 );
 const roots: string[] = [];
@@ -74,6 +75,7 @@ describe('ComfyUI to Renderer asset-resolution closure', () => {
     });
 
     const [artifact] = await provider.generate(request);
+    const stored = await new LocalContentAddressedAssetStore(outputRoot).putPng(artifact!.bytes);
     const localCas = new LocalCasAssetByteResolver(outputRoot);
     const texture = {identity: 'verified-texture'};
     const loader = vi.fn(async (
@@ -87,7 +89,8 @@ describe('ComfyUI to Renderer asset-resolution closure', () => {
 
     await cache.load(artifact!.asset);
 
-    expect(artifact!.filePath).toBe(join(outputRoot, `${artifact!.asset.contentHash}.png`));
+    expect(artifact!.filePath).toBeUndefined();
+    expect(stored.filePath).toBe(join(outputRoot, `${artifact!.asset.contentHash}.png`));
     expect(artifact!.asset.uri).toBe(`asset://sha256/${artifact!.asset.contentHash}`);
     expect(loader).toHaveBeenCalledOnce();
     expect(loader.mock.calls[0]?.[1]).toEqual(expect.objectContaining({

@@ -12,7 +12,7 @@ function cloneAsset(asset: VisualAssetRecord): VisualAssetRecord {
 function cloneGenerated(artifact: GeneratedImageArtifact): GeneratedImageArtifact {
   return {
     bytes: artifact.bytes.slice(),
-    filePath: artifact.filePath,
+    ...(artifact.filePath === undefined ? {} : {filePath: artifact.filePath}),
     asset: cloneAsset(artifact.asset),
     providerMetadata: structuredClone(artifact.providerMetadata),
   };

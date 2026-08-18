@@ -1,5 +1,3 @@
-import {mkdir, writeFile} from 'node:fs/promises';
-import {join} from 'node:path';
 import {
   VisualAssetRecordSchema,
   canonicalHash,
@@ -28,7 +26,8 @@ export interface ResolvedGenerationReference {
 
 export interface ComfyUiProviderOptions {
   endpoint: string;
-  outputRoot: string;
+  /** Retained for compatibility; ComfyUI no longer publishes files locally. */
+  outputRoot?: string;
   workflowResolver: (workflowId: string) => Promise<Uint8Array>;
   referenceResolver?: (assetId: string) => Promise<ResolvedGenerationReference>;
   fetch?: typeof globalThis.fetch;
@@ -266,7 +265,6 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
     promptId: string,
     images: readonly ComfyImageDescriptor[],
   ): Promise<GeneratedImageArtifact[]> {
-    await mkdir(this.options.outputRoot, {recursive: true});
     const promptHash = await canonicalHash('image-generation-prompt-v1', {
       prompt: request.prompt,
       negativePrompt: request.negativePrompt ?? null,
@@ -290,8 +288,6 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
       const metadata = inspectPng(bytes);
       const suffix = images.length === 1 ? '' : `.${String(index + 1).padStart(2, '0')}`;
       const assetId = `${request.output.assetId}${suffix}`;
-      const filePath = join(this.options.outputRoot, `${contentHash}.png`);
-      await writeFile(filePath, bytes);
       const asset = VisualAssetRecordSchema.parse({
         id: assetId,
         kind: request.output.kind,
@@ -311,7 +307,6 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
       });
       artifacts.push({
         bytes,
-        filePath,
         asset,
         providerMetadata: {
           promptId,

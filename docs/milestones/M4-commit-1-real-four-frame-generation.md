@@ -2,6 +2,8 @@
 
 状态：**Implemented / Candidate**
 
+M4 Commit 1.1 的 Raw Generation Integrity Closure 已补齐：PNG 必须通过完整 chunk/CRC/IDAT 解压与 scanline 结构校验；Raw Evidence 绑定 `artifact.inputHash`、`asset.provenance.inputHash` 与 producer；Production Request 和 Raw Result 均固定为四帧。ComfyUI Provider 只返回下载到的 bytes，不在 Executor 验证前写入正式 CAS；正式发布仍由 Raw Executor 完成。
+
 本提交是 M4 的第一步，只负责：
 
 ```text

@@ -2,7 +2,7 @@ import type {ActionGenerationRequest, VisualAssetRecord} from '@pose-clip/schema
 
 export interface GeneratedImageArtifact {
   readonly bytes: Uint8Array;
-  readonly filePath: string;
+  readonly filePath?: string;
   readonly asset: VisualAssetRecord;
   readonly providerMetadata: Readonly<Record<string, unknown>>;
 }

@@ -17,6 +17,7 @@ import {
 } from '@pose-clip/schemas';
 import {
   AssetGenerationTransientError,
+  addPngTextChunk,
   ComfyUiProvider,
   DeterministicReferencePoseFrameProcessor,
   InMemoryPoseFrameGenerationCache,
@@ -37,7 +38,7 @@ import {
 } from '../src/index.js';
 
 const PNG = Uint8Array.from(
-  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X1WzWQAAAABJRU5ErkJggg=='),
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg=='),
   (character) => character.charCodeAt(0),
 );
 const ANCHORS: PoseAnchors = {
@@ -51,14 +52,6 @@ const roots: string[] = [];
 afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => rm(root, {recursive: true, force: true})));
 });
-
-function append(bytes: Uint8Array, text: string): Uint8Array {
-  const suffix = new TextEncoder().encode(text);
-  const output = new Uint8Array(bytes.length + suffix.length);
-  output.set(bytes);
-  output.set(suffix, bytes.length);
-  return output;
-}
 
 function completedHistory(promptId: string, generationInputHash: string): Record<string, unknown> {
   return {
@@ -85,7 +78,7 @@ class CountingComfyProvider implements ImageGenerationProvider {
       this.failuresRemaining -= 1;
       throw new AssetGenerationTransientError('TEST_TRANSIENT', 'transient ComfyUI failure');
     }
-    const bytes = append(PNG, `\nraw:${request.inputHash}`);
+    const bytes = addPngTextChunk(PNG, 'generation-input', request.inputHash);
     const contentHash = await sha256Bytes(bytes);
     const asset = ProductionVisualAssetSchema.parse({
       id: request.output.assetId,

@@ -4,6 +4,7 @@ import type {
   PoseFrameProcessorSpec,
 } from '@pose-clip/schemas';
 import {PoseAnchorsSchema} from '@pose-clip/schemas';
+import {addPngTextChunk} from './png.js';
 
 export interface PoseFrameProcessorInput {
   readonly bytes: Uint8Array;
@@ -45,10 +46,7 @@ export class DeterministicReferencePoseFrameProcessor implements PoseFrameProces
   ) {}
 
   async process(input: PoseFrameProcessorInput): Promise<PoseFrameProcessorOutput> {
-    const suffix = new TextEncoder().encode(`\npose-clip:${this.stage}:${input.spec.processorSpecHash}`);
-    const bytes = new Uint8Array(input.bytes.length + suffix.length);
-    bytes.set(input.bytes);
-    bytes.set(suffix, input.bytes.length);
+    const bytes = addPngTextChunk(input.bytes, 'pose-clip', `${this.stage}:${input.spec.processorSpecHash}`);
     if (this.stage !== 'anchored') return {bytes};
     if (typeof input.spec.config !== 'object' || input.spec.config === null || Array.isArray(input.spec.config)) {
       throw new PoseFrameProcessorContractError('Anchored Reference Processor requires config.anchors');

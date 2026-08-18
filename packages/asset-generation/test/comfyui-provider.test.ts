@@ -1,4 +1,4 @@
-import {mkdtemp, readFile, rm} from 'node:fs/promises';
+import {mkdtemp, readdir, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {afterEach, describe, expect, it} from 'vitest';
@@ -14,7 +14,11 @@ import {
 } from '../src/index.js';
 
 const PNG = Uint8Array.from(
-  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X1WzWQAAAABJRU5ErkJggg=='),
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg=='),
+  (character) => character.charCodeAt(0),
+);
+const UNDECODABLE_PNG = Uint8Array.from(
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4MMDwHwAFAAH/wNYxVgAAAABJRU5ErkJggg=='),
   (character) => character.charCodeAt(0),
 );
 
@@ -117,7 +121,7 @@ describe('ComfyUI image generation provider', () => {
     }));
     expect(uploadedFilename).toBe(`rabbit.reference-${request.referenceAssets[0]!.contentHash.slice(0, 16)}.png`);
     expect(artifact?.bytes).toEqual(PNG);
-    expect(Uint8Array.from(await readFile(artifact!.filePath))).toEqual(PNG);
+    expect(artifact?.filePath).toBeUndefined();
     expect(artifact?.asset).toEqual(expect.objectContaining({
       id: request.output.assetId,
       kind: 'animal-frame',
@@ -130,7 +134,7 @@ describe('ComfyUI image generation provider', () => {
       qaStatus: 'pending',
       provenance: expect.objectContaining({inputHash: request.inputHash, seed: 42}),
     }));
-    expect(artifact?.filePath).toBe(join(outputRoot, `${await sha256Bytes(PNG)}.png`));
+    await expect(readdir(outputRoot)).resolves.toEqual([]);
   });
 
   it('fails before queueing when request or workflow content drifts', async () => {
@@ -249,5 +253,14 @@ describe('PNG contract', () => {
   it('reads dimensions and alpha from actual PNG bytes', () => {
     expect(inspectPng(PNG)).toEqual({width: 1, height: 1, alphaMode: 'straight'});
     expect(() => inspectPng(new Uint8Array([1, 2, 3]))).toThrow(/readable PNG/);
+  });
+
+  it('rejects truncated, CRC-corrupt and undecodable PNG bytes', () => {
+    expect(() => inspectPng(PNG.slice(0, 40))).toThrow();
+    expect(() => inspectPng(PNG.slice(0, 33))).toThrow();
+    const crcCorrupt = PNG.slice();
+    crcCorrupt[crcCorrupt.length - 1] = crcCorrupt[crcCorrupt.length - 1]! ^ 0xff;
+    expect(() => inspectPng(crcCorrupt)).toThrow(/CRC|decode|image data/u);
+    expect(() => inspectPng(UNDECODABLE_PNG)).toThrow(/cannot be decoded/u);
   });
 });

@@ -158,7 +158,7 @@ const PoseClipProductionRequestPayloadShape = {
   groundLock: GroundLockSchema,
   tags: z.array(IdSchema).optional(),
   compositeSlots: z.array(CompositeSlotSchema).optional(),
-  frames: z.array(PoseClipFrameJobSchema).min(2),
+  frames: z.array(PoseClipFrameJobSchema).length(4),
 } as const;
 
 function refineProductionRequest(

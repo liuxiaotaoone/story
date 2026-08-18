@@ -417,6 +417,10 @@ describe('M3 PoseClip production contract', () => {
 
   it('rejects ambiguous frame order and duplicate output asset identities', async () => {
     const request = await createRequest();
+    expect(PoseClipProductionRequestSchema.safeParse({
+      ...request,
+      frames: request.frames.slice(0, 3),
+    }).success).toBe(false);
     const nonContiguous = structuredClone(request);
     nonContiguous.frames[1]!.spec.frameIndex = 3;
     expect(PoseClipProductionRequestSchema.safeParse(nonContiguous).success).toBe(false);

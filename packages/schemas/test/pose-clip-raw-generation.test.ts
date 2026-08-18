@@ -11,7 +11,7 @@ const PRODUCER = {name: 'raw-generation-fixture', version: '1.0.0'} as const;
 
 async function rawResult() {
   const frameResults = [];
-  for (let index = 0; index < 2; index += 1) {
+  for (let index = 0; index < 4; index += 1) {
     const generationInputHash = `${index + 1}`.repeat(64);
     const contentHash = `${index + 3}`.repeat(64);
     const artifactPayload = {
@@ -45,7 +45,7 @@ async function rawResult() {
       schemaVersion: '1.0.0' as const,
       frameJobHash: `${index + 5}`.repeat(64),
       frameIndex: index,
-      frameSpecHash: `${index + 7}`.repeat(64),
+      frameSpecHash: String.fromCharCode(97 + index).repeat(64),
       generationInputHash,
       artifact,
     };
@@ -79,6 +79,34 @@ describe('M4 Commit 1 raw generation contract', () => {
     await expect(assertPoseClipRawGenerationResultIntegrity(undefined, {
       ...result,
       frameResults,
+    })).rejects.toThrow();
+  });
+
+  it('binds Raw Evidence provenance to both the generation input and artifact producer', async () => {
+    const result = await rawResult();
+    const source = result.frameResults[0]!;
+    const {resultHash: _resultHash, ...framePayload} = source;
+    await expect(hashPoseClipRawFrameGenerationResultPayload({
+      ...framePayload,
+      artifact: {
+        ...source.artifact,
+        asset: {
+          ...source.artifact.asset,
+          provenance: {...source.artifact.asset.provenance!, inputHash: 'e'.repeat(64)},
+        },
+      },
+    })).rejects.toThrow(/provenance/u);
+    await expect(hashPoseClipRawFrameGenerationResultPayload({
+      ...framePayload,
+      artifact: {...source.artifact, producer: {name: 'other-producer', version: '1.0.0'}},
+    })).rejects.toThrow(/producer/u);
+  });
+
+  it('requires exactly four Raw frame results', async () => {
+    const result = await rawResult();
+    await expect(assertPoseClipRawGenerationResultIntegrity(undefined, {
+      ...result,
+      frameResults: result.frameResults.slice(0, 3),
     })).rejects.toThrow();
   });
 });

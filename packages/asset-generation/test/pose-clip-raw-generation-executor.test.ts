@@ -1,4 +1,4 @@
-import {mkdtemp, readFile, rm} from 'node:fs/promises';
+import {mkdtemp, readFile, readdir, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {afterEach, describe, expect, it} from 'vitest';
@@ -22,7 +22,7 @@ import {
 } from '../src/index.js';
 
 const PNG = Uint8Array.from(
-  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X1WzWQAAAABJRU5ErkJggg=='),
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg=='),
   (character) => character.charCodeAt(0),
 );
 const roots: string[] = [];
@@ -35,10 +35,11 @@ class FixtureProvider implements ImageGenerationProvider {
   readonly id = 'comfyui';
   calls = 0;
   wrongAsset = false;
+  bytes = PNG;
 
   async generate(request: PoseClipFrameJob['generationRequest']): Promise<GeneratedImageArtifact[]> {
     this.calls += 1;
-    const contentHash = await sha256Bytes(PNG);
+    const contentHash = await sha256Bytes(this.bytes);
     const asset = ProductionVisualAssetRecord({
       id: this.wrongAsset ? `${request.output.assetId}.wrong` : request.output.assetId,
       kind: request.output.kind,
@@ -47,7 +48,7 @@ class FixtureProvider implements ImageGenerationProvider {
       seed: request.seed,
     });
     return [{
-      bytes: PNG,
+      bytes: this.bytes,
       filePath: `virtual://${contentHash}.png`,
       asset,
       providerMetadata: {fixture: true},
@@ -173,6 +174,19 @@ describe('M4 Commit 1 Raw Four-Frame Generation', () => {
     });
     await expect(executor.execute(await request())).rejects.toMatchObject({code: 'RAW_GENERATION_BINDING_MISMATCH'});
     expect(provider.calls).toBe(1);
+  });
+
+  it('rejects truncated PNG bytes before Raw CAS publication', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'm4-raw-generation-truncated-'));
+    roots.push(root);
+    const provider = new FixtureProvider();
+    provider.bytes = PNG.slice(0, 33);
+    const executor = new PoseClipRawGenerationExecutor({
+      provider,
+      cas: new LocalContentAddressedAssetStore(root),
+    });
+    await expect(executor.execute(await request())).rejects.toMatchObject({code: 'RAW_GENERATION_PNG_INVALID'});
+    await expect(readdir(root)).resolves.toEqual([]);
   });
 
   it('drives four independent ComfyUI prompt/history/view jobs into Raw CAS', async () => {

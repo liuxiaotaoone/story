@@ -34,6 +34,19 @@ function refineRawFrameResult(
     message: 'Raw artifact must be bound to generationInputHash',
     path: ['artifact', 'inputHash'],
   });
+  if (result.artifact.asset.provenance?.inputHash !== result.generationInputHash) context.addIssue({
+    code: 'custom',
+    message: 'Raw asset provenance must be bound to generationInputHash',
+    path: ['artifact', 'asset', 'provenance', 'inputHash'],
+  });
+  if (
+    result.artifact.asset.provenance?.producer.name !== result.artifact.producer.name
+    || result.artifact.asset.provenance?.producer.version !== result.artifact.producer.version
+  ) context.addIssue({
+    code: 'custom',
+    message: 'Raw artifact producer must match asset provenance producer',
+    path: ['artifact', 'producer'],
+  });
 }
 
 export const PoseClipRawFrameGenerationResultPayloadSchema = z.object(
@@ -48,7 +61,7 @@ export const PoseClipRawFrameGenerationResultSchema = z.object({
 const PoseClipRawGenerationResultPayloadShape = {
   schemaVersion: z.literal('1.0.0'),
   productionRequestHash: ContentHashSchema,
-  frameResults: z.array(PoseClipRawFrameGenerationResultSchema).min(2),
+  frameResults: z.array(PoseClipRawFrameGenerationResultSchema).length(4),
   producer: ProducerRefSchema,
 } as const;
 

@@ -35,10 +35,10 @@ import {
 } from '../src/index.js';
 
 const PNG = Uint8Array.from(
-  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X1WzWQAAAABJRU5ErkJggg=='),
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg=='),
   (character) => character.charCodeAt(0),
 );
-const TRUSTED_PROFILE_HASH = 'b4199cd918df9c22f13df886cc257ddae8f241814c808b8fb24178839d298a9d';
+const TRUSTED_PROFILE_HASH = 'f9602118032d9ae47dacde62b766cfee28a9f15f0d204f87c764a65a60c38089';
 const ANCHORS: PoseAnchors = {
   foot: {x: 0.5, y: 0.9},
   leftFoot: {x: 0.45, y: 0.9},

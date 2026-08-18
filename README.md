@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 1 — Real Four-Frame Generation / Implemented / Candidate**。M3 Commit 3.2.2 及之前保持 Frozen；新的 Raw Generation Executor 只消费 `PoseClipProductionRequest` 的四个 FrameJob，通过 ComfyUI `submit/collect` 验证 PNG 并写入 Raw CAS，暂不接 Matting、Normalize、Anchor 或真实 Continuity Feature。真实 GPU/模型运行留在可访问 ComfyUI 的环境执行。
+当前里程碑：**M4 Commit 1.1 — Raw Generation Integrity Closure / Implemented / Candidate**。M3 Commit 3.2.2 及之前保持 Frozen；Raw Generation 固定消费 `PoseClipProductionRequest` 的四个 FrameJob，PNG 必须通过完整 chunk/CRC/IDAT 解压校验，Raw Evidence 同时绑定 artifact 与 Asset provenance，正式文件只由 Executor 写入 Raw CAS。暂不接 Matting、Normalize、Anchor 或真实 Continuity Feature。真实 GPU/模型运行留在可访问 ComfyUI 的环境执行。
 
 ## 已冻结的实现边界
 
