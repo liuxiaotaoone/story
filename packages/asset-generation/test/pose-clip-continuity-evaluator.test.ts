@@ -297,6 +297,17 @@ describe('M3 PoseClip Continuity QA', () => {
     })).rejects.toMatchObject({code: 'CONTINUITY_FEATURE_BINDING_MISMATCH'});
   });
 
+  it('rejects duplicate reference features instead of silently selecting the first entry', async () => {
+    const results = await Promise.all([0, 1].map((index) => frameResult(index)));
+    const features = results.map((result) => feature(result));
+    features.push(structuredClone(features[0]!));
+    await expect(evaluator().evaluate({
+      frameResults: results,
+      loop: false,
+      spec: await qaSpec(features),
+    })).rejects.toMatchObject({code: 'CONTINUITY_REFERENCE_FEATURE_DUPLICATE'});
+  });
+
   it('assembles Continuity Evidence into the canonical Clip Production Result and preserves human review gating', async () => {
     const {request, results} = await productionFixture();
     const continuityEvaluation = await evaluator().evaluate({

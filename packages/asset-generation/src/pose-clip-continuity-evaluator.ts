@@ -78,6 +78,14 @@ export class DeterministicReferenceContinuityFeatureExtractor implements PoseCli
       'Reference continuity extractor requires config.frames',
     );
     const frames = config.frames.map((frame) => PoseClipContinuityFrameFeaturesSchema.parse(frame));
+    const frameIndexes = new Set<number>();
+    for (const frame of frames) {
+      if (frameIndexes.has(frame.frameIndex)) throw new PoseClipContinuityIntegrityError(
+        'CONTINUITY_REFERENCE_FEATURE_DUPLICATE',
+        `Frame ${frame.frameIndex}`,
+      );
+      frameIndexes.add(frame.frameIndex);
+    }
     const feature = frames.find(({frameIndex}) => frameIndex === input.frameResult.frameIndex);
     if (feature === undefined) throw new PoseClipContinuityIntegrityError(
       'CONTINUITY_REFERENCE_FEATURE_MISSING',

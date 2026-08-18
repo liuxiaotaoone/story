@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M3 Commit 3.2 — Continuity QA / Candidate**。M3 Commit 3.1.2.1 保持 PASS / Frozen；新的 Clip-level Evaluator 只消费已冻结的 `PoseClipFrameProductionResult[]`，通过带 Hash 的 Feature Extractor Spec 检查 Identity、Scale、Canvas、Body Proportion、Foot Contact、Anchor Movement、Silhouette 与 Loop Closure，并把 Continuity Evidence 纳入最终 PoseClip Production Result。当前为确定性 Reference Feature Extractor，生产级视觉特征模型仍待后续接入。
+当前里程碑：**M3 Commit 3.2 — Continuity QA / Implemented / QA PASS**。M3 Commit 3.1.2.1 保持 PASS / Frozen；新的 Clip-level Evaluator 只消费已冻结的 `PoseClipFrameProductionResult[]`，通过带 Hash 的 Feature Extractor Spec 检查 Identity、Scale、Canvas、Body Proportion、Foot Contact、Anchor Movement、Silhouette 与 Loop Closure，并把 Continuity Evidence 纳入最终 PoseClip Production Result。当前为确定性 Reference Feature Extractor，生产级视觉特征模型仍待后续接入。
 
 ## 已冻结的实现边界
 

@@ -1,6 +1,6 @@
 # M3 Commit 3.2 — PoseClip Continuity QA
 
-状态：**Candidate / Awaiting Review**
+状态：**Implemented / QA PASS**
 
 本提交只消费 M3 Commit 3.1 已冻结的 `PoseClipFrameProductionResult[]`，不修改 Generation、Resume、CAS、Processor、单帧 QA 或 Frame Cache。
 
