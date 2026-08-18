@@ -38,6 +38,7 @@ const PNG = Uint8Array.from(
   atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X1WzWQAAAABJRU5ErkJggg=='),
   (character) => character.charCodeAt(0),
 );
+const TRUSTED_PROFILE_HASH = 'b4199cd918df9c22f13df886cc257ddae8f241814c808b8fb24178839d298a9d';
 const ANCHORS: PoseAnchors = {
   foot: {x: 0.5, y: 0.9},
   leftFoot: {x: 0.45, y: 0.9},
@@ -169,7 +170,7 @@ function feature(
   };
 }
 
-describe('M3 Commit 3.2.1 Production Closure E2E', () => {
+describe('M3 Commit 3.2.2 Trusted Production Admission E2E', () => {
   it('runs four Frame Jobs through Continuity, approved Profile admission and final integrity', async () => {
     const jobs = await Promise.all([0, 1, 2, 3].map(frameJob));
     const request = await createPoseClipProductionRequest({
@@ -246,17 +247,21 @@ describe('M3 Commit 3.2.1 Production Closure E2E', () => {
       ],
       frameExecutionKeys: frameResults.map(({frameExecutionKey}) => frameExecutionKey),
     });
+    expect(productionProfile.profileHash).toBe(TRUSTED_PROFILE_HASH);
     const result = await assemblePoseClipProductionResult({
       request,
       frameResults,
       continuityEvaluation,
       productionProfile,
+      trustedProfileHash: TRUSTED_PROFILE_HASH,
       producer: {name: 'pose-clip-production-assembler', version: '1.0.0'},
       humanReview: 'approved',
     });
 
     expect(result.qa.productionReady).toBe(true);
     expect(result.productionProfile.profileHash).toBe(productionProfile.profileHash);
-    await expect(assertPoseClipProductionResultIntegrity(request, result)).resolves.toEqual(result);
+    await expect(assertPoseClipProductionResultIntegrity(request, result, {
+      expectedProfileHash: TRUSTED_PROFILE_HASH,
+    })).resolves.toEqual(result);
   });
 });

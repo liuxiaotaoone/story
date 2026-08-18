@@ -1,6 +1,6 @@
 # M3 Commit 3.2.1 — Production Closure
 
-状态：**PASS / Frozen**
+状态：**PASS / Closed by M3 Commit 3.2.2**
 
 本提交只封闭两个 Production Admission 边界，不扩展 3.1 单帧生成、Processor、CAS、Resume Cache 或 3.2 Continuity 指标。
 

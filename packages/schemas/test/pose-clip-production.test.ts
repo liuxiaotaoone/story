@@ -430,7 +430,9 @@ describe('M3 PoseClip production contract', () => {
   it('assembles a hash-verified PoseClip from four explicit artifact chains', async () => {
     const request = await createRequest();
     const result = await createResult(request);
-    await expect(assertPoseClipProductionResultIntegrity(request, result)).resolves.toEqual(result);
+    await expect(assertPoseClipProductionResultIntegrity(request, result, {
+      expectedProfileHash: result.productionProfile.profileHash,
+    })).resolves.toEqual(result);
     expect(result.frameResults.map(({artifacts}) => artifacts.map(({stage}) => stage))).toEqual([
       [...STAGES], [...STAGES], [...STAGES], [...STAGES],
     ]);
@@ -457,7 +459,9 @@ describe('M3 PoseClip production contract', () => {
       index === 2 ? changedFrameResult : result
     ));
     const changedResult = await createResult(changedRequest, reusedFrameResults);
-    await expect(assertPoseClipProductionResultIntegrity(changedRequest, changedResult)).resolves.toEqual(changedResult);
+    await expect(assertPoseClipProductionResultIntegrity(changedRequest, changedResult, {
+      expectedProfileHash: changedResult.productionProfile.profileHash,
+    })).resolves.toEqual(changedResult);
     expect(changedResult.frameResults[0]!.resultHash).toBe(originalResult.frameResults[0]!.resultHash);
     expect(changedResult.frameResults[1]!.resultHash).toBe(originalResult.frameResults[1]!.resultHash);
     expect(changedResult.frameResults[3]!.resultHash).toBe(originalResult.frameResults[3]!.resultHash);
@@ -508,6 +512,15 @@ describe('M3 PoseClip production contract', () => {
   it('requires an approved Production Profile bound to frame execution, Continuity QA and model hashes', async () => {
     const request = await createRequest();
     const result = await createResult(request);
+    await expect(assertPoseClipProductionResultIntegrity(request, result)).rejects.toMatchObject({
+      code: 'PRODUCTION_PROFILE_ADMISSION_MISSING',
+    });
+    await expect(assertPoseClipProductionResultIntegrity(request, result, {
+      expectedProfileHash: 'f'.repeat(64),
+    })).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_NOT_TRUSTED'});
+    await expect(assertPoseClipProductionResultIntegrity(request, result, {
+      expectedProfileHash: result.productionProfile.profileHash,
+    })).resolves.toEqual(result);
     const {profileHash: _profileHash, ...profilePayload} = result.productionProfile;
     const {resultHash: _resultHash, ...resultPayload} = result;
     const resultWithProfile = async (productionProfile: typeof result.productionProfile) => {
@@ -522,6 +535,16 @@ describe('M3 PoseClip production contract', () => {
     await expect(assertPoseClipProductionResultIntegrity(
       request,
       await resultWithProfile(pendingProfile),
+    )).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_NOT_APPROVED'});
+
+    const revokedProfile = await createPoseClipProductionProfile({
+      ...profilePayload,
+      approval: 'revoked',
+    });
+    await expect(assertPoseClipProductionResultIntegrity(
+      request,
+      await resultWithProfile(revokedProfile),
+      {expectedProfileHash: revokedProfile.profileHash},
     )).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_NOT_APPROVED'});
 
     const wrongFrameProfile = await createPoseClipProductionProfile({

@@ -364,6 +364,10 @@ export class PoseClipProductionIntegrityError extends Error {
   }
 }
 
+export interface PoseClipProductionAdmission {
+  readonly expectedProfileHash: string;
+}
+
 export async function hashPoseClipFrameSpecPayload(input: unknown): Promise<string> {
   return canonicalHash('pose-clip-frame-spec-v1', PoseClipFrameSpecPayloadSchema.parse(input));
 }
@@ -518,10 +522,18 @@ export async function assertPoseClipFrameProductionResultIntegrity(
 export async function assertPoseClipProductionResultIntegrity(
   requestInput: unknown,
   resultInput: unknown,
+  admission?: PoseClipProductionAdmission,
 ): Promise<PoseClipProductionResult> {
   const request = await assertPoseClipProductionRequestIntegrity(requestInput);
   const result = PoseClipProductionResultSchema.parse(resultInput);
   const productionProfile = await assertPoseClipProductionProfileIntegrity(result.productionProfile);
+  if (admission !== undefined) {
+    const expectedProfileHash = ContentHashSchema.parse(admission.expectedProfileHash);
+    if (productionProfile.profileHash !== expectedProfileHash) throw new PoseClipProductionIntegrityError(
+      'PRODUCTION_PROFILE_NOT_TRUSTED',
+      productionProfile.profileId,
+    );
+  }
   if (result.productionRequestHash !== request.requestHash) throw new PoseClipProductionIntegrityError(
     'PRODUCTION_REQUEST_BINDING_MISMATCH', result.productionRequestHash,
   );
@@ -608,6 +620,10 @@ export async function assertPoseClipProductionResultIntegrity(
   );
   if (result.qa.productionReady && productionProfile.approval !== 'approved') throw new PoseClipProductionIntegrityError(
     'PRODUCTION_PROFILE_NOT_APPROVED',
+    productionProfile.profileId,
+  );
+  if (result.qa.productionReady && admission === undefined) throw new PoseClipProductionIntegrityError(
+    'PRODUCTION_PROFILE_ADMISSION_MISSING',
     productionProfile.profileId,
   );
   if (result.qa.productionReady && result.frameResults.some(({qa}) => !qa.productionReady)) {

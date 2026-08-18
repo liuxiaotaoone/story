@@ -382,11 +382,21 @@ describe('M3 PoseClip Continuity QA', () => {
       spec: continuityQaSpec,
     });
     const productionProfileSpec = await productionProfile(request, results, continuityQaSpec);
+    await expect(assemblePoseClipProductionResult({
+      request,
+      frameResults: results,
+      continuityEvaluation,
+      productionProfile: productionProfileSpec,
+      trustedProfileHash: 'f'.repeat(64),
+      producer: {name: 'pose-clip-production-assembler', version: '1.0.0'},
+      humanReview: 'approved',
+    })).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_NOT_TRUSTED'});
     const approved = await assemblePoseClipProductionResult({
       request,
       frameResults: results,
       continuityEvaluation,
       productionProfile: productionProfileSpec,
+      trustedProfileHash: productionProfileSpec.profileHash,
       producer: {name: 'pose-clip-production-assembler', version: '1.0.0'},
       humanReview: 'approved',
     });
@@ -400,6 +410,7 @@ describe('M3 PoseClip Continuity QA', () => {
       frameResults: results,
       continuityEvaluation,
       productionProfile: productionProfileSpec,
+      trustedProfileHash: productionProfileSpec.profileHash,
       producer: {name: 'pose-clip-production-assembler', version: '1.0.0'},
       humanReview: 'pending',
     });

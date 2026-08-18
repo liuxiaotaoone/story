@@ -6,6 +6,7 @@ import {
   assertPoseClipProductionResultIntegrity,
   hashPoseClipContent,
   hashPoseClipProductionResultPayload,
+  PoseClipProductionIntegrityError,
   type PoseClipContinuityEvaluation,
   type PoseClipFrameProductionResult,
   type PoseClipProductionQa,
@@ -20,6 +21,7 @@ export interface AssemblePoseClipProductionResultInput {
   readonly frameResults: readonly PoseClipFrameProductionResult[];
   readonly continuityEvaluation: PoseClipContinuityEvaluation;
   readonly productionProfile: PoseClipProductionProfile;
+  readonly trustedProfileHash: string;
   readonly producer: ProducerRef;
   readonly humanReview: 'pending' | 'approved' | 'rejected';
 }
@@ -46,6 +48,10 @@ export async function assemblePoseClipProductionResult(
   }
   const continuityEvaluation = await assertPoseClipContinuityEvaluationIntegrity(input.continuityEvaluation);
   const productionProfile = await assertPoseClipProductionProfileIntegrity(input.productionProfile);
+  if (productionProfile.profileHash !== input.trustedProfileHash) throw new PoseClipProductionIntegrityError(
+    'PRODUCTION_PROFILE_NOT_TRUSTED',
+    productionProfile.profileId,
+  );
   if (
     continuityEvaluation.loop !== request.loop
     || continuityEvaluation.frameResultHashes.some((hash, index) => hash !== frameResults[index]?.resultHash)
@@ -117,5 +123,5 @@ export async function assemblePoseClipProductionResult(
   return assertPoseClipProductionResultIntegrity(request, {
     ...payload,
     resultHash: await hashPoseClipProductionResultPayload(payload),
-  });
+  }, {expectedProfileHash: input.trustedProfileHash});
 }
