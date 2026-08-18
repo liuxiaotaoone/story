@@ -29,6 +29,12 @@ import {
   PoseClipContinuityEvaluationSchema,
   assertPoseClipContinuityEvaluationIntegrity,
 } from './pose-clip-continuity.js';
+import {
+  PoseClipProductionProfileSchema,
+  assertPoseClipProductionProfileIntegrity,
+  productionProfileAdmitsModel,
+} from './pose-clip-production-profile.js';
+import {poseFrameExecutionKey} from './pose-frame-processing.js';
 
 export const PoseFramePhaseSchema = IdSchema;
 export const PoseAnchorRequirementSchema = z.union([
@@ -335,6 +341,7 @@ const PoseClipProductionResultPayloadShape = {
   schemaVersion: z.literal('1.0.0'),
   productionRequestHash: ContentHashSchema,
   frameResults: z.array(PoseClipFrameProductionResultSchema).min(2),
+  productionProfile: PoseClipProductionProfileSchema,
   poseClip: PoseClipSchema,
   poseClipHash: ContentHashSchema,
   producer: ProducerRefSchema,
@@ -514,15 +521,41 @@ export async function assertPoseClipProductionResultIntegrity(
 ): Promise<PoseClipProductionResult> {
   const request = await assertPoseClipProductionRequestIntegrity(requestInput);
   const result = PoseClipProductionResultSchema.parse(resultInput);
+  const productionProfile = await assertPoseClipProductionProfileIntegrity(result.productionProfile);
   if (result.productionRequestHash !== request.requestHash) throw new PoseClipProductionIntegrityError(
     'PRODUCTION_REQUEST_BINDING_MISMATCH', result.productionRequestHash,
   );
   if (result.frameResults.length !== request.frames.length) throw new PoseClipProductionIntegrityError(
     'FRAME_RESULT_COUNT_MISMATCH', `Expected ${request.frames.length}, received ${result.frameResults.length}`,
   );
+  if (productionProfile.frameExecutionKeys.length !== result.frameResults.length) throw new PoseClipProductionIntegrityError(
+    'PRODUCTION_PROFILE_FRAME_COUNT_MISMATCH',
+    `Expected ${result.frameResults.length}, received ${productionProfile.frameExecutionKeys.length}`,
+  );
   for (const [index, frameResult] of result.frameResults.entries()) {
     const job = request.frames[index]!;
-    await assertPoseClipFrameProductionResultIntegrity(job, frameResult);
+    const expectedFrameExecutionKey = await poseFrameExecutionKey({
+      frameJobHash: job.frameJobHash,
+      processorSpecHashes: {
+        matted: productionProfile.processorSpecs.matted.processorSpecHash,
+        normalized: productionProfile.processorSpecs.normalized.processorSpecHash,
+        anchored: productionProfile.processorSpecs.anchored.processorSpecHash,
+      },
+      qaEvaluatorSpecHash: productionProfile.frameQaSpec.qaEvaluatorSpecHash,
+      executor: productionProfile.executor,
+    });
+    if (productionProfile.frameExecutionKeys[index] !== expectedFrameExecutionKey) throw new PoseClipProductionIntegrityError(
+      'PRODUCTION_PROFILE_EXECUTION_BINDING_MISMATCH', `Frame ${index}`,
+    );
+    if (frameResult.frameExecutionKey !== expectedFrameExecutionKey) throw new PoseClipProductionIntegrityError(
+      'PRODUCTION_PROFILE_FRAME_EXECUTION_KEY_MISMATCH', `Frame ${index}`,
+    );
+    await assertPoseClipFrameProductionResultIntegrity(job, frameResult, expectedFrameExecutionKey);
+    for (const model of job.generationRequest.runtimeModels) {
+      if (!productionProfileAdmitsModel(productionProfile, model)) throw new PoseClipProductionIntegrityError(
+        'PRODUCTION_PROFILE_MODEL_MISMATCH', `${model.role}:${model.modelId}`,
+      );
+    }
   }
   const expectedClip = {
     id: request.poseClipId,
@@ -547,6 +580,9 @@ export async function assertPoseClipProductionResultIntegrity(
     continuity.loop !== request.loop
     || canonicalizeJson(continuity.frameResultHashes) !== canonicalizeJson(result.frameResults.map(({resultHash}) => resultHash))
   ) throw new PoseClipProductionIntegrityError('CONTINUITY_EVALUATION_BINDING_MISMATCH', result.poseClip.id);
+  if (continuity.continuityQaSpecHash !== productionProfile.continuityQaSpec.continuityQaSpecHash) {
+    throw new PoseClipProductionIntegrityError('PRODUCTION_PROFILE_CONTINUITY_SPEC_MISMATCH', result.poseClip.id);
+  }
   for (const metric of [
     'identityConsistency',
     'scaleConsistency',
@@ -569,6 +605,10 @@ export async function assertPoseClipProductionResultIntegrity(
   if (result.qa.productionReady && !continuity.automatedReady) throw new PoseClipProductionIntegrityError(
     'CONTINUITY_QA_NOT_READY',
     result.poseClip.id,
+  );
+  if (result.qa.productionReady && productionProfile.approval !== 'approved') throw new PoseClipProductionIntegrityError(
+    'PRODUCTION_PROFILE_NOT_APPROVED',
+    productionProfile.profileId,
   );
   if (result.qa.productionReady && result.frameResults.some(({qa}) => !qa.productionReady)) {
     throw new PoseClipProductionIntegrityError('FRAME_QA_NOT_READY', result.poseClip.id);

@@ -2,6 +2,7 @@ import {
   assertPoseClipContinuityEvaluationIntegrity,
   assertPoseClipFrameProductionResultIntegrity,
   assertPoseClipProductionRequestIntegrity,
+  assertPoseClipProductionProfileIntegrity,
   assertPoseClipProductionResultIntegrity,
   hashPoseClipContent,
   hashPoseClipProductionResultPayload,
@@ -9,6 +10,7 @@ import {
   type PoseClipFrameProductionResult,
   type PoseClipProductionQa,
   type PoseClipProductionRequest,
+  type PoseClipProductionProfile,
   type PoseClipProductionResult,
   type ProducerRef,
 } from '@pose-clip/schemas';
@@ -17,6 +19,7 @@ export interface AssemblePoseClipProductionResultInput {
   readonly request: PoseClipProductionRequest;
   readonly frameResults: readonly PoseClipFrameProductionResult[];
   readonly continuityEvaluation: PoseClipContinuityEvaluation;
+  readonly productionProfile: PoseClipProductionProfile;
   readonly producer: ProducerRef;
   readonly humanReview: 'pending' | 'approved' | 'rejected';
 }
@@ -42,6 +45,7 @@ export async function assemblePoseClipProductionResult(
     frameResults.push(await assertPoseClipFrameProductionResultIntegrity(request.frames[index]!, frameResult));
   }
   const continuityEvaluation = await assertPoseClipContinuityEvaluationIntegrity(input.continuityEvaluation);
+  const productionProfile = await assertPoseClipProductionProfileIntegrity(input.productionProfile);
   if (
     continuityEvaluation.loop !== request.loop
     || continuityEvaluation.frameResultHashes.some((hash, index) => hash !== frameResults[index]?.resultHash)
@@ -80,6 +84,7 @@ export async function assemblePoseClipProductionResult(
     && structural === 'passed'
     && anchors === 'passed'
     && input.humanReview === 'approved'
+    && productionProfile.approval === 'approved'
     && diagnostics.every(({severity}) => severity !== 'error')
   );
   const qa: PoseClipProductionQa = {
@@ -102,6 +107,7 @@ export async function assemblePoseClipProductionResult(
     schemaVersion: '1.0.0' as const,
     productionRequestHash: request.requestHash,
     frameResults,
+    productionProfile,
     poseClip,
     poseClipHash: await hashPoseClipContent(poseClip),
     producer: input.producer,

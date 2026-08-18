@@ -482,6 +482,33 @@ describe('M3 Frame Production Pipeline', () => {
     expect(execution.generation.attempts).toBe(2);
   });
 
+  it('fails closed when /prompt transport state is ambiguous without queueing a second job', async () => {
+    const workflow = new TextEncoder().encode(JSON.stringify({'17': {class_type: 'SaveImage', inputs: {}}}));
+    const workflowHash = await sha256Bytes(workflow);
+    let promptCalls = 0;
+    const job = await withWorkflowHash(await frameJob(), workflowHash);
+    const provider = new ComfyUiProvider({
+      endpoint: 'http://127.0.0.1:8188', outputRoot: await testRoot(),
+      workflowResolver: async () => workflow,
+      fetch: async (input) => {
+        const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input : input.url);
+        if (url.pathname.endsWith('/prompt')) {
+          promptCalls += 1;
+          if (promptCalls === 1) throw new Error('response lost after server accepted request');
+          return new Response(JSON.stringify({prompt_id: 'P2'}));
+        }
+        return new Response('not found', {status: 404});
+      },
+    });
+    await expect(new PoseFrameProductionExecutor({
+      provider,
+      cas: new LocalContentAddressedAssetStore(await testRoot()),
+      stages: await pipeline(),
+      maxAttempts: 2,
+    }).execute(job)).rejects.toMatchObject({code: 'GENERATION_UNKNOWN_SUBMISSION_STATE'});
+    expect(promptCalls).toBe(1);
+  });
+
   it('retries output download for the same completed prompt without regenerating it', async () => {
     const workflow = new TextEncoder().encode(JSON.stringify({'17': {class_type: 'SaveImage', inputs: {}}}));
     const workflowHash = await sha256Bytes(workflow);

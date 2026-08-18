@@ -6,9 +6,13 @@ import {
   createPoseClipFrameSpec,
   createPoseClipContinuityFeatureExtractorSpec,
   createPoseClipContinuityQaSpec,
+  createPoseClipProductionProfile,
   createPoseClipProductionRequest,
+  createPoseFrameProcessorSpec,
+  createPoseFrameQaEvaluatorSpec,
   hashPoseClipFrameProductionResultPayload,
   hashPoseFrameArtifactPayload,
+  poseFrameExecutionKey,
   sha256Bytes,
   type PoseAnchors,
   type PoseClipContinuityFrameFeatures,
@@ -36,6 +40,47 @@ interface FrameOptions {
   anchors?: PoseAnchors;
   contact?: 'left-foot' | 'right-foot' | 'both' | 'none';
   job?: PoseClipFrameJob;
+}
+
+async function productionProfileFrameBindings() {
+  const [matted, normalized, anchored] = await Promise.all([
+    createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0', stage: 'matted',
+      processor: {name: 'approved-matting', version: '1.0.0'}, config: {},
+    }),
+    createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0', stage: 'normalized',
+      processor: {name: 'approved-normalization', version: '1.0.0'}, config: {},
+    }),
+    createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0', stage: 'anchored',
+      processor: {name: 'approved-anchoring', version: '1.0.0'}, config: {},
+    }),
+  ]);
+  const frameQaSpec = await createPoseFrameQaEvaluatorSpec({
+    schemaVersion: '1.0.0',
+    evaluator: {name: 'approved-frame-qa', version: '1.0.0'},
+    config: {},
+  });
+  return {
+    processorSpecs: {matted, normalized, anchored},
+    frameQaSpec,
+    executor: {name: 'pose-frame-production-executor', version: '0.1.2'} as const,
+  };
+}
+
+async function productionProfileFrameExecutionKey(frameJobHash: string): Promise<string> {
+  const bindings = await productionProfileFrameBindings();
+  return poseFrameExecutionKey({
+    frameJobHash,
+    processorSpecHashes: {
+      matted: bindings.processorSpecs.matted.processorSpecHash,
+      normalized: bindings.processorSpecs.normalized.processorSpecHash,
+      anchored: bindings.processorSpecs.anchored.processorSpecHash,
+    },
+    qaEvaluatorSpecHash: bindings.frameQaSpec.qaEvaluatorSpecHash,
+    executor: bindings.executor,
+  });
 }
 
 async function frameResult(index: number, options: FrameOptions = {}): Promise<PoseClipFrameProductionResult> {
@@ -75,10 +120,12 @@ async function frameResult(index: number, options: FrameOptions = {}): Promise<P
     artifacts.push(artifact);
     inputHash = artifact.outputHash;
   }
+  const frameJobHash = options.job?.frameJobHash
+    ?? await sha256Bytes(new TextEncoder().encode(`job:${index}`));
   const payload = {
     schemaVersion: '1.0.0' as const,
-    frameExecutionKey: await sha256Bytes(new TextEncoder().encode(`execution:${index}`)),
-    frameJobHash: options.job?.frameJobHash ?? await sha256Bytes(new TextEncoder().encode(`job:${index}`)),
+    frameExecutionKey: await productionProfileFrameExecutionKey(frameJobHash),
+    frameJobHash,
     frameIndex: index,
     frameSpecHash: options.job?.spec.frameSpecHash ?? await sha256Bytes(new TextEncoder().encode(`spec:${index}`)),
     generationInputHash,
@@ -203,6 +250,24 @@ async function productionFixture() {
   return {request, results};
 }
 
+async function productionProfile(
+  request: Awaited<ReturnType<typeof productionFixture>>['request'],
+  results: readonly PoseClipFrameProductionResult[],
+  continuityQaSpec: Awaited<ReturnType<typeof qaSpec>>,
+) {
+  const bindings = await productionProfileFrameBindings();
+  const runtimeModels = request.frames[0]!.generationRequest.runtimeModels;
+  return createPoseClipProductionProfile({
+    schemaVersion: '1.0.0',
+    profileId: 'rabbit-run-approved-profile',
+    approval: 'approved',
+    ...bindings,
+    continuityQaSpec,
+    modelHashes: runtimeModels.map(({modelId, contentHash}) => ({modelId, contentHash})),
+    frameExecutionKeys: results.map(({frameExecutionKey}) => frameExecutionKey),
+  });
+}
+
 describe('M3 PoseClip Continuity QA', () => {
   it('produces deterministic passing evidence across every continuity dimension', async () => {
     const results = await Promise.all([0, 1, 2, 3].map((index) => frameResult(index)));
@@ -216,7 +281,7 @@ describe('M3 PoseClip Continuity QA', () => {
       '526ac8b4fb54a2ef424da89452bd35c4e388b698baa700e9708d4f4b66bb24bd',
     );
     expect(first.evaluationHash).toBe(
-      '73a3f24a8623f19d9bb78c5bda43708c84751e6261c67694ed2a0981a097fa64',
+      '42c13e76e6e94dfe8e687fdd974b9fae085bc8d172e9cddb18fdf9df16b798ad',
     );
     expect(first).toEqual(second);
     expect(first.continuity).toBe('passed');
@@ -310,15 +375,18 @@ describe('M3 PoseClip Continuity QA', () => {
 
   it('assembles Continuity Evidence into the canonical Clip Production Result and preserves human review gating', async () => {
     const {request, results} = await productionFixture();
+    const continuityQaSpec = await qaSpec(results.map((result) => feature(result)));
     const continuityEvaluation = await evaluator().evaluate({
       frameResults: results,
       loop: request.loop,
-      spec: await qaSpec(results.map((result) => feature(result))),
+      spec: continuityQaSpec,
     });
+    const productionProfileSpec = await productionProfile(request, results, continuityQaSpec);
     const approved = await assemblePoseClipProductionResult({
       request,
       frameResults: results,
       continuityEvaluation,
+      productionProfile: productionProfileSpec,
       producer: {name: 'pose-clip-production-assembler', version: '1.0.0'},
       humanReview: 'approved',
     });
@@ -331,6 +399,7 @@ describe('M3 PoseClip Continuity QA', () => {
       request,
       frameResults: results,
       continuityEvaluation,
+      productionProfile: productionProfileSpec,
       producer: {name: 'pose-clip-production-assembler', version: '1.0.0'},
       humanReview: 'pending',
     });

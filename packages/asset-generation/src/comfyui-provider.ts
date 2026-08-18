@@ -147,10 +147,20 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
     if (this.#pollIntervalMs < 0 || this.#timeoutMs <= 0) throw new TypeError('Invalid ComfyUI polling configuration');
   }
 
-  async #request(input: URL, init?: RequestInit): Promise<Response> {
+  async #request(
+    input: URL,
+    init?: RequestInit,
+    transportErrorCode: 'GENERATION_UNKNOWN_SUBMISSION_STATE' | undefined = undefined,
+  ): Promise<Response> {
     try {
       return await this.#fetch(input, init);
     } catch (error) {
+      if (transportErrorCode !== undefined) {
+        throw new AssetGenerationIntegrityError(
+          transportErrorCode,
+          `ComfyUI request state is unknown: ${input.pathname}`,
+        );
+      }
       throw new AssetGenerationTransientError(
         'GENERATION_TRANSPORT_FAILURE',
         `ComfyUI request failed: ${input.pathname}`,
@@ -364,7 +374,7 @@ export class ComfyUiProvider implements ResumableImageGenerationProvider {
         client_id: `pose-clip-${request.inputHash}`,
         extra_data: {generationRequestHash: request.inputHash},
       }),
-    });
+    }, 'GENERATION_UNKNOWN_SUBMISSION_STATE');
     const queue = asRecord(await responseJson(queueResponse, 'Queue ComfyUI prompt'), 'ComfyUI queue response');
     if (typeof queue.prompt_id !== 'string') throw new TypeError('ComfyUI queue response lacks prompt_id');
     return {generationInputHash: request.inputHash, promptId: queue.prompt_id};

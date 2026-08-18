@@ -9,6 +9,9 @@ import {
   createActionGenerationRequest,
   createPoseClipFrameJob,
   createPoseClipFrameSpec,
+  createPoseClipContinuityFeatureExtractorSpec,
+  createPoseClipContinuityQaSpec,
+  createPoseClipProductionProfile,
   createPoseClipProductionRequest,
   createPoseFrameProcessorSpec,
   createPoseFrameQaEvaluatorSpec,
@@ -17,6 +20,7 @@ import {
   hashPoseClipFrameProductionResultPayload,
   hashPoseClipProductionResultPayload,
   hashPoseFrameArtifactPayload,
+  poseFrameExecutionKey,
   poseFrameStageCacheKey,
 } from '../src/index.js';
 import type {
@@ -100,6 +104,85 @@ async function createRequest(): Promise<PoseClipProductionRequest> {
   });
 }
 
+async function productionProfileBindings() {
+  const [matted, normalized, anchored] = await Promise.all([
+    createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0', stage: 'matted',
+      processor: {name: 'approved-matting', version: '1.0.0'}, config: {},
+    }),
+    createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0', stage: 'normalized',
+      processor: {name: 'approved-normalization', version: '1.0.0'}, config: {},
+    }),
+    createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0', stage: 'anchored',
+      processor: {name: 'approved-anchoring', version: '1.0.0'}, config: {},
+    }),
+  ]);
+  const frameQaSpec = await createPoseFrameQaEvaluatorSpec({
+    schemaVersion: '1.0.0',
+    evaluator: {name: 'approved-frame-qa', version: '1.0.0'},
+    config: {},
+  });
+  const featureExtractor = await createPoseClipContinuityFeatureExtractorSpec({
+    schemaVersion: '1.0.0',
+    extractor: {name: 'approved-continuity-features', version: '1.0.0'},
+    config: {},
+  });
+  const threshold = {warning: 0.1, failure: 0.2};
+  const continuityQaSpec = await createPoseClipContinuityQaSpec({
+    schemaVersion: '1.0.0',
+    evaluator: {name: 'approved-continuity-qa', version: '1.0.0'},
+    featureExtractor,
+    thresholds: {
+      identityConsistency: threshold,
+      scaleConsistency: threshold,
+      canvasConsistency: {warning: 0, failure: 0.5},
+      bodyProportion: threshold,
+      footContact: threshold,
+      anchorMovement: threshold,
+      silhouetteContinuity: threshold,
+      loopClosure: threshold,
+    },
+  });
+  return {
+    processorSpecs: {matted, normalized, anchored},
+    frameQaSpec,
+    continuityQaSpec,
+    executor: {name: 'pose-frame-production-executor', version: '0.1.2'} as const,
+  };
+}
+
+async function frameExecutionKeyForJob(job: PoseClipFrameJob): Promise<string> {
+  const bindings = await productionProfileBindings();
+  return poseFrameExecutionKey({
+    frameJobHash: job.frameJobHash,
+    processorSpecHashes: {
+      matted: bindings.processorSpecs.matted.processorSpecHash,
+      normalized: bindings.processorSpecs.normalized.processorSpecHash,
+      anchored: bindings.processorSpecs.anchored.processorSpecHash,
+    },
+    qaEvaluatorSpecHash: bindings.frameQaSpec.qaEvaluatorSpecHash,
+    executor: bindings.executor,
+  });
+}
+
+async function createProductionProfile(request: PoseClipProductionRequest) {
+  const bindings = await productionProfileBindings();
+  return createPoseClipProductionProfile({
+    schemaVersion: '1.0.0',
+    profileId: 'pose-clip-production-v1',
+    approval: 'approved',
+    ...bindings,
+    modelHashes: [
+      {modelId: 'flux-2.safetensors', contentHash: '3'.repeat(64)},
+      {modelId: 'qwen.safetensors', contentHash: '4'.repeat(64)},
+      {modelId: 'flux2-vae.safetensors', contentHash: '5'.repeat(64)},
+    ],
+    frameExecutionKeys: await Promise.all(request.frames.map(frameExecutionKeyForJob)),
+  });
+}
+
 function contentHash(frameIndex: number, stageIndex: number): string {
   return ((frameIndex * STAGES.length + stageIndex + 6) % 10).toString().repeat(64);
 }
@@ -141,7 +224,7 @@ async function createFrameResult(
   const artifacts = await createArtifacts(job);
   const framePayload = {
     schemaVersion: '1.0.0' as const,
-    frameExecutionKey: '9'.repeat(64),
+    frameExecutionKey: await frameExecutionKeyForJob(job),
     frameJobHash: job.frameJobHash,
     frameIndex: job.spec.frameIndex,
     frameSpecHash: job.spec.frameSpecHash,
@@ -178,6 +261,7 @@ async function createResult(
   request: PoseClipProductionRequest,
   existingFrameResults?: PoseClipFrameProductionResult[],
 ): Promise<PoseClipProductionResult> {
+  const productionProfile = await createProductionProfile(request);
   const frameResults = existingFrameResults
     ?? await Promise.all(request.frames.map((job) => createFrameResult(job)));
   const poseClip = {
@@ -198,7 +282,7 @@ async function createResult(
     : {status: 'not-applicable' as const, maxDelta: 0, thresholds: threshold};
   const continuityPayload = {
     schemaVersion: '1.0.0' as const,
-    continuityQaSpecHash: '8'.repeat(64),
+    continuityQaSpecHash: productionProfile.continuityQaSpec.continuityQaSpecHash,
     frameResultHashes: frameResults.map(({resultHash}) => resultHash),
     loop: request.loop,
     metrics: {
@@ -223,6 +307,7 @@ async function createResult(
     schemaVersion: '1.0.0' as const,
     productionRequestHash: request.requestHash,
     frameResults,
+    productionProfile,
     poseClip,
     poseClipHash: await hashPoseClipContent(poseClip),
     producer: PRODUCER,
@@ -418,6 +503,77 @@ describe('M3 PoseClip production contract', () => {
       ...artifact,
       asset: {...artifact.asset, uri: 'file:///disk-a/rabbit.png'},
     }).success).toBe(false);
+  });
+
+  it('requires an approved Production Profile bound to frame execution, Continuity QA and model hashes', async () => {
+    const request = await createRequest();
+    const result = await createResult(request);
+    const {profileHash: _profileHash, ...profilePayload} = result.productionProfile;
+    const {resultHash: _resultHash, ...resultPayload} = result;
+    const resultWithProfile = async (productionProfile: typeof result.productionProfile) => {
+      const payload = {...resultPayload, productionProfile};
+      return {...payload, resultHash: await hashPoseClipProductionResultPayload(payload)};
+    };
+
+    const pendingProfile = await createPoseClipProductionProfile({
+      ...profilePayload,
+      approval: 'pending',
+    });
+    await expect(assertPoseClipProductionResultIntegrity(
+      request,
+      await resultWithProfile(pendingProfile),
+    )).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_NOT_APPROVED'});
+
+    const wrongFrameProfile = await createPoseClipProductionProfile({
+      ...profilePayload,
+      frameExecutionKeys: profilePayload.frameExecutionKeys.map((key, index) => (
+        index === 0 ? 'f'.repeat(64) : key
+      )),
+    });
+    await expect(assertPoseClipProductionResultIntegrity(
+      request,
+      await resultWithProfile(wrongFrameProfile),
+    )).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_EXECUTION_BINDING_MISMATCH'});
+
+    const wrongExecutorProfile = await createPoseClipProductionProfile({
+      ...profilePayload,
+      executor: {...profilePayload.executor, version: '9.9.9'},
+    });
+    await expect(assertPoseClipProductionResultIntegrity(
+      request,
+      await resultWithProfile(wrongExecutorProfile),
+    )).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_EXECUTION_BINDING_MISMATCH'});
+
+    const {
+      continuityQaSpecHash: _continuityQaSpecHash,
+      ...continuityQaSpecPayload
+    } = profilePayload.continuityQaSpec;
+    const changedContinuityQaSpec = await createPoseClipContinuityQaSpec({
+      ...continuityQaSpecPayload,
+      thresholds: {
+        ...profilePayload.continuityQaSpec.thresholds,
+        identityConsistency: {warning: 0.11, failure: 0.2},
+      },
+    });
+    const wrongContinuityProfile = await createPoseClipProductionProfile({
+      ...profilePayload,
+      continuityQaSpec: changedContinuityQaSpec,
+    });
+    await expect(assertPoseClipProductionResultIntegrity(
+      request,
+      await resultWithProfile(wrongContinuityProfile),
+    )).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_CONTINUITY_SPEC_MISMATCH'});
+
+    const wrongModelProfile = await createPoseClipProductionProfile({
+      ...profilePayload,
+      modelHashes: profilePayload.modelHashes.map((model, index) => (
+        index === 0 ? {...model, contentHash: 'a'.repeat(64)} : model
+      )),
+    });
+    await expect(assertPoseClipProductionResultIntegrity(
+      request,
+      await resultWithProfile(wrongModelProfile),
+    )).rejects.toMatchObject({code: 'PRODUCTION_PROFILE_MODEL_MISMATCH'});
   });
 
   it('records failed loop QA without falsely claiming production readiness', async () => {
