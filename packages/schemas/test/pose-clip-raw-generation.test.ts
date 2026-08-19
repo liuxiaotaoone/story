@@ -75,7 +75,7 @@ describe('M4 Commit 1 raw generation contract', () => {
   it('rejects a non-raw or detached artifact before it can become a generation result', async () => {
     const result = await rawResult();
     const artifact = {...result.frameResults[0]!.artifact, inputHash: 'e'.repeat(64)};
-    const frameResults = [{...result.frameResults[0]!, artifact}, result.frameResults[1]!];
+    const frameResults = [{...result.frameResults[0]!, artifact}, ...result.frameResults.slice(1)];
     await expect(assertPoseClipRawGenerationResultIntegrity(undefined, {
       ...result,
       frameResults,
