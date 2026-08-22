@@ -6,6 +6,8 @@
   "scripts": {
     "generate": "node --experimental-strip-types scripts/generate-single-frame.mts",
     "reliability": "node --experimental-strip-types scripts/run-reliability-gate.mts",
+    "production:e2e": "node --experimental-strip-types scripts/run-pose-clip-production-e2e.mts",
+    "production:plan": "node --experimental-strip-types scripts/run-pose-clip-production-e2e.mts --plan",
     "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
     "test": "node ../../node_modules/vitest/vitest.mjs run --passWithNoTests"
   },

@@ -265,6 +265,8 @@ describe('M4 Commit 6 Trusted Production Orchestrator', () => {
     });
 
     expect(provider.calls).toBe(4);
+    expect(execution.raw.frames.every(({elapsedMs}) => elapsedMs >= 0)).toBe(true);
+    expect(Object.values(execution.timingsMs).every((elapsedMs) => elapsedMs >= 0)).toBe(true);
     expect(execution.frameResults).toHaveLength(4);
     expect(execution.frameResults.map(({artifacts}) => artifacts.map(({stage}) => stage))).toEqual([
       ['raw', 'matted', 'normalized', 'anchored'],

@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 6 — Trusted Production Orchestrator / Production Orchestration, Profile Wiring & Assembly Gate PASS / Overall Candidate**。M3 Commit 3.2.2 及 M4 Raw、Matting、Normalize、Anchor、Bridge、Real Continuity 主链保持 Frozen；正式 `PoseClipProductionOrchestrator` 以 Trusted Production Profile 统一驱动三阶段 Processor Spec、Frame QA、Continuity QA、Frozen Executor identity 与四个 Frame Execution Keys，并在任何 Provider 调用前拒绝 Profile、模型或运行时实现脱钩。预检成功后，单一入口顺序执行四阶段 CAS 链、Bridge、真实 RGBA Continuity 和既有 Production Assembly，直接形成 `PoseClipProductionResult`。真实 ComfyUI GPU 四帧 E2E、阈值校准、解剖学左右脚语义和 Paper Engine 接线仍待完成。
+当前里程碑：**M4 Commit 7 — Real GPU Production E2E / Execution Prepared / Environment BLOCKED**。M4 Commit 6 Trusted Production Orchestrator 已 PASS 并保持 Frozen；真实 E2E 入口现已固定 Workflow、模型目录、Rabbit Reference、四帧 Request、Pending Profile 与 Frame Execution Keys，直接调用完整 Orchestrator，并输出阶段时间、Cache/Retry、Artifact Hash、Alpha/Anchor、Continuity Delta、Diagnostics 与最终 Result Hash。当前审查环境未运行 ComfyUI，`127.0.0.1:8188` readiness 失败，因此没有声称 GPU Gate PASS；启动 admitted ComfyUI/XPU 环境后可直接重跑。阈值校准、解剖学左右脚语义和 Paper Engine 接线仍待完成。
 
 ## 已冻结的实现边界
 

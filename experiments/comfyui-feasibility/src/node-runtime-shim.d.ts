@@ -12,4 +12,9 @@ declare module 'node:path' {
   export const resolve: (...args: string[]) => string;
 }
 declare module 'node:url' { export const fileURLToPath: (url: string | URL) => string; }
-declare const process: {env: Record<string, string | undefined>; exitCode?: number};
+declare const process: {
+  env: Record<string, string | undefined>;
+  argv: string[];
+  exitCode?: number;
+  exit(code?: number): never;
+};

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "workflow": {
+    "id": "flux2-klein-reference-single-frame-v1",
+    "contentHash": "e95bb3acd6928270e574985804eb2ac17fc206c14ae6fa56315fd2abe65a4116"
+  },
+  "modelCatalogHash": "5ff4aac7dcd02323516521674f718d76f21113495f311e5a01592fe2f27d4bf7",
+  "referenceAsset": {
+    "assetId": "rabbit.reference",
+    "contentHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc"
+  },
+  "productionRequestHash": "17d34c90abb3589b7e6f6cc4431363542cd5915624a2cf8b9d6c9c6dcbe2e030",
+  "trustedProfileHash": "d3aae13bb897f1a8dffd57980c7a08915f4d49557736df1c83c5c6e78025bc83",
+  "frameExecutionKeys": [
+    "0630f9ea92ff4fc0a049df4830970c52a44982d2bc891a3b1faa62431a92e06b",
+    "9b9f71d29973feed4f1e7d9e82cd230b2a69ff469638874892575ff5b3a0dcbb",
+    "f594a29c768b12147af733c1aa44d85290e2b65f8159dc12c2a395182adbef18",
+    "859b590b02d9a651256ab61f2c3d197af9e690add2abce24fe0895acb0821eb7"
+  ]
+}

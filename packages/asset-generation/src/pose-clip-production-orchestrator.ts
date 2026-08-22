@@ -94,6 +94,17 @@ export interface PoseClipProductionExecution {
   readonly frameResults: readonly PoseClipFrameProductionResult[];
   readonly continuityEvaluation: PoseClipContinuityEvaluation;
   readonly result: PoseClipProductionResult;
+  readonly timingsMs: {
+    readonly preflight: number;
+    readonly raw: number;
+    readonly matting: number;
+    readonly normalization: number;
+    readonly anchoring: number;
+    readonly bridge: number;
+    readonly continuity: number;
+    readonly assembly: number;
+    readonly total: number;
+  };
 }
 
 export class PoseClipProductionOrchestratorError extends Error {
@@ -235,10 +246,14 @@ export class PoseClipProductionOrchestrator {
   }
 
   async execute(input: PoseClipProductionOrchestratorInput): Promise<PoseClipProductionExecution> {
+    const totalStartedAt = performance.now();
+    let stageStartedAt = totalStartedAt;
     const {request, profile} = await this.#preflight(input.request, input.productionProfile);
+    const preflight = performance.now() - stageStartedAt;
     const attemptOptions = this.options.maxAttempts === undefined ? {} : {maxAttempts: this.options.maxAttempts};
     const timeOptions = this.options.now === undefined ? {} : {now: this.options.now};
 
+    stageStartedAt = performance.now();
     const raw = await new PoseClipRawGenerationExecutor({
       provider: this.options.provider,
       cas: this.options.rawCas,
@@ -246,6 +261,8 @@ export class PoseClipProductionOrchestrator {
       generationResumeCache: this.#generationResumeCache,
       ...attemptOptions,
     }).execute(request);
+    const rawElapsed = performance.now() - stageStartedAt;
+    stageStartedAt = performance.now();
     const matting = await new PoseClipMattingExecutor({
       resolver: this.options.matting.resolver,
       cas: this.options.matting.cas,
@@ -255,6 +272,8 @@ export class PoseClipProductionOrchestrator {
       ...attemptOptions,
       ...timeOptions,
     }).execute(request, raw.result);
+    const mattingElapsed = performance.now() - stageStartedAt;
+    stageStartedAt = performance.now();
     const normalization = await new PoseClipNormalizationExecutor({
       resolver: this.options.normalization.resolver,
       cas: this.options.normalization.cas,
@@ -265,6 +284,8 @@ export class PoseClipProductionOrchestrator {
       ...attemptOptions,
       ...timeOptions,
     }).execute(request, raw.result, matting.result);
+    const normalizationElapsed = performance.now() - stageStartedAt;
+    stageStartedAt = performance.now();
     const anchoring = await new PoseClipAnchoringExecutor({
       resolver: this.options.anchoring.resolver,
       cas: this.options.anchoring.cas,
@@ -276,6 +297,8 @@ export class PoseClipProductionOrchestrator {
       ...attemptOptions,
       ...timeOptions,
     }).execute(request, raw.result, matting.result, normalization.result);
+    const anchoringElapsed = performance.now() - stageStartedAt;
+    stageStartedAt = performance.now();
     const {frameResults} = await new PoseClipFrameProductionBridge({
       mattingSpec: profile.processorSpecs.matted,
       normalizationSpec: profile.processorSpecs.normalized,
@@ -288,11 +311,15 @@ export class PoseClipProductionOrchestrator {
       normalizationResult: normalization.result,
       anchoringResult: anchoring.result,
     });
+    const bridge = performance.now() - stageStartedAt;
+    stageStartedAt = performance.now();
     const continuityEvaluation = await this.#continuityEvaluator.evaluate({
       frameResults,
       loop: request.loop,
       spec: profile.continuityQaSpec,
     });
+    const continuity = performance.now() - stageStartedAt;
+    stageStartedAt = performance.now();
     const result = await assemblePoseClipProductionResult({
       request,
       frameResults,
@@ -302,6 +329,26 @@ export class PoseClipProductionOrchestrator {
       producer: POSE_CLIP_PRODUCTION_ASSEMBLER_IDENTITY,
       humanReview: input.humanReview,
     });
-    return {raw, matting, normalization, anchoring, frameResults, continuityEvaluation, result};
+    const assembly = performance.now() - stageStartedAt;
+    return {
+      raw,
+      matting,
+      normalization,
+      anchoring,
+      frameResults,
+      continuityEvaluation,
+      result,
+      timingsMs: {
+        preflight,
+        raw: rawElapsed,
+        matting: mattingElapsed,
+        normalization: normalizationElapsed,
+        anchoring: anchoringElapsed,
+        bridge,
+        continuity,
+        assembly,
+        total: performance.now() - totalStartedAt,
+      },
+    };
   }
 }

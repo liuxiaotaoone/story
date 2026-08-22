@@ -46,6 +46,7 @@ export interface PoseClipRawGenerationFrameReport {
   readonly cache: 'hit' | 'miss';
   readonly attempts: number;
   readonly generationInputHash: string;
+  readonly elapsedMs: number;
 }
 
 export interface PoseClipRawGenerationExecution {
@@ -171,6 +172,7 @@ export class PoseClipRawGenerationExecutor {
     artifact: GeneratedImageArtifact;
     report: PoseClipRawGenerationFrameReport;
   }> {
+    const startedAt = performance.now();
     const request = await assertGenerationRequestIntegrity(frameJob.generationRequest);
     if (this.options.provider.id !== request.provider) throw new PoseClipRawGenerationExecutionError(
       'RAW_GENERATION_PROVIDER_MISMATCH',
@@ -182,7 +184,13 @@ export class PoseClipRawGenerationExecutor {
       await this.#generationResumeCache.delete(cacheKey);
       return {
         artifact: await this.#validateGeneratedArtifact(frameJob, cached),
-        report: {frameIndex: frameJob.spec.frameIndex, cache: 'hit', attempts: 0, generationInputHash: cacheKey},
+        report: {
+          frameIndex: frameJob.spec.frameIndex,
+          cache: 'hit',
+          attempts: 0,
+          generationInputHash: cacheKey,
+          elapsedMs: performance.now() - startedAt,
+        },
       };
     }
 
@@ -230,7 +238,13 @@ export class PoseClipRawGenerationExecutor {
     await this.#generationResumeCache.delete(cacheKey);
     return {
       artifact,
-      report: {frameIndex: frameJob.spec.frameIndex, cache: 'miss', attempts, generationInputHash: cacheKey},
+      report: {
+        frameIndex: frameJob.spec.frameIndex,
+        cache: 'miss',
+        attempts,
+        generationInputHash: cacheKey,
+        elapsedMs: performance.now() - startedAt,
+      },
     };
   }
 
