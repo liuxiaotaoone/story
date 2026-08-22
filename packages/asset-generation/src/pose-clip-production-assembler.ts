@@ -16,6 +16,11 @@ import {
   type ProducerRef,
 } from '@pose-clip/schemas';
 
+export const POSE_CLIP_PRODUCTION_ASSEMBLER_IDENTITY = {
+  name: 'pose-clip-production-assembler',
+  version: '1.0.0',
+} as const;
+
 export interface AssemblePoseClipProductionResultInput {
   readonly request: PoseClipProductionRequest;
   readonly frameResults: readonly PoseClipFrameProductionResult[];

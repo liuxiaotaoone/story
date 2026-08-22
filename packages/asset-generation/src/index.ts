@@ -14,6 +14,7 @@ export * from './pose-clip-continuity-evaluator.js';
 export * from './pose-clip-anchoring-executor.js';
 export * from './pose-clip-frame-production-bridge.js';
 export * from './pose-clip-production-assembler.js';
+export * from './pose-clip-production-orchestrator.js';
 export * from './pose-clip-raw-generation-executor.js';
 export * from './pose-clip-matting-executor.js';
 export * from './pose-clip-normalization-executor.js';
