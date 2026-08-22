@@ -1,5 +1,7 @@
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
-import {dirname, resolve} from 'node:path';
+import {createHash} from 'node:crypto';
+import {open} from 'node:fs/promises';
+import {dirname, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {
   AlphaGeometryPoseFrameAnchorDetector,
@@ -43,6 +45,7 @@ const admissionPath = resolve(root, 'frozen', 'production-e2e-admission.json');
 const runRoot = resolve(root, 'generated', 'production-e2e');
 const reportPath = process.env.M4_E2E_REPORT_PATH ?? resolve(root, 'reports', 'production-e2e.json');
 const endpoint = process.env.COMFYUI_ENDPOINT ?? 'http://127.0.0.1:8188';
+const modelRoot = process.env.COMFYUI_MODEL_ROOT;
 const workflowBytes = new Uint8Array(await readFile(workflowPath));
 const referenceBytes = new Uint8Array(await readFile(referencePath));
 const modelCatalogBytes = new Uint8Array(await readFile(modelCatalogPath));
@@ -257,9 +260,95 @@ class RecordingFeatureExtractor implements PoseClipContinuityFeatureExtractor {
 }
 
 class E2eEnvironmentError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
+  readonly code: string;
+
+  constructor(code: string, message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = 'E2eEnvironmentError';
+    this.code = code;
+  }
+}
+
+interface RuntimeModelVerification {
+  role: 'diffusion-model' | 'text-encoder' | 'vae';
+  modelId: string;
+  relativePath: string;
+  admittedContentHash: string;
+  runtimeContentHash: string;
+  sizeBytes: number;
+  verified: boolean;
+}
+
+const runtimeModelVerification: RuntimeModelVerification[] = [];
+
+async function sha256File(path: string): Promise<{contentHash: string; sizeBytes: number}> {
+  const file = await open(path, 'r');
+  try {
+    const stats = await file.stat();
+    const hash = createHash('sha256');
+    const buffer = new Uint8Array(8 * 1024 * 1024);
+    let position = 0;
+    while (true) {
+      const {bytesRead} = await file.read(buffer, 0, buffer.length, position);
+      if (bytesRead === 0) break;
+      hash.update(buffer.subarray(0, bytesRead));
+      position += bytesRead;
+    }
+    return {contentHash: hash.digest('hex'), sizeBytes: stats.size};
+  } finally {
+    await file.close();
+  }
+}
+
+async function verifyRuntimeModelBytes(): Promise<void> {
+  const hostname = new URL(endpoint).hostname.toLowerCase();
+  if (!['127.0.0.1', 'localhost', '::1', '[::1]'].includes(hostname)) {
+    throw new E2eEnvironmentError(
+      'REAL_GPU_REMOTE_MODEL_EVIDENCE_UNSUPPORTED',
+      'Remote ComfyUI requires a trusted Worker Model Manifest; local model paths cannot prove remote GPU model bytes',
+    );
+  }
+  if (modelRoot === undefined || modelRoot.trim().length === 0) throw new E2eEnvironmentError(
+    'REAL_GPU_MODEL_ROOT_MISSING',
+    'COMFYUI_MODEL_ROOT must point to the local ComfyUI models directory',
+  );
+  const roleDirectories = {
+    'diffusion-model': 'diffusion_models',
+    'text-encoder': 'text_encoders',
+    vae: 'vae',
+  } as const;
+  for (const model of runtimeModels) {
+    const directoryName = roleDirectories[model.role];
+    const directory = resolve(modelRoot, directoryName);
+    const path = resolve(directory, model.modelId);
+    if (!path.startsWith(`${directory}${sep}`)) throw new E2eEnvironmentError(
+      'REAL_GPU_MODEL_PATH_INVALID',
+      `${model.role}:${model.modelId}`,
+    );
+    let runtime: Awaited<ReturnType<typeof sha256File>>;
+    try {
+      runtime = await sha256File(path);
+    } catch (error) {
+      throw new E2eEnvironmentError(
+        'REAL_GPU_MODEL_READ_FAILED',
+        `${directoryName}/${model.modelId}`,
+        {cause: error},
+      );
+    }
+    const evidence = {
+      role: model.role,
+      modelId: model.modelId,
+      relativePath: `${directoryName}/${model.modelId}`,
+      admittedContentHash: model.contentHash,
+      runtimeContentHash: runtime.contentHash,
+      sizeBytes: runtime.sizeBytes,
+      verified: runtime.contentHash === model.contentHash,
+    };
+    runtimeModelVerification.push(evidence);
+    if (!evidence.verified) throw new E2eEnvironmentError(
+      'REAL_GPU_MODEL_HASH_MISMATCH',
+      `${model.role}:${model.modelId}`,
+    );
   }
 }
 
@@ -268,12 +357,17 @@ async function systemStats(): Promise<unknown> {
   try {
     const response = await fetch(url, {signal: AbortSignal.timeout(5_000)});
     if (!response.ok) throw new E2eEnvironmentError(
+      'REAL_GPU_COMFYUI_READINESS_FAILED',
       `ComfyUI system_stats at ${endpoint} failed with HTTP ${response.status}`,
     );
     return response.json();
   } catch (error) {
     if (error instanceof E2eEnvironmentError) throw error;
-    throw new E2eEnvironmentError(`ComfyUI is unavailable at ${endpoint}`, {cause: error});
+    throw new E2eEnvironmentError(
+      'REAL_GPU_COMFYUI_UNAVAILABLE',
+      `ComfyUI is unavailable at ${endpoint}`,
+      {cause: error},
+    );
   }
 }
 
@@ -285,6 +379,7 @@ let report: Record<string, unknown> = {
 };
 let provider: ComfyUiProvider | undefined;
 try {
+  await verifyRuntimeModelBytes();
   const environment = await systemStats();
   const casRoot = resolve(runRoot, 'cas');
   const cas = new LocalContentAddressedAssetStore(casRoot);
@@ -351,7 +446,7 @@ try {
     schemaVersion: '1.0.0',
     gate: 'M4 Commit 7 — Real GPU Production E2E',
     status: 'PASS',
-    environment: {endpoint, systemStats: environment},
+    environment: {endpoint, runtimeModels: runtimeModelVerification, systemStats: environment},
     plan,
     startedAt: startedAt.toISOString(),
     completedAt: new Date().toISOString(),
@@ -378,12 +473,13 @@ try {
     schemaVersion: '1.0.0',
     gate: 'M4 Commit 7 — Real GPU Production E2E',
     status: error instanceof E2eEnvironmentError ? 'BLOCKED' : 'FAIL',
-    environment: {endpoint},
+    environment: {endpoint, runtimeModels: runtimeModelVerification},
     plan,
     startedAt: startedAt.toISOString(),
     completedAt: new Date().toISOString(),
     error: {
       name: error instanceof Error ? error.name : 'Error',
+      ...(error instanceof E2eEnvironmentError ? {code: error.code} : {}),
       message: error instanceof Error ? error.message : String(error),
     },
   };

@@ -20,19 +20,39 @@ Profile 使用 `approval=pending`，运行时 Human Review 固定为 `pending`�
 ## 正式运行入口
 
 ```powershell
-pnpm --filter @pose-clip/asset-generation build
 pnpm --filter @pose-clip/schemas build
+pnpm --filter @pose-clip/asset-generation build
 pnpm --filter @pose-clip/comfyui-feasibility production:plan
 pnpm --filter @pose-clip/comfyui-feasibility production:e2e
 ```
 
-默认使用 `http://127.0.0.1:8188`，可通过 `COMFYUI_ENDPOINT` 指向真实 ComfyUI。运行前必须存在：
+在没有现成 `dist` 的 clean workspace 中必须先构建 Schemas，再构建依赖它的 Asset Generation；也可以直接先执行 `pnpm build`。
+
+默认使用 `http://127.0.0.1:8188`。运行前必须设置本机模型根目录，例如：
+
+```powershell
+$env:COMFYUI_MODEL_ROOT = 'D:\ComfyUI\models'
+```
+
+脚本以 8 MiB buffer 流式计算以下真实文件 SHA-256：
+
+```text
+diffusion_models/flux-2-klein-4b-fp8.safetensors
+text_encoders/qwen_3_4b_fp4_flux2.safetensors
+vae/flux2-vae.safetensors
+```
+
+只有三个 Runtime Hash 与 admitted Model Catalog 完全相等才继续访问 `system_stats`。Hash 不一致时返回 `REAL_GPU_MODEL_HASH_MISMATCH`，Provider 调用保持为零；Run Report 记录 modelId、相对路径、文件大小、admitted/runtime Hash 与 verified 状态。
+
+本地文件校验只能证明 loopback ComfyUI 的模型身份。因此当前 `COMFYUI_ENDPOINT` 只接纳 localhost/loopback；远程 Endpoint 在可信 Worker Model Manifest 建立前返回 `REAL_GPU_REMOTE_MODEL_EVIDENCE_UNSUPPORTED`。
+
+运行前还必须存在：
 
 ```text
 experiments/asset-feasibility/processed/rabbit/rabbit-reference.png
 ```
 
-且其 SHA-256 必须与 admission 中的 Reference Hash 一致。脚本先访问 `system_stats` 记录真实设备环境；端点不可用时标记 `BLOCKED` 并退出，不进入 Provider/GPU。
+且其 SHA-256 必须与 admission 中的 Reference Hash 一致。脚本先校验 Runtime Model bytes，再访问 `system_stats` 记录真实设备环境；任一步不可用时标记 `BLOCKED` 并退出，不进入 Provider/GPU。
 
 ## Run Report
 
@@ -51,8 +71,8 @@ experiments/asset-feasibility/processed/rabbit/rabbit-reference.png
 2026-08-22 在当前审查环境执行时：
 
 - `nvidia-smi` 不存在；历史目标设备为 Intel Arc XPU，本项仅作为环境观察；
-- `127.0.0.1:8188` TCP 不可连接；
-- `production:e2e` 在 `system_stats` readiness 阶段返回 `BLOCKED`；
+- 未设置 `COMFYUI_MODEL_ROOT` 时，`production:e2e` 在模型 Evidence 阶段返回 `BLOCKED`；
+- `127.0.0.1:8188` TCP 探测同样不可连接；
 - 未调用 Provider、未生成 Raw PNG、未写入任何虚假 GPU PASS 证据。
 
-因此 Commit 7 当前不能判定 PASS。解除阻塞所需的唯一外部动作是启动已安装对应 Workflow 节点与三份 admitted 模型的真实 ComfyUI/XPU 环境，或通过 `COMFYUI_ENDPOINT` 提供可访问的等价服务。随后直接重跑同一命令即可。
+因此 Commit 7 当前不能判定 PASS。解除阻塞需要设置真实 `COMFYUI_MODEL_ROOT`，并启动使用三份 admitted 模型的本机 ComfyUI/XPU 环境。远程服务还需要未来的可信 Worker Model Manifest，当前不能作为同等级 Evidence。随后直接重跑同一命令即可。

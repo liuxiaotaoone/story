@@ -26,8 +26,8 @@ ActionGenerationRequest
 运行：
 
 ```powershell
-pnpm --filter @pose-clip/asset-generation build
 pnpm --filter @pose-clip/schemas build
+pnpm --filter @pose-clip/asset-generation build
 pnpm --filter @pose-clip/comfyui-feasibility generate
 ```
 
@@ -48,10 +48,12 @@ Gate 要求五个任务严格串行、每项只尝试一次、每项完成后显
 M4 Commit 7 直接调用 `PoseClipProductionOrchestrator`，以四帧真实 Rabbit Idle Request 串联 Generation、Matting、Normalize、Anchor、Bridge、RGBA Continuity 和 Production Assembly：
 
 ```powershell
+pnpm --filter @pose-clip/schemas build
+pnpm --filter @pose-clip/asset-generation build
 pnpm --filter @pose-clip/comfyui-feasibility production:plan
 pnpm --filter @pose-clip/comfyui-feasibility production:e2e
 ```
 
-`production:plan` 只打印当前输入身份，不连接 GPU。`production:e2e` 会先将 Workflow、模型目录、Reference、Request、Profile 与四个 Frame Execution Keys 和 `frozen/production-e2e-admission.json` 对齐，再探测 ComfyUI `system_stats`。输出报告默认位于 `reports/production-e2e.json`，可用 `M4_E2E_REPORT_PATH` 覆盖。
+`production:plan` 只打印当前输入身份，不连接 GPU。`production:e2e` 要求 `COMFYUI_MODEL_ROOT` 指向本机 ComfyUI 的 `models` 目录；它先流式重算三份真实模型文件 Hash，与 admitted Catalog 对齐，再探测 ComfyUI `system_stats`。当前只允许 loopback Endpoint；远程 Worker 在可信 Model Manifest 建立前 fail-closed。输出报告默认位于 `reports/production-e2e.json`，可用 `M4_E2E_REPORT_PATH` 覆盖。
 
 本 Gate 的 Profile 与 Human Review 都固定为 `pending`。首次运行用于采集真实 Continuity Delta，不把宽松采集阈值或普通调用参数冒充为生产审批。

@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 7 — Real GPU Production E2E / Execution Prepared / Environment BLOCKED**。M4 Commit 6 Trusted Production Orchestrator 已 PASS 并保持 Frozen；真实 E2E 入口现已固定 Workflow、模型目录、Rabbit Reference、四帧 Request、Pending Profile 与 Frame Execution Keys，直接调用完整 Orchestrator，并输出阶段时间、Cache/Retry、Artifact Hash、Alpha/Anchor、Continuity Delta、Diagnostics 与最终 Result Hash。当前审查环境未运行 ComfyUI，`127.0.0.1:8188` readiness 失败，因此没有声称 GPU Gate PASS；启动 admitted ComfyUI/XPU 环境后可直接重跑。阈值校准、解剖学左右脚语义和 Paper Engine 接线仍待完成。
+当前里程碑：**M4 Commit 7 — Real GPU Production E2E / Execution Prepared / Environment BLOCKED**。M4 Commit 6 Trusted Production Orchestrator 已 PASS 并保持 Frozen；真实 E2E 入口现已固定 Workflow、模型目录、Rabbit Reference、四帧 Request、Pending Profile 与 Frame Execution Keys，并在 GPU 前从 `COMFYUI_MODEL_ROOT` 流式重算三份真实模型文件 Hash。只有 Runtime Model bytes 与 Admission 完全一致才进入 ComfyUI，远程 Endpoint 在可信 Worker Model Manifest 建立前 fail-closed。入口直接调用完整 Orchestrator，并输出阶段时间、Cache/Retry、Artifact Hash、Alpha/Anchor、Continuity Delta、Diagnostics 与最终 Result Hash。当前环境未配置模型根目录且本机 ComfyUI 未启动，因此没有声称 GPU Gate PASS。阈值校准、解剖学左右脚语义和 Paper Engine 接线仍待完成。
 
 ## 已冻结的实现边界
 
