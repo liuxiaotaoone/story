@@ -312,7 +312,7 @@ export class PoseClipMattingExecutor {
         source: 'generated',
         provenance: {
           inputHash: output.mattingInputHash,
-          modelId: spec.model!.modelId,
+          ...(spec.model === undefined ? {} : {modelId: spec.model.modelId}),
           producer: spec.processor,
           createdAt: output.createdAt,
         },

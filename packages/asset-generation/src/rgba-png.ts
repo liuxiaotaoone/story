@@ -88,6 +88,9 @@ export function decodePngToRgba8(bytes: Uint8Array): DecodedRgbaPng {
   if (bitDepth !== 8 || (colorType !== 2 && colorType !== 6) || interlace !== 0) {
     throw new TypeError('Matting requires an 8-bit non-interlaced RGB or RGBA PNG');
   }
+  if (colorType === 2 && metadata.alphaMode !== 'opaque') {
+    throw new TypeError('Matting does not support RGB PNG with tRNS transparency');
+  }
   const idat: Uint8Array[] = [];
   let offset = PNG_SIGNATURE.length;
   while (offset < bytes.length) {

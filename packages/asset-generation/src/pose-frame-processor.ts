@@ -39,11 +39,6 @@ export class PoseFrameProcessorContractError extends Error {
   }
 }
 
-export const CHROMA_KEY_MATTING_MODEL = {
-  modelId: 'chroma-key-euclidean-rgba-v1',
-  contentHash: '5b3479f1858f837acbcc9345f6a77201af4a3469b5ac0c280d496e77eaa3d94c',
-} as const;
-
 export interface ChromaKeyMattingConfig {
   readonly keyColor: readonly [number, number, number];
   readonly transparentThreshold: number;
@@ -111,10 +106,9 @@ export class ChromaKeyPoseFrameMattingProcessor implements PoseFrameProcessor {
       || input.spec.processor.name !== this.id
       || input.spec.processor.version !== this.version
     ) throw new PoseFrameProcessorContractError('Chroma Key Matting processor binding is invalid');
-    if (
-      input.spec.model?.modelId !== CHROMA_KEY_MATTING_MODEL.modelId
-      || input.spec.model.contentHash !== CHROMA_KEY_MATTING_MODEL.contentHash
-    ) throw new PoseFrameProcessorContractError('Chroma Key Matting model identity is invalid');
+    if (input.spec.model !== undefined) throw new PoseFrameProcessorContractError(
+      'Chroma Key Matting is algorithmic and does not accept a model identity',
+    );
     const config = parseChromaKeyConfig(input.spec.config);
     const decoded = decodePngToRgba8(input.bytes);
     const pixels = decoded.pixels.slice();

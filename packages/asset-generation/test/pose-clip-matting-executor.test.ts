@@ -18,15 +18,16 @@ import {
   type PoseClipFrameJob,
 } from '@pose-clip/schemas';
 import {
-  CHROMA_KEY_MATTING_MODEL,
   ChromaKeyPoseFrameMattingProcessor,
   InMemoryPoseFrameStageCache,
   LocalCasAssetByteResolver,
   LocalContentAddressedAssetStore,
   PoseClipMattingExecutor,
   PoseClipRawGenerationExecutor,
+  decodePngToRgba8,
   decodeRgbaPng8,
   encodeRgbaPng,
+  inspectPng,
   rgbaAlphaRange,
   type GeneratedImageArtifact,
   type ImageGenerationProvider,
@@ -36,6 +37,14 @@ import {
 } from '../src/index.js';
 
 const roots: string[] = [];
+const RGB_PNG = Uint8Array.from(
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAIAAAB7QOjdAAAAD0lEQVR4nGNg+M/wn4EBAAf/Af+L7e0BAAAAAElFTkSuQmCC'),
+  (character) => character.charCodeAt(0),
+);
+const RGB_TRNS_PNG = Uint8Array.from(
+  atob('iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAIAAAB7QOjdAAAABnRSTlMA/wAAAACkwsAdAAAAD0lEQVR4nGNg+M/wn4EBAAf/Af+L7e0BAAAAAElFTkSuQmCC'),
+  (character) => character.charCodeAt(0),
+);
 
 afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => rm(root, {recursive: true, force: true})));
@@ -145,13 +154,13 @@ async function request() {
 
 async function mattingSpec(
   transparentThreshold = 0.05,
-  modelContentHash: string = CHROMA_KEY_MATTING_MODEL.contentHash,
+  model?: {readonly modelId: string; readonly contentHash: string},
 ) {
   return createPoseFrameProcessorSpec({
     schemaVersion: '1.0.0',
     stage: 'matted',
     processor: {name: 'chroma-key-matting', version: '1.0.0'},
-    model: {...CHROMA_KEY_MATTING_MODEL, contentHash: modelContentHash},
+    ...(model === undefined ? {} : {model}),
     config: {
       keyColor: [0, 255, 0],
       transparentThreshold,
@@ -174,7 +183,19 @@ async function fixture() {
   return {rawRoot, mattedRoot, productionRequest, provider, rawExecution};
 }
 
-describe('M4 Commit 2 Real Matting', () => {
+describe('M4 Commit 2.1 Matting Integrity Closure', () => {
+  it('decodes opaque RGB and fails closed for RGB+tRNS instead of losing transparency', () => {
+    expect(inspectPng(RGB_PNG).alphaMode).toBe('opaque');
+    expect(Array.from(decodePngToRgba8(RGB_PNG).pixels)).toEqual([
+      0, 255, 0, 255,
+      255, 0, 0, 255,
+    ]);
+    expect(inspectPng(RGB_TRNS_PNG).alphaMode).toBe('straight');
+    expect(() => decodePngToRgba8(RGB_TRNS_PNG)).toThrow(
+      'Matting does not support RGB PNG with tRNS transparency',
+    );
+  });
+
   it('creates four ordered RGBA Matted artifacts with an immutable Raw evidence chain', async () => {
     const value = await fixture();
     const rawSnapshot = structuredClone(value.rawExecution.result);
@@ -195,6 +216,7 @@ describe('M4 Commit 2 Real Matting', () => {
     for (const frame of first.result.frameResults) {
       expect(frame.artifact.stage).toBe('matted');
       expect(frame.artifact.inputHash).toBe(rawSnapshot.frameResults[frame.frameIndex]!.artifact.outputHash);
+      expect(frame.artifact.asset.provenance?.modelId).toBeUndefined();
       const bytes = new Uint8Array(await readFile(join(value.mattedRoot, `${frame.artifact.asset.contentHash}.png`)));
       const alpha = rgbaAlphaRange(decodeRgbaPng8(bytes).pixels);
       expect(alpha.min).toBe(0);
@@ -207,7 +229,7 @@ describe('M4 Commit 2 Real Matting', () => {
     expect(value.provider.calls).toBe(4);
   });
 
-  it('binds config and model identity into the Matting cache/input hash', async () => {
+  it('binds algorithm config without inventing a model identity', async () => {
     const value = await fixture();
     const cache = new InMemoryPoseFrameStageCache();
     const base = await new PoseClipMattingExecutor({
@@ -231,7 +253,10 @@ describe('M4 Commit 2 Real Matting', () => {
     );
     expect(changed.result.rawGenerationResultHash).toBe(base.result.rawGenerationResultHash);
 
-    const wrongModelSpec = await mattingSpec(0.05, 'f'.repeat(64));
+    const wrongModelSpec = await mattingSpec(0.05, {
+      modelId: 'fake-chroma-key-model',
+      contentHash: 'f'.repeat(64),
+    });
     expect(wrongModelSpec.processorSpecHash).not.toBe(base.result.processorSpecHash);
     await expect(new PoseClipMattingExecutor({
       resolver: new LocalCasAssetByteResolver(value.rawRoot),
@@ -240,7 +265,7 @@ describe('M4 Commit 2 Real Matting', () => {
       processor: new ChromaKeyPoseFrameMattingProcessor(),
       stageCache: cache,
     }).execute(value.productionRequest, value.rawExecution.result)).rejects.toThrow(
-      'Chroma Key Matting model identity is invalid',
+      'Chroma Key Matting is algorithmic and does not accept a model identity',
     );
   });
 

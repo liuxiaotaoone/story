@@ -118,10 +118,6 @@ export async function assertPoseClipMattingProcessorSpecIntegrity(
     'MATTING_PROCESSOR_STAGE_INVALID',
     `Expected matted, received ${spec.stage}`,
   );
-  if (spec.model === undefined) throw new PoseClipMattingIntegrityError(
-    'MATTING_PROCESSOR_MODEL_MISSING',
-    'Real Matting requires a content-addressed model identity',
-  );
   return spec;
 }
 
@@ -183,7 +179,7 @@ export async function assertPoseClipMattingResultIntegrity(
       || asset.qaStatus !== 'pending'
       || frameResult.artifact.producer.name !== processorSpec.processor.name
       || frameResult.artifact.producer.version !== processorSpec.processor.version
-      || asset.provenance?.modelId !== processorSpec.model!.modelId
+      || asset.provenance?.modelId !== processorSpec.model?.modelId
     ) throw new PoseClipMattingIntegrityError('MATTING_ASSET_BINDING_MISMATCH', `Frame ${index}`);
     const {outputHash: _outputHash, ...artifactPayload} = frameResult.artifact;
     if (await hashPoseFrameArtifactPayload(artifactPayload) !== frameResult.artifact.outputHash) {
