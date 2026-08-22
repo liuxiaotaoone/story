@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 3 — Real Normalize / Implemented / Candidate**。M3 Commit 3.2.2 及 M4 Matting 2.1 保持 Frozen；Normalize 从 Matted RGBA Alpha 计算前景 bounds，以绑定 processor/version/config 的确定性 transform 将主体缩放、居中并落到 canonical canvas，使用 premultiplied-alpha 双线性采样生成 Normalized RGBA。四帧全部完成 CAS bytes、画布、可见 bounds 与 Evidence 验证后才发布 Normalized CAS。暂不接 Anchor 或真实 Continuity Feature；真实 GPU E2E 和生产素材视觉 QA 仍待执行。
+当前里程碑：**M4 Commit 3.1 — Normalize Pixel Integrity Closure / Contract, Evidence & Pixel Gate PASS / Overall Candidate**。M3 Commit 3.2.2 及 M4 Matting 2.1 保持 Frozen；Normalize 从 Matted RGBA Alpha 计算前景 bounds，以绑定 processor/version/config 的确定性 transform 将主体缩放、居中并落到 canonical canvas，使用 clamp-to-edge、premultiplied-alpha 双线性采样生成 Normalized RGBA。四帧的上游 Evidence、CAS bytes、像素输出、Transform、画布和可见 bounds 全部验证后才开始发布 Normalized CAS；本次 Normalized Evidence 在发布后形成独立 Hash 链。暂不接 Anchor 或真实 Continuity Feature；真实 GPU E2E 和生产素材视觉 QA 仍待执行。
 
 ## 已冻结的实现边界
 

@@ -128,12 +128,16 @@ function samplePremultiplied(
   x: number,
   y: number,
 ): readonly [number, number, number, number] {
-  const x0 = clamp(Math.floor(x), bounds.x, bounds.x + bounds.width - 1);
-  const y0 = clamp(Math.floor(y), bounds.y, bounds.y + bounds.height - 1);
-  const x1 = clamp(x0 + 1, bounds.x, bounds.x + bounds.width - 1);
-  const y1 = clamp(y0 + 1, bounds.y, bounds.y + bounds.height - 1);
-  const tx = clamp(x - Math.floor(x), 0, 1);
-  const ty = clamp(y - Math.floor(y), 0, 1);
+  const maximumX = bounds.x + bounds.width - 1;
+  const maximumY = bounds.y + bounds.height - 1;
+  const clampedX = clamp(x, bounds.x, maximumX);
+  const clampedY = clamp(y, bounds.y, maximumY);
+  const x0 = Math.floor(clampedX);
+  const y0 = Math.floor(clampedY);
+  const x1 = Math.min(x0 + 1, maximumX);
+  const y1 = Math.min(y0 + 1, maximumY);
+  const tx = clampedX - x0;
+  const ty = clampedY - y0;
   const weights = [
     [(1 - tx) * (1 - ty), x0, y0],
     [tx * (1 - ty), x1, y0],

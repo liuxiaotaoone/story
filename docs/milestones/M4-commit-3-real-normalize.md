@@ -1,6 +1,6 @@
 # M4 Commit 3 — Real Normalize
 
-状态：**Implemented / Candidate**
+状态：**Commit 3.1 Contract / Evidence / Pixel Gate PASS；Overall Candidate**
 
 本提交只回答“每帧如何进入统一坐标与画布空间”，不计算 foot/center/leftFoot/rightFoot Anchor，也不修改 M3 Frozen Contract 或 M4 Matting 主链。
 
@@ -38,7 +38,7 @@ canvas width/height
 scale
 ```
 
-缩放在 premultiplied-alpha 空间执行双线性插值，再输出 straight RGBA，避免透明像素 RGB 污染边缘颜色。
+缩放先对连续采样坐标执行 clamp-to-edge，再在 premultiplied-alpha 空间执行双线性插值，最后输出 straight RGBA；这样同时避免边界像素混色错误和透明像素 RGB 污染边缘颜色。
 
 ## Cache 与 Evidence
 
@@ -79,11 +79,11 @@ Executor 强制执行：
 - 输出必须是指定 canonical canvas 尺寸的完整 RGBA PNG；
 - 可见输出不得为空，也不得越出 transform destination bounds；
 - Normalize Processor 不得夹带 Anchor；
-- 四帧全部验证完成后才允许第一次 Normalized CAS 发布；
-- Normalized Asset/Artifact/Frame/Result 形成独立 Hash 链。
+- 四帧上游 Evidence、CAS bytes、像素输出、Transform 和结构全部验证完成后，才允许第一次 Normalized CAS 发布；
+- CAS 发布后，Normalized Asset/Artifact/Frame/Result 形成独立 Hash 链并执行最终 Result Integrity 校验。
 
-回归测试覆盖四帧真实像素缩放、canonical canvas、transform evidence、Stage Cache HIT、config 失效范围、Matted CAS 篡改，以及第四帧错误输出时零 Normalized CAS 发布。
+回归测试覆盖四帧真实像素缩放、canonical canvas、transform evidence、Stage Cache HIT、config 失效范围、Matted CAS 篡改、第四帧错误输出时零 Normalized CAS 发布，以及 2×1 水平边界、2×2 四角和透明 RGB 防污染三组采样测试。
 
 ## 当前边界
 
-本提交不声明真实人物/动物素材的 scale consistency 或裁切视觉 QA 已通过；这些需要真实 GPU 资产校准。Anchor detection、Anchor Evidence 和 GroundLock 输入留给 M4 Commit 4 — Real Anchor。Persistent Cache、更多 resampler、超大 PNG 限制和视觉质量评分不进入本提交。
+M4 Commit 3.1 已关闭 bilinear 边界采样错误，详见 [Normalize Pixel Integrity Closure](M4-commit-3.1-normalize-pixel-integrity-closure.md)。本提交不声明真实人物/动物素材的 scale consistency 或裁切视觉 QA 已通过；这些需要真实 GPU 资产校准。Anchor detection、Anchor Evidence 和 GroundLock 输入留给 M4 Commit 4 — Real Anchor。Persistent Cache、更多 resampler、超大 PNG 限制和视觉质量评分不进入本提交。
