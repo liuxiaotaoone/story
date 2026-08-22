@@ -98,9 +98,10 @@ export class PoseClipAnchoringIntegrityError extends Error {
 }
 
 export function anchoredAssetId(normalizedAssetId: string): string {
-  return normalizedAssetId.endsWith('.normalized')
-    ? `${normalizedAssetId.slice(0, -'.normalized'.length)}.anchored`
-    : `${normalizedAssetId}.anchored`;
+  if (!normalizedAssetId.endsWith('.normalized')) {
+    throw new TypeError('Anchoring input asset must use .normalized identity');
+  }
+  return normalizedAssetId.slice(0, -'.normalized'.length);
 }
 
 export async function hashPoseClipAnchoringInput(input: unknown): Promise<string> {

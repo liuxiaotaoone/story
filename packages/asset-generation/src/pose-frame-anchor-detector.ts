@@ -44,13 +44,11 @@ function parseConfig(value: unknown): AlphaGeometryAnchorConfig {
 
 function deepestSupport(
   pixels: readonly ForegroundPixel[],
-  fallback: readonly ForegroundPixel[],
   width: number,
   height: number,
 ): {x: number; y: number} {
-  const candidates = pixels.length === 0 ? fallback : pixels;
-  const maximumY = Math.max(...candidates.map(({y}) => y));
-  const row = candidates.filter(({y}) => y === maximumY);
+  const maximumY = Math.max(...pixels.map(({y}) => y));
+  const row = pixels.filter(({y}) => y === maximumY);
   const meanX = row.reduce((total, {x}) => total + x + 0.5, 0) / row.length;
   return {x: meanX / width, y: (maximumY + 1) / height};
 }
@@ -81,30 +79,30 @@ function detectAnchors(
   const bandStart = Math.max(minY, maxY - config.footBandHeight + 1);
   const footBand = foreground.filter(({y}) => y >= bandStart);
   const splitX = (minX + maxX + 1) / 2;
-  const leftFoot = deepestSupport(
-    footBand.filter(({x}) => x + 0.5 <= splitX), footBand, decoded.width, decoded.height,
-  );
-  const rightFoot = deepestSupport(
-    footBand.filter(({x}) => x + 0.5 >= splitX), footBand, decoded.width, decoded.height,
-  );
+  const leftCandidates = footBand.filter(({x}) => x + 0.5 < splitX);
+  const rightCandidates = footBand.filter(({x}) => x + 0.5 > splitX);
+  const foot = deepestSupport(footBand, decoded.width, decoded.height);
+  const leftFoot = leftCandidates.length === 0
+    ? undefined
+    : deepestSupport(leftCandidates, decoded.width, decoded.height);
+  const rightFoot = rightCandidates.length === 0
+    ? undefined
+    : deepestSupport(rightCandidates, decoded.width, decoded.height);
   return {
     center: {
       x: (minX + maxX + 1) / (2 * decoded.width),
       y: (minY + maxY + 1) / (2 * decoded.height),
     },
-    leftFoot,
-    rightFoot,
-    foot: {
-      x: (leftFoot.x + rightFoot.x) / 2,
-      y: (leftFoot.y + rightFoot.y) / 2,
-    },
+    ...(leftFoot === undefined ? {} : {leftFoot}),
+    ...(rightFoot === undefined ? {} : {rightFoot}),
+    foot,
   };
 }
 
 /** Deterministically derives canonical pose anchors from a Normalized RGBA silhouette. */
 export class AlphaGeometryPoseFrameAnchorDetector implements PoseFrameProcessor {
   readonly id = 'alpha-geometry-anchor';
-  readonly version = '1.0.0';
+  readonly version = '1.0.1';
   readonly stage = 'anchored' as const;
 
   async process(input: PoseFrameProcessorInput): Promise<PoseFrameProcessorOutput> {

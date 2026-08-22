@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 4 — Real Anchor / Contract, Evidence, Geometry, Cache & Publication Gate PASS / Overall Candidate**。M3 Commit 3.2.2、M4 Matting 2.1 与 Normalize 3.1 保持 Frozen；`alpha-geometry-anchor@1.0.0` 从 canonical RGBA silhouette 确定性生成 `center / foot / leftFoot / rightFoot`，并保持 Normalized PNG bytes 不变。四帧的上游 Evidence、CAS bytes、Anchor Schema 与 required anchors 全部验证后才开始发布 Anchored CAS；Stage Cache 绑定 Normalized content hash 与 Anchor Processor Spec，Anchored Evidence 绑定 Normalized Artifact Hash。暂不执行 Continuity QA、PoseClip Assembly 或 Paper Engine 接线；真实 GPU E2E 和生产素材足部视觉 QA 仍待完成。
+当前里程碑：**M4 Commit 4.1 — Anchor Production Closure / Contract, Evidence, Geometry, Identity, Cache & Publication Gate PASS / Overall Candidate**。M3 Commit 3.2.2、M4 Matting 2.1 与 Normalize 3.1 保持 Frozen；`alpha-geometry-anchor@1.0.1` 从 canonical RGBA silhouette 确定性生成全局 `foot` 与可检测的 screen-left/screen-right Foot Anchor，并保持 Normalized PNG bytes 不变。单侧支撑不会伪造另一侧 Anchor；缺少 required anchor 时四帧批次 fail-closed。Anchored Asset 恢复 `FrameSpec.output.assetId`，四阶段 Artifact 已验证可直接组装为 M3 Frozen Frame Production Result。暂不执行 Continuity QA、正式 Frame Result Bridge、PoseClip Assembly 或 Paper Engine 接线；真实 GPU E2E 和解剖学左右脚语义 QA 仍待完成。
 
 ## 已冻结的实现边界
 

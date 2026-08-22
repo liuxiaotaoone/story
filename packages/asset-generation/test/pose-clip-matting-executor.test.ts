@@ -5,6 +5,7 @@ import {afterEach, describe, expect, it} from 'vitest';
 import {
   ProductionVisualAssetSchema,
   assertPoseClipAnchoringResultIntegrity,
+  assertPoseClipFrameProductionResultIntegrity,
   assertPoseClipMattingResultIntegrity,
   contentAddressedAssetUri,
   createActionGenerationRequest,
@@ -15,6 +16,7 @@ import {
   hashPoseClipMattedFrameResultPayload,
   hashPoseClipAnchoredFrameResultPayload,
   hashPoseClipAnchoringResultPayload,
+  hashPoseClipFrameProductionResultPayload,
   hashPoseClipMattingResultPayload,
   hashPoseFrameArtifactPayload,
   sha256Bytes,
@@ -229,7 +231,7 @@ async function anchoringSpec(
   return createPoseFrameProcessorSpec({
     schemaVersion: '1.0.0',
     stage: 'anchored',
-    processor: {name: 'alpha-geometry-anchor', version: '1.0.0'},
+    processor: {name: 'alpha-geometry-anchor', version: '1.0.1'},
     ...(model === undefined ? {} : {model}),
     config: {alphaThreshold: 1, footBandHeight},
   });
@@ -597,7 +599,7 @@ describe('M4 Commit 3 Real Normalize', () => {
   });
 });
 
-describe('M4 Commit 4 Real Anchor', () => {
+describe('M4 Commit 4.1 Anchor Production Closure', () => {
   it('anchors four Normalized silhouettes with immutable pixels and reuses Stage Cache', async () => {
     const value = await anchoredFixture();
     const normalizationSnapshot = structuredClone(value.normalizationExecution.result);
@@ -632,6 +634,7 @@ describe('M4 Commit 4 Real Anchor', () => {
       });
       expect(frame.artifact.inputHash).toBe(normalized.artifact.outputHash);
       expect(frame.artifact.asset).toMatchObject({
+        id: value.productionRequest.frames[frame.frameIndex]!.spec.output.assetId,
         width: 8,
         height: 8,
         alphaMode: 'straight',
@@ -653,6 +656,61 @@ describe('M4 Commit 4 Real Anchor', () => {
     );
     expect(second.frames.map(({cache: status}) => status)).toEqual(['hit', 'hit', 'hit', 'hit']);
     expect(second.result.resultHash).toBe(first.result.resultHash);
+  });
+
+  it('reconnects M4 stage artifacts to the M3 Frozen Frame Production Result contract', async () => {
+    const value = await anchoredFixture();
+    const anchoring = await new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: await anchoringSpec(),
+      processor: new AlphaGeometryPoseFrameAnchorDetector(),
+    }).execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    );
+    const frameIndex = 0;
+    const frameJob = value.productionRequest.frames[frameIndex]!;
+    const anchoredFrame = anchoring.result.frameResults[frameIndex]!;
+    const framePayload = {
+      schemaVersion: '1.0.0' as const,
+      frameExecutionKey: 'e'.repeat(64),
+      frameJobHash: frameJob.frameJobHash,
+      frameIndex,
+      frameSpecHash: frameJob.spec.frameSpecHash,
+      generationInputHash: frameJob.generationRequest.inputHash,
+      artifacts: [
+        value.rawExecution.result.frameResults[frameIndex]!.artifact,
+        value.mattingExecution.result.frameResults[frameIndex]!.artifact,
+        value.normalizationExecution.result.frameResults[frameIndex]!.artifact,
+        anchoredFrame.artifact,
+      ],
+      poseFrame: {
+        assetId: anchoredFrame.artifact.asset.id,
+        durationFrames: frameJob.spec.durationFrames,
+        anchors: anchoredFrame.anchors,
+        contact: {type: frameJob.spec.contact},
+        referenceFoot: frameJob.spec.referenceFoot,
+      },
+      qa: {
+        structural: 'passed' as const,
+        matting: 'passed' as const,
+        normalization: 'passed' as const,
+        anchors: 'passed' as const,
+        productionReady: true,
+        diagnostics: [],
+      },
+    };
+    const frameResult = {
+      ...framePayload,
+      resultHash: await hashPoseClipFrameProductionResultPayload(framePayload),
+    };
+
+    const validated = await assertPoseClipFrameProductionResultIntegrity(frameJob, frameResult);
+    expect(validated.poseFrame.assetId).toBe(frameJob.spec.output.assetId);
+    expect(validated.artifacts[3]!.asset.id).toBe(frameJob.spec.output.assetId);
   });
 
   it('invalidates only Anchor identity when detector config changes', async () => {
