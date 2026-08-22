@@ -4,6 +4,7 @@ import {join} from 'node:path';
 import {afterEach, describe, expect, it} from 'vitest';
 import {
   ProductionVisualAssetSchema,
+  assertPoseClipAnchoringResultIntegrity,
   assertPoseClipMattingResultIntegrity,
   contentAddressedAssetUri,
   createActionGenerationRequest,
@@ -12,18 +13,22 @@ import {
   createPoseClipProductionRequest,
   createPoseFrameProcessorSpec,
   hashPoseClipMattedFrameResultPayload,
+  hashPoseClipAnchoredFrameResultPayload,
+  hashPoseClipAnchoringResultPayload,
   hashPoseClipMattingResultPayload,
   hashPoseFrameArtifactPayload,
   sha256Bytes,
   type PoseClipFrameJob,
 } from '@pose-clip/schemas';
 import {
+  AlphaGeometryPoseFrameAnchorDetector,
   CanonicalCanvasPoseFrameNormalizer,
   ChromaKeyPoseFrameMattingProcessor,
   InMemoryPoseFrameStageCache,
   LocalCasAssetByteResolver,
   LocalContentAddressedAssetStore,
   PoseClipMattingExecutor,
+  PoseClipAnchoringExecutor,
   PoseClipNormalizationExecutor,
   PoseClipRawGenerationExecutor,
   decodePngToRgba8,
@@ -215,6 +220,34 @@ async function normalizedFixture() {
     processor: new ChromaKeyPoseFrameMattingProcessor(),
   }).execute(value.productionRequest, value.rawExecution.result);
   return {...value, normalizedRoot, activeMattingSpec, mattingExecution};
+}
+
+async function anchoringSpec(
+  footBandHeight = 2,
+  model?: {readonly modelId: string; readonly contentHash: string},
+) {
+  return createPoseFrameProcessorSpec({
+    schemaVersion: '1.0.0',
+    stage: 'anchored',
+    processor: {name: 'alpha-geometry-anchor', version: '1.0.0'},
+    ...(model === undefined ? {} : {model}),
+    config: {alphaThreshold: 1, footBandHeight},
+  });
+}
+
+async function anchoredFixture() {
+  const value = await normalizedFixture();
+  const anchoredRoot = await mkdtemp(join(tmpdir(), 'm4-anchoring-output-'));
+  roots.push(anchoredRoot);
+  const activeNormalizationSpec = await normalizationSpec();
+  const normalizationExecution = await new PoseClipNormalizationExecutor({
+    resolver: new LocalCasAssetByteResolver(value.mattedRoot),
+    cas: new LocalContentAddressedAssetStore(value.normalizedRoot),
+    mattingSpec: value.activeMattingSpec,
+    spec: activeNormalizationSpec,
+    processor: new CanonicalCanvasPoseFrameNormalizer(),
+  }).execute(value.productionRequest, value.rawExecution.result, value.mattingExecution.result);
+  return {...value, anchoredRoot, activeNormalizationSpec, normalizationExecution};
 }
 
 describe('M4 Commit 2.1 Matting Integrity Closure', () => {
@@ -561,5 +594,251 @@ describe('M4 Commit 3 Real Normalize', () => {
     )).rejects.toMatchObject({code: 'NORMALIZATION_TRANSFORM_INVALID'});
     expect(plans).toBe(4);
     await expect(readdir(value.normalizedRoot)).resolves.toEqual([]);
+  });
+});
+
+describe('M4 Commit 4 Real Anchor', () => {
+  it('anchors four Normalized silhouettes with immutable pixels and reuses Stage Cache', async () => {
+    const value = await anchoredFixture();
+    const normalizationSnapshot = structuredClone(value.normalizationExecution.result);
+    const cache = new InMemoryPoseFrameStageCache();
+    const executor = new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: await anchoringSpec(),
+      processor: new AlphaGeometryPoseFrameAnchorDetector(),
+      stageCache: cache,
+      now: () => new Date('2026-08-22T03:00:00.000Z'),
+    });
+    const first = await executor.execute(
+      value.productionRequest,
+      value.rawExecution.result,
+      value.mattingExecution.result,
+      value.normalizationExecution.result,
+    );
+    expect(first.frames.map(({cache: status}) => status)).toEqual(['miss', 'miss', 'miss', 'miss']);
+    expect(first.result.frameResults.map(({frameIndex}) => frameIndex)).toEqual([0, 1, 2, 3]);
+    expect(first.result.normalizationResultHash).toBe(value.normalizationExecution.result.resultHash);
+    expect(value.normalizationExecution.result).toEqual(normalizationSnapshot);
+    for (const frame of first.result.frameResults) {
+      const normalized = value.normalizationExecution.result.frameResults[frame.frameIndex]!;
+      expect(frame.anchors).toEqual({
+        center: {x: 0.5, y: 0.625},
+        leftFoot: {x: 0.375, y: 0.875},
+        rightFoot: {x: 0.625, y: 0.875},
+        foot: {x: 0.5, y: 0.875},
+      });
+      expect(frame.artifact.inputHash).toBe(normalized.artifact.outputHash);
+      expect(frame.artifact.asset).toMatchObject({
+        width: 8,
+        height: 8,
+        alphaMode: 'straight',
+        contentHash: normalized.artifact.asset.contentHash,
+      });
+      const anchoredBytes = new Uint8Array(await readFile(
+        join(value.anchoredRoot, `${frame.artifact.asset.contentHash}.png`),
+      ));
+      const normalizedBytes = new Uint8Array(await readFile(
+        join(value.normalizedRoot, `${normalized.artifact.asset.contentHash}.png`),
+      ));
+      expect(anchoredBytes).toEqual(normalizedBytes);
+    }
+    const second = await executor.execute(
+      value.productionRequest,
+      value.rawExecution.result,
+      value.mattingExecution.result,
+      value.normalizationExecution.result,
+    );
+    expect(second.frames.map(({cache: status}) => status)).toEqual(['hit', 'hit', 'hit', 'hit']);
+    expect(second.result.resultHash).toBe(first.result.resultHash);
+  });
+
+  it('invalidates only Anchor identity when detector config changes', async () => {
+    const value = await anchoredFixture();
+    const cache = new InMemoryPoseFrameStageCache();
+    const baseSpec = await anchoringSpec(1);
+    const base = await new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: baseSpec,
+      processor: new AlphaGeometryPoseFrameAnchorDetector(),
+      stageCache: cache,
+    }).execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    );
+    const changed = await new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: await anchoringSpec(2),
+      processor: new AlphaGeometryPoseFrameAnchorDetector(),
+      stageCache: cache,
+    }).execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    );
+    expect(changed.frames.every(({cache: status}) => status === 'miss')).toBe(true);
+    expect(changed.result.processorSpecHash).not.toBe(base.result.processorSpecHash);
+    expect(changed.frames.map(({cacheKey}) => cacheKey)).not.toEqual(
+      base.frames.map(({cacheKey}) => cacheKey),
+    );
+    expect(changed.frames.map(({anchorInputHash}) => anchorInputHash)).not.toEqual(
+      base.frames.map(({anchorInputHash}) => anchorInputHash),
+    );
+    expect(changed.result.normalizationResultHash).toBe(base.result.normalizationResultHash);
+  });
+
+  it('rejects fully re-hashed Anchored Evidence with a producer detached from the Spec', async () => {
+    const value = await anchoredFixture();
+    const spec = await anchoringSpec();
+    const execution = await new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec,
+      processor: new AlphaGeometryPoseFrameAnchorDetector(),
+    }).execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    );
+    const originalFrame = execution.result.frameResults[0]!;
+    const detachedProducer = {name: 'detached-anchor', version: '9.9.9'};
+    const artifactPayload = {
+      stage: originalFrame.artifact.stage,
+      inputHash: originalFrame.artifact.inputHash,
+      producer: detachedProducer,
+      asset: {
+        ...originalFrame.artifact.asset,
+        provenance: {...originalFrame.artifact.asset.provenance!, producer: detachedProducer},
+      },
+    };
+    const artifact = {...artifactPayload, outputHash: await hashPoseFrameArtifactPayload(artifactPayload)};
+    const {resultHash: _frameResultHash, ...originalFramePayload} = originalFrame;
+    const framePayload = {...originalFramePayload, artifact};
+    const frameResult = {
+      ...framePayload,
+      resultHash: await hashPoseClipAnchoredFrameResultPayload(framePayload),
+    };
+    const {resultHash: _resultHash, ...originalPayload} = execution.result;
+    const payload = {
+      ...originalPayload,
+      frameResults: [frameResult, ...execution.result.frameResults.slice(1)],
+    };
+    const detachedResult = {...payload, resultHash: await hashPoseClipAnchoringResultPayload(payload)};
+
+    await expect(assertPoseClipAnchoringResultIntegrity(
+      value.productionRequest,
+      value.rawExecution.result,
+      value.activeMattingSpec,
+      value.mattingExecution.result,
+      value.activeNormalizationSpec,
+      value.normalizationExecution.result,
+      spec,
+      detachedResult,
+    )).rejects.toMatchObject({code: 'ANCHORING_ASSET_BINDING_MISMATCH'});
+  });
+
+  it('rejects a model identity for the algorithmic Anchor Processor', async () => {
+    const value = await anchoredFixture();
+    const executor = new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: await anchoringSpec(2, {modelId: 'fake-anchor-model', contentHash: 'f'.repeat(64)}),
+      processor: new AlphaGeometryPoseFrameAnchorDetector(),
+    });
+    await expect(executor.execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    )).rejects.toThrow('does not accept a model identity');
+    await expect(readdir(value.anchoredRoot)).resolves.toEqual([]);
+  });
+
+  it('re-hashes Normalized CAS bytes before Anchor and publishes nothing when detached', async () => {
+    const value = await anchoredFixture();
+    const firstNormalized = value.normalizationExecution.result.frameResults[0]!.artifact.asset;
+    await writeFile(join(value.normalizedRoot, `${firstNormalized.contentHash}.png`), rawPng(0));
+    const executor = new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: await anchoringSpec(),
+      processor: new AlphaGeometryPoseFrameAnchorDetector(),
+    });
+    await expect(executor.execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    )).rejects.toMatchObject({code: 'ANCHORING_NORMALIZED_CONTENT_HASH_MISMATCH'});
+    await expect(readdir(value.anchoredRoot)).resolves.toEqual([]);
+  });
+
+  it('validates every required Anchor before the first Anchored CAS publication', async () => {
+    const value = await anchoredFixture();
+    const real = new AlphaGeometryPoseFrameAnchorDetector();
+    let calls = 0;
+    const invalidFourth: PoseFrameProcessor = {
+      id: real.id,
+      version: real.version,
+      stage: real.stage,
+      async process(input: PoseFrameProcessorInput): Promise<PoseFrameProcessorOutput> {
+        calls += 1;
+        const output = await real.process(input);
+        if (calls !== 4) return output;
+        const {rightFoot: _rightFoot, ...anchors} = output.anchors!;
+        return {bytes: output.bytes, anchors};
+      },
+    };
+    const executor = new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: await anchoringSpec(),
+      processor: invalidFourth,
+    });
+    await expect(executor.execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    )).rejects.toMatchObject({code: 'ANCHORING_REQUIRED_ANCHOR_MISSING'});
+    expect(calls).toBe(4);
+    await expect(readdir(value.anchoredRoot)).resolves.toEqual([]);
+  });
+
+  it('rejects pixel mutation by an Anchor Processor before CAS publication', async () => {
+    const value = await anchoredFixture();
+    const real = new AlphaGeometryPoseFrameAnchorDetector();
+    const mutating: PoseFrameProcessor = {
+      id: real.id,
+      version: real.version,
+      stage: real.stage,
+      async process(input: PoseFrameProcessorInput): Promise<PoseFrameProcessorOutput> {
+        const output = await real.process(input);
+        const bytes = output.bytes.slice();
+        bytes[bytes.length - 1] = bytes[bytes.length - 1]! ^ 1;
+        return {...output, bytes};
+      },
+    };
+    const executor = new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: await anchoringSpec(),
+      processor: mutating,
+    });
+    await expect(executor.execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    )).rejects.toMatchObject({code: 'ANCHORING_OUTPUT_BYTES_CHANGED'});
+    await expect(readdir(value.anchoredRoot)).resolves.toEqual([]);
   });
 });

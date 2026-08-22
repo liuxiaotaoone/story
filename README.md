@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 3.1 — Normalize Pixel & Identity Closure / Contract, Evidence, Pixel & Identity Gate PASS / Overall Candidate**。M3 Commit 3.2.2 及 M4 Matting 2.1 保持 Frozen；Normalize 从 Matted RGBA Alpha 计算前景 bounds，以绑定 processor/version/config 的确定性 transform 将主体缩放、居中并落到 canonical canvas，使用 clamp-to-edge、premultiplied-alpha 双线性采样生成 Normalized RGBA。修正后的 processor 版本为 `canonical-canvas-normalize@1.0.1`，确保旧 Candidate 输出不会命中新实现的 Stage Cache。四帧的上游 Evidence、CAS bytes、像素输出、Transform、画布和可见 bounds 全部验证后才开始发布 Normalized CAS；本次 Normalized Evidence 在发布后形成独立 Hash 链。暂不接 Anchor 或真实 Continuity Feature；真实 GPU E2E 和生产素材视觉 QA 仍待执行。
+当前里程碑：**M4 Commit 4 — Real Anchor / Contract, Evidence, Geometry, Cache & Publication Gate PASS / Overall Candidate**。M3 Commit 3.2.2、M4 Matting 2.1 与 Normalize 3.1 保持 Frozen；`alpha-geometry-anchor@1.0.0` 从 canonical RGBA silhouette 确定性生成 `center / foot / leftFoot / rightFoot`，并保持 Normalized PNG bytes 不变。四帧的上游 Evidence、CAS bytes、Anchor Schema 与 required anchors 全部验证后才开始发布 Anchored CAS；Stage Cache 绑定 Normalized content hash 与 Anchor Processor Spec，Anchored Evidence 绑定 Normalized Artifact Hash。暂不执行 Continuity QA、PoseClip Assembly 或 Paper Engine 接线；真实 GPU E2E 和生产素材足部视觉 QA 仍待完成。
 
 ## 已冻结的实现边界
 

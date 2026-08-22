@@ -88,4 +88,4 @@ Executor 强制执行：
 
 ## 当前边界
 
-M4 Commit 3.1 已关闭 bilinear 边界采样错误及其 Processor Identity 遗留，详见 [Normalize Pixel & Identity Closure](M4-commit-3.1-normalize-pixel-integrity-closure.md)。本提交不声明真实人物/动物素材的 scale consistency 或裁切视觉 QA 已通过；这些需要真实 GPU 资产校准。Anchor detection、Anchor Evidence 和 GroundLock 输入留给 M4 Commit 4 — Real Anchor。Persistent Cache、更多 resampler、超大 PNG 限制和视觉质量评分不进入本提交。
+M4 Commit 3.1 已关闭 bilinear 边界采样错误及其 Processor Identity 遗留，详见 [Normalize Pixel & Identity Closure](M4-commit-3.1-normalize-pixel-integrity-closure.md)。本提交不声明真实人物/动物素材的 scale consistency 或裁切视觉 QA 已通过；这些需要真实 GPU 资产校准。Anchor detection、Anchor Evidence 和 GroundLock 输入已由 [M4 Commit 4 — Real Anchor](M4-commit-4-real-anchor.md) 接续，不反向进入 Normalize。Persistent Cache、更多 resampler、超大 PNG 限制和视觉质量评分不进入本提交。
