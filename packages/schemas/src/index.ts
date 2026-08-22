@@ -22,6 +22,7 @@ export * from './pose-clip-production.js';
 export * from './pose-clip-production-profile.js';
 export * from './pose-clip-raw-generation.js';
 export * from './pose-clip-matting.js';
+export * from './pose-clip-normalization.js';
 export * from './pose-clip-continuity.js';
 export * from './pose-frame-processing.js';
 export * from './preflight-plan.js';

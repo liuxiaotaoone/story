@@ -18,11 +18,13 @@ import {
   type PoseClipFrameJob,
 } from '@pose-clip/schemas';
 import {
+  CanonicalCanvasPoseFrameNormalizer,
   ChromaKeyPoseFrameMattingProcessor,
   InMemoryPoseFrameStageCache,
   LocalCasAssetByteResolver,
   LocalContentAddressedAssetStore,
   PoseClipMattingExecutor,
+  PoseClipNormalizationExecutor,
   PoseClipRawGenerationExecutor,
   decodePngToRgba8,
   decodeRgbaPng8,
@@ -34,6 +36,7 @@ import {
   type PoseFrameProcessor,
   type PoseFrameProcessorInput,
   type PoseFrameProcessorOutput,
+  type PoseFrameNormalizer,
 } from '../src/index.js';
 
 const roots: string[] = [];
@@ -181,6 +184,37 @@ async function fixture() {
     cas: new LocalContentAddressedAssetStore(rawRoot),
   }).execute(productionRequest);
   return {rawRoot, mattedRoot, productionRequest, provider, rawExecution};
+}
+
+async function normalizationSpec(targetForegroundHeight = 4) {
+  return createPoseFrameProcessorSpec({
+    schemaVersion: '1.0.0',
+    stage: 'normalized',
+    processor: {name: 'canonical-canvas-normalize', version: '1.0.0'},
+    config: {
+      canvasWidth: 8,
+      canvasHeight: 8,
+      targetForegroundHeight,
+      maxForegroundWidth: 6,
+      bottomPadding: 1,
+      alphaThreshold: 1,
+      resampling: 'bilinear-premultiplied',
+    },
+  });
+}
+
+async function normalizedFixture() {
+  const value = await fixture();
+  const normalizedRoot = await mkdtemp(join(tmpdir(), 'm4-normalization-output-'));
+  roots.push(normalizedRoot);
+  const activeMattingSpec = await mattingSpec();
+  const mattingExecution = await new PoseClipMattingExecutor({
+    resolver: new LocalCasAssetByteResolver(value.rawRoot),
+    cas: new LocalContentAddressedAssetStore(value.mattedRoot),
+    spec: activeMattingSpec,
+    processor: new ChromaKeyPoseFrameMattingProcessor(),
+  }).execute(value.productionRequest, value.rawExecution.result);
+  return {...value, normalizedRoot, activeMattingSpec, mattingExecution};
 }
 
 describe('M4 Commit 2.1 Matting Integrity Closure', () => {
@@ -381,5 +415,151 @@ describe('M4 Commit 2.1 Matting Integrity Closure', () => {
     });
     expect(calls).toBe(4);
     await expect(readdir(value.mattedRoot)).resolves.toEqual([]);
+  });
+});
+
+describe('M4 Commit 3 Real Normalize', () => {
+  it('normalizes four foreground bounds into a canonical RGBA canvas and reuses Stage Cache', async () => {
+    const value = await normalizedFixture();
+    const cache = new InMemoryPoseFrameStageCache();
+    const executor = new PoseClipNormalizationExecutor({
+      resolver: new LocalCasAssetByteResolver(value.mattedRoot),
+      cas: new LocalContentAddressedAssetStore(value.normalizedRoot),
+      mattingSpec: value.activeMattingSpec,
+      spec: await normalizationSpec(),
+      processor: new CanonicalCanvasPoseFrameNormalizer(),
+      stageCache: cache,
+      now: () => new Date('2026-08-22T02:00:00.000Z'),
+    });
+    const first = await executor.execute(
+      value.productionRequest, value.rawExecution.result, value.mattingExecution.result,
+    );
+    expect(first.frames.map(({cache: status}) => status)).toEqual(['miss', 'miss', 'miss', 'miss']);
+    expect(first.result.frameResults.map(({frameIndex}) => frameIndex)).toEqual([0, 1, 2, 3]);
+    for (const frame of first.result.frameResults) {
+      expect(frame.transform).toEqual({
+        sourceBounds: {x: 1, y: 0, width: 1, height: 1},
+        destinationBounds: {x: 2, y: 3, width: 4, height: 4},
+        canvas: {width: 8, height: 8},
+        scale: 4,
+      });
+      expect(frame.artifact.inputHash).toBe(
+        value.mattingExecution.result.frameResults[frame.frameIndex]!.artifact.outputHash,
+      );
+      expect(frame.artifact.asset).toMatchObject({width: 8, height: 8, alphaMode: 'straight'});
+      const bytes = new Uint8Array(await readFile(
+        join(value.normalizedRoot, `${frame.artifact.asset.contentHash}.png`),
+      ));
+      const decoded = decodeRgbaPng8(bytes);
+      expect(decoded.pixels.filter((_, index) => index % 4 === 3 && decoded.pixels[index]! > 0)).toHaveLength(16);
+    }
+    const second = await executor.execute(
+      value.productionRequest, value.rawExecution.result, value.mattingExecution.result,
+    );
+    expect(second.frames.map(({cache: status}) => status)).toEqual(['hit', 'hit', 'hit', 'hit']);
+    expect(second.result.resultHash).toBe(first.result.resultHash);
+  });
+
+  it('invalidates only Normalize identity when canonical sizing config changes', async () => {
+    const value = await normalizedFixture();
+    const cache = new InMemoryPoseFrameStageCache();
+    const base = await new PoseClipNormalizationExecutor({
+      resolver: new LocalCasAssetByteResolver(value.mattedRoot),
+      cas: new LocalContentAddressedAssetStore(value.normalizedRoot),
+      mattingSpec: value.activeMattingSpec,
+      spec: await normalizationSpec(4),
+      processor: new CanonicalCanvasPoseFrameNormalizer(),
+      stageCache: cache,
+    }).execute(value.productionRequest, value.rawExecution.result, value.mattingExecution.result);
+    const changed = await new PoseClipNormalizationExecutor({
+      resolver: new LocalCasAssetByteResolver(value.mattedRoot),
+      cas: new LocalContentAddressedAssetStore(value.normalizedRoot),
+      mattingSpec: value.activeMattingSpec,
+      spec: await normalizationSpec(5),
+      processor: new CanonicalCanvasPoseFrameNormalizer(),
+      stageCache: cache,
+    }).execute(value.productionRequest, value.rawExecution.result, value.mattingExecution.result);
+    expect(changed.frames.every(({cache: status}) => status === 'miss')).toBe(true);
+    expect(changed.result.processorSpecHash).not.toBe(base.result.processorSpecHash);
+    expect(changed.frames.map(({normalizationInputHash}) => normalizationInputHash)).not.toEqual(
+      base.frames.map(({normalizationInputHash}) => normalizationInputHash),
+    );
+    expect(changed.result.mattingResultHash).toBe(base.result.mattingResultHash);
+  });
+
+  it('re-hashes Matted CAS bytes before Normalize and publishes nothing when detached', async () => {
+    const value = await normalizedFixture();
+    const firstMatted = value.mattingExecution.result.frameResults[0]!.artifact.asset;
+    await writeFile(join(value.mattedRoot, `${firstMatted.contentHash}.png`), rawPng(0));
+    const executor = new PoseClipNormalizationExecutor({
+      resolver: new LocalCasAssetByteResolver(value.mattedRoot),
+      cas: new LocalContentAddressedAssetStore(value.normalizedRoot),
+      mattingSpec: value.activeMattingSpec,
+      spec: await normalizationSpec(),
+      processor: new CanonicalCanvasPoseFrameNormalizer(),
+    });
+    await expect(executor.execute(
+      value.productionRequest, value.rawExecution.result, value.mattingExecution.result,
+    )).rejects.toMatchObject({code: 'NORMALIZATION_MATTED_CONTENT_HASH_MISMATCH'});
+    await expect(readdir(value.normalizedRoot)).resolves.toEqual([]);
+  });
+
+  it('validates every normalized frame before the first Normalized CAS publication', async () => {
+    const value = await normalizedFixture();
+    const real = new CanonicalCanvasPoseFrameNormalizer();
+    let calls = 0;
+    const invalidFourth: PoseFrameNormalizer = {
+      id: real.id,
+      version: real.version,
+      stage: real.stage,
+      plan: (input) => real.plan(input),
+      async process(input: PoseFrameProcessorInput): Promise<PoseFrameProcessorOutput> {
+        calls += 1;
+        return calls === 4 ? {bytes: input.bytes} : real.process(input);
+      },
+    };
+    const executor = new PoseClipNormalizationExecutor({
+      resolver: new LocalCasAssetByteResolver(value.mattedRoot),
+      cas: new LocalContentAddressedAssetStore(value.normalizedRoot),
+      mattingSpec: value.activeMattingSpec,
+      spec: await normalizationSpec(),
+      processor: invalidFourth,
+    });
+    await expect(executor.execute(
+      value.productionRequest, value.rawExecution.result, value.mattingExecution.result,
+    )).rejects.toMatchObject({code: 'NORMALIZATION_OUTPUT_CANVAS_MISMATCH'});
+    expect(calls).toBe(4);
+    await expect(readdir(value.normalizedRoot)).resolves.toEqual([]);
+  });
+
+  it('rejects an out-of-canvas transform before any Normalized CAS publication', async () => {
+    const value = await normalizedFixture();
+    const real = new CanonicalCanvasPoseFrameNormalizer();
+    let plans = 0;
+    const invalidFourthPlan: PoseFrameNormalizer = {
+      id: real.id,
+      version: real.version,
+      stage: real.stage,
+      async plan(input: PoseFrameProcessorInput) {
+        plans += 1;
+        const transform = await real.plan(input);
+        return plans === 4
+          ? {...transform, destinationBounds: {...transform.destinationBounds, x: transform.canvas.width}}
+          : transform;
+      },
+      process: (input) => real.process(input),
+    };
+    const executor = new PoseClipNormalizationExecutor({
+      resolver: new LocalCasAssetByteResolver(value.mattedRoot),
+      cas: new LocalContentAddressedAssetStore(value.normalizedRoot),
+      mattingSpec: value.activeMattingSpec,
+      spec: await normalizationSpec(),
+      processor: invalidFourthPlan,
+    });
+    await expect(executor.execute(
+      value.productionRequest, value.rawExecution.result, value.mattingExecution.result,
+    )).rejects.toMatchObject({code: 'NORMALIZATION_TRANSFORM_INVALID'});
+    expect(plans).toBe(4);
+    await expect(readdir(value.normalizedRoot)).resolves.toEqual([]);
   });
 });

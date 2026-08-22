@@ -49,4 +49,4 @@ rawArtifact.outputHash + processorSpecHash
 
 ## Gate 边界
 
-本次 Gate 证明 Matting 的合同、Evidence、Cache、PNG 解码边界和像素输出结构成立，不声称真实资产的 Matting 视觉质量已经通过。Alpha coverage、foreground ratio、edge refinement、green spill score、HSV/Lab 升级和 AI segmentation fallback 留给真实数据 QA/Hardening，不阻塞 M4 Commit 3 — Real Normalize。
+本次 Gate 证明 Matting 的合同、Evidence、Cache、PNG 解码边界和像素输出结构成立，不声称真实资产的 Matting 视觉质量已经通过。Alpha coverage、foreground ratio、edge refinement、green spill score、HSV/Lab 升级和 AI segmentation fallback 留给真实数据 QA/Hardening。M4 Commit 3 已在此冻结边界上进入 Real Normalize。

@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 2.1 — Matting Integrity Closure / Contract & Integrity Gate PASS / Overall Candidate**。M3 Commit 3.2.2 及之前保持 Frozen；M4 Raw Request/Result 固定四帧，Real Matting 重新验证 Raw Evidence 与 CAS bytes，以绑定 processor/version/config 的算法身份生成真实 RGBA/Alpha 像素，并在四帧全部通过尺寸、解码和非全透明/非全不透明 Gate 后发布 Matted CAS。RGB+tRNS 明确 fail-closed，Chroma Key 不再伪造 model content hash。暂不接 Normalize、Anchor 或真实 Continuity Feature；Raw 的真实 GPU E2E 与 Matting 视觉质量 Gate 仍待生产数据验证。
+当前里程碑：**M4 Commit 3 — Real Normalize / Implemented / Candidate**。M3 Commit 3.2.2 及 M4 Matting 2.1 保持 Frozen；Normalize 从 Matted RGBA Alpha 计算前景 bounds，以绑定 processor/version/config 的确定性 transform 将主体缩放、居中并落到 canonical canvas，使用 premultiplied-alpha 双线性采样生成 Normalized RGBA。四帧全部完成 CAS bytes、画布、可见 bounds 与 Evidence 验证后才发布 Normalized CAS。暂不接 Anchor 或真实 Continuity Feature；真实 GPU E2E 和生产素材视觉 QA 仍待执行。
 
 ## 已冻结的实现边界
 
