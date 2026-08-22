@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 4.1 — Anchor Production Closure / Contract, Evidence, Geometry, Identity, Cache & Publication Gate PASS / Overall Candidate**。M3 Commit 3.2.2、M4 Matting 2.1 与 Normalize 3.1 保持 Frozen；`alpha-geometry-anchor@1.0.1` 从 canonical RGBA silhouette 确定性生成全局 `foot` 与可检测的 screen-left/screen-right Foot Anchor，并保持 Normalized PNG bytes 不变。单侧支撑不会伪造另一侧 Anchor；缺少 required anchor 时四帧批次 fail-closed。Anchored Asset 恢复 `FrameSpec.output.assetId`，四阶段 Artifact 已验证可直接组装为 M3 Frozen Frame Production Result。暂不执行 Continuity QA、正式 Frame Result Bridge、PoseClip Assembly 或 Paper Engine 接线；真实 GPU E2E 和解剖学左右脚语义 QA 仍待完成。
+当前里程碑：**M4 Commit 5 — Production Bridge & Real Continuity / Bridge Contract, Execution Identity, RGBA Feature & Evidence Gate PASS / Overall Candidate**。M3 Commit 3.2.2 及 M4 Raw、Matting、Normalize、Anchor 主链保持 Frozen；正式 `PoseClipFrameProductionBridge` 以 M3 冻结公式计算真实 `frameExecutionKey`，将四阶段 Result 转换为 `PoseClipFrameProductionResult × 4`。`rgba-continuity-features@1.0.0` 重新读取并验证 Anchored CAS RGBA，从真实 Alpha/颜色像素形成 bounds、appearance、body 与 silhouette features，交给现有 Deterministic Continuity Evaluator。真实 GPU E2E、阈值校准、解剖学左右脚语义、Production Assembly 串联和 Paper Engine 接线仍待完成。
 
 ## 已冻结的实现边界
 

@@ -12,13 +12,17 @@ import {
   createPoseClipFrameJob,
   createPoseClipFrameSpec,
   createPoseClipProductionRequest,
+  createPoseClipContinuityFeatureExtractorSpec,
+  createPoseClipContinuityQaSpec,
   createPoseFrameProcessorSpec,
+  createPoseFrameQaEvaluatorSpec,
   hashPoseClipMattedFrameResultPayload,
   hashPoseClipAnchoredFrameResultPayload,
   hashPoseClipAnchoringResultPayload,
   hashPoseClipFrameProductionResultPayload,
   hashPoseClipMattingResultPayload,
   hashPoseFrameArtifactPayload,
+  poseFrameExecutionKey,
   sha256Bytes,
   type PoseClipFrameJob,
 } from '@pose-clip/schemas';
@@ -29,10 +33,14 @@ import {
   InMemoryPoseFrameStageCache,
   LocalCasAssetByteResolver,
   LocalContentAddressedAssetStore,
+  POSE_FRAME_PRODUCTION_EXECUTOR_IDENTITY,
+  PoseClipFrameProductionBridge,
   PoseClipMattingExecutor,
   PoseClipAnchoringExecutor,
   PoseClipNormalizationExecutor,
   PoseClipRawGenerationExecutor,
+  RgbaPoseClipContinuityFeatureExtractor,
+  DeterministicPoseClipContinuityEvaluator,
   decodePngToRgba8,
   decodeRgbaPng8,
   encodeRgbaPng,
@@ -898,5 +906,201 @@ describe('M4 Commit 4.1 Anchor Production Closure', () => {
       value.mattingExecution.result, value.normalizationExecution.result,
     )).rejects.toMatchObject({code: 'ANCHORING_OUTPUT_BYTES_CHANGED'});
     await expect(readdir(value.anchoredRoot)).resolves.toEqual([]);
+  });
+});
+
+describe('M4 to M3 Production Bridge and Real Continuity', () => {
+  async function bridgedFixture() {
+    const value = await anchoredFixture();
+    const activeAnchoringSpec = await anchoringSpec();
+    const anchoringExecution = await new PoseClipAnchoringExecutor({
+      resolver: new LocalCasAssetByteResolver(value.normalizedRoot),
+      cas: new LocalContentAddressedAssetStore(value.anchoredRoot),
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      spec: activeAnchoringSpec,
+      processor: new AlphaGeometryPoseFrameAnchorDetector(),
+    }).execute(
+      value.productionRequest, value.rawExecution.result,
+      value.mattingExecution.result, value.normalizationExecution.result,
+    );
+    const bridge = new PoseClipFrameProductionBridge({
+      mattingSpec: value.activeMattingSpec,
+      normalizationSpec: value.activeNormalizationSpec,
+      anchoringSpec: activeAnchoringSpec,
+    });
+    const stageResultSnapshot = structuredClone({
+      rawResult: value.rawExecution.result,
+      mattingResult: value.mattingExecution.result,
+      normalizationResult: value.normalizationExecution.result,
+      anchoringResult: anchoringExecution.result,
+    });
+    const bridgeResult = await bridge.execute({
+      request: value.productionRequest,
+      rawResult: value.rawExecution.result,
+      mattingResult: value.mattingExecution.result,
+      normalizationResult: value.normalizationExecution.result,
+      anchoringResult: anchoringExecution.result,
+    });
+    return {...value, activeAnchoringSpec, anchoringExecution, bridgeResult, stageResultSnapshot};
+  }
+
+  async function realContinuitySpec() {
+    const featureExtractor = await createPoseClipContinuityFeatureExtractorSpec({
+      schemaVersion: '1.0.0',
+      extractor: {name: 'rgba-continuity-features', version: '1.0.0'},
+      config: {alphaThreshold: 1, colorBins: 4, silhouetteGridSize: 4},
+    });
+    const threshold = {warning: 1, failure: 2};
+    return createPoseClipContinuityQaSpec({
+      schemaVersion: '1.0.0',
+      evaluator: {name: 'deterministic-pose-clip-continuity', version: '1.0.0'},
+      featureExtractor,
+      thresholds: {
+        identityConsistency: threshold,
+        scaleConsistency: threshold,
+        canvasConsistency: threshold,
+        bodyProportion: threshold,
+        footContact: threshold,
+        anchorMovement: threshold,
+        silhouetteContinuity: threshold,
+        loopClosure: threshold,
+      },
+    });
+  }
+
+  it('computes the frozen M3 frameExecutionKey and bridges all four real stage results', async () => {
+    const value = await bridgedFixture();
+    const qaSpec = await createPoseFrameQaEvaluatorSpec({
+      schemaVersion: '1.0.0',
+      evaluator: {name: 'required-anchor-frame-qa', version: '1.0.0'},
+      config: {},
+    });
+    expect(value.bridgeResult.frameResults).toHaveLength(4);
+    expect({
+      rawResult: value.rawExecution.result,
+      mattingResult: value.mattingExecution.result,
+      normalizationResult: value.normalizationExecution.result,
+      anchoringResult: value.anchoringExecution.result,
+    }).toEqual(value.stageResultSnapshot);
+    for (const [frameIndex, frameResult] of value.bridgeResult.frameResults.entries()) {
+      const frameJob = value.productionRequest.frames[frameIndex]!;
+      const expectedKey = await poseFrameExecutionKey({
+        frameJobHash: frameJob.frameJobHash,
+        processorSpecHashes: {
+          matted: value.activeMattingSpec.processorSpecHash,
+          normalized: value.activeNormalizationSpec.processorSpecHash,
+          anchored: value.activeAnchoringSpec.processorSpecHash,
+        },
+        qaEvaluatorSpecHash: qaSpec.qaEvaluatorSpecHash,
+        executor: POSE_FRAME_PRODUCTION_EXECUTOR_IDENTITY,
+      });
+      expect(frameResult.frameExecutionKey).toBe(expectedKey);
+      expect(frameResult.artifacts.map(({stage}) => stage)).toEqual([
+        'raw', 'matted', 'normalized', 'anchored',
+      ]);
+      expect(frameResult.poseFrame.assetId).toBe(frameJob.spec.output.assetId);
+      expect(frameResult.qa).toMatchObject({
+        structural: 'passed', matting: 'passed', normalization: 'passed',
+        anchors: 'passed', productionReady: true,
+      });
+      await expect(assertPoseClipFrameProductionResultIntegrity(
+        frameJob, frameResult, expectedKey,
+      )).resolves.toEqual(frameResult);
+    }
+  });
+
+  it('extracts pixel-derived RGBA features and runs the existing Continuity Evaluator', async () => {
+    const value = await bridgedFixture();
+    const extractor = new RgbaPoseClipContinuityFeatureExtractor(
+      new LocalCasAssetByteResolver(value.anchoredRoot),
+    );
+    const spec = await realContinuitySpec();
+    const feature = await extractor.extract({
+      frameResult: value.bridgeResult.frameResults[0]!,
+      spec: spec.featureExtractor,
+    });
+    expect(feature).toMatchObject({
+      frameIndex: 0,
+      sourceContentHash: value.bridgeResult.frameResults[0]!.artifacts[3]!.asset.contentHash,
+      canvas: {width: 8, height: 8},
+      subjectBounds: {x: 0.25, y: 0.375, width: 0.5, height: 0.5},
+    });
+    expect(feature.identityEmbedding).toHaveLength(12);
+    expect(feature.identityEmbedding).toEqual([
+      0, 0, 0, 1,
+      1, 0, 0, 0,
+      1, 0, 0, 0,
+    ]);
+    expect(feature.bodyProportions).toEqual([0.5, 0.5, 0.5, 1, 0.5]);
+    expect(feature.silhouetteEmbedding).toEqual([
+      0, 0, 0, 0,
+      0, 0.5, 0.5, 0,
+      0, 1, 1, 0,
+      0, 0.5, 0.5, 0,
+    ]);
+    const sparseGridSpec = await createPoseClipContinuityFeatureExtractorSpec({
+      schemaVersion: '1.0.0',
+      extractor: {name: 'rgba-continuity-features', version: '1.0.0'},
+      config: {alphaThreshold: 1, colorBins: 4, silhouetteGridSize: 16},
+    });
+    const sparseGridFeature = await extractor.extract({
+      frameResult: value.bridgeResult.frameResults[0]!, spec: sparseGridSpec,
+    });
+    expect(sparseGridFeature.silhouetteEmbedding).toHaveLength(256);
+    expect(sparseGridFeature.silhouetteEmbedding.every(Number.isFinite)).toBe(true);
+
+    const evaluation = await new DeterministicPoseClipContinuityEvaluator(extractor).evaluate({
+      frameResults: value.bridgeResult.frameResults,
+      loop: value.productionRequest.loop,
+      spec,
+    });
+    expect(evaluation.continuity).toBe('passed');
+    expect(evaluation.automatedReady).toBe(true);
+    expect(evaluation.frameResultHashes).toEqual(
+      value.bridgeResult.frameResults.map(({resultHash}) => resultHash),
+    );
+    expect(Object.values(evaluation.metrics).map(({status}) => status)).toEqual([
+      'passed', 'passed', 'passed', 'passed', 'passed', 'passed', 'passed', 'passed',
+    ]);
+
+    const modeledSpec = await createPoseClipContinuityFeatureExtractorSpec({
+      schemaVersion: '1.0.0',
+      extractor: {name: 'rgba-continuity-features', version: '1.0.0'},
+      model: {modelId: 'fake-rgba-model', contentHash: 'f'.repeat(64)},
+      config: {alphaThreshold: 1, colorBins: 4, silhouetteGridSize: 4},
+    });
+    await expect(extractor.extract({
+      frameResult: value.bridgeResult.frameResults[0]!, spec: modeledSpec,
+    })).rejects.toMatchObject({code: 'CONTINUITY_RGBA_MODEL_UNEXPECTED'});
+  });
+
+  it('re-hashes Anchored CAS bytes before extracting real Continuity features', async () => {
+    const value = await bridgedFixture();
+    const frameResult = value.bridgeResult.frameResults[0]!;
+    const asset = frameResult.artifacts[3]!.asset;
+    await writeFile(join(value.anchoredRoot, `${asset.contentHash}.png`), rawPng(0));
+    const extractor = new RgbaPoseClipContinuityFeatureExtractor(
+      new LocalCasAssetByteResolver(value.anchoredRoot),
+    );
+    await expect(extractor.extract({
+      frameResult,
+      spec: (await realContinuitySpec()).featureExtractor,
+    })).rejects.toMatchObject({code: 'CONTINUITY_ANCHORED_CONTENT_HASH_MISMATCH'});
+  });
+
+  it('rejects a detached M3 Frame Result before resolving Anchored bytes', async () => {
+    const value = await bridgedFixture();
+    const frameResult = {
+      ...value.bridgeResult.frameResults[0]!,
+      resultHash: 'f'.repeat(64),
+    };
+    const extractor = new RgbaPoseClipContinuityFeatureExtractor(
+      new LocalCasAssetByteResolver(value.anchoredRoot),
+    );
+    await expect(extractor.extract({
+      frameResult,
+      spec: (await realContinuitySpec()).featureExtractor,
+    })).rejects.toMatchObject({code: 'CONTINUITY_FRAME_RESULT_HASH_MISMATCH'});
   });
 });

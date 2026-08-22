@@ -37,4 +37,4 @@ right candidates → rightFoot | undefined
 
 ## 语义边界
 
-当前左右脚仍是 screen-space 支撑候选，不是身体解剖学左右脚。Commit 4.1 只保证“不知道就不输出”，不把画面左右包装成已经验证的人体语义。正式支持 `left-foot / right-foot` 动作语义仍需真实素材 QA、关键点检测或人工 Anchor Correction。
+当前左右脚仍是 screen-space 支撑候选，不是身体解剖学左右脚。Commit 4.1 只保证“不知道就不输出”，不把画面左右包装成已经验证的人体语义。正式 Frame Result Bridge 与真实 RGBA Continuity Feature 已由 [M4 Commit 5](M4-commit-5-production-bridge-real-continuity.md) 接续；正式支持 `left-foot / right-foot` 动作语义仍需真实素材 QA、关键点检测或人工 Anchor Correction。

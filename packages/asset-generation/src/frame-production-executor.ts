@@ -46,7 +46,10 @@ import type {ContentAddressedAssetStore} from './local-cas-store.js';
 import {AssetGenerationTransientError} from './integrity.js';
 
 const PROCESS_STAGES = ['matted', 'normalized', 'anchored'] as const;
-const EXECUTOR_PRODUCER = {name: 'pose-frame-production-executor', version: '0.1.2'} as const;
+export const POSE_FRAME_PRODUCTION_EXECUTOR_IDENTITY = {
+  name: 'pose-frame-production-executor',
+  version: '0.1.2',
+} as const;
 
 export type FrameProductionCacheStatus = 'hit' | 'miss' | 'covered-by-frame-result';
 
@@ -261,7 +264,7 @@ export class PoseFrameProductionExecutor {
       frameJobHash: frameJob.frameJobHash,
       processorSpecHashes: specHashes,
       qaEvaluatorSpecHash: qa.spec.qaEvaluatorSpecHash,
-      executor: EXECUTOR_PRODUCER,
+      executor: POSE_FRAME_PRODUCTION_EXECUTOR_IDENTITY,
     });
   }
 

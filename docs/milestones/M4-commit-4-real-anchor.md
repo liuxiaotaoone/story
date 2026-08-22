@@ -83,4 +83,4 @@ Executor 强制执行：
 
 Alpha Geometry Anchor 是真实像素级、确定性的 silhouette detector，但不是人体/动物关键点模型。当前稳定输出 `center / foot`，并只在对应画面侧存在支撑候选时输出 `leftFoot / rightFoot`；这里的 left/right 是 screen-space 分区，不声明解剖学左右脚语义。要求缺失的 Foot、hand、head 或 auxiliary anchor 的请求会 fail-closed。真实人物/动物素材的足部视觉准确度、遮挡处理和身体左右语义仍需 GPU 资产视觉 QA、关键点模型或人工校正。
 
-Commit 4.1 的 Production Closure 详见 [Anchor Production Closure](M4-commit-4.1-anchor-production-closure.md)。本提交不实现 Continuity Feature、Anchor Movement QA、Foot Contact QA、正式 Frame Result Bridge、PoseClip Assembly、Persistent Cache 或 Paper Engine 接线；这些留给后续独立提交。
+Commit 4.1 的 Production Closure 详见 [Anchor Production Closure](M4-commit-4.1-anchor-production-closure.md)。正式 Frame Result Bridge 与真实 RGBA Continuity Feature 已由 [M4 Commit 5](M4-commit-5-production-bridge-real-continuity.md) 接续，不反向进入 Anchor。本提交本身不实现 PoseClip Assembly、Persistent Cache 或 Paper Engine 接线。
