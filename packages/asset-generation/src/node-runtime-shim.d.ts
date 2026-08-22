@@ -13,6 +13,7 @@ declare module 'node:zlib' {
     engine: {bytesWritten: number};
   }
   export const inflateSync: (input: Uint8Array, options: {info: true}) => InflateInfo;
+  export const deflateSync: (input: Uint8Array) => Uint8Array;
 }
 declare module 'node:os' { export const tmpdir: () => string; }
 declare module 'node:path' {

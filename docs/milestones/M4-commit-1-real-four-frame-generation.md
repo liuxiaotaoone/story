@@ -41,4 +41,4 @@ PoseClipProductionRequest → M4 Raw Generation Request Gate (FrameSpec × 4)
 
 ## Next Boundary
 
-M4 Commit 2 接入真实 Matting，将 Raw CAS 资产转换为 Matted RGBA，并保留本提交的 Raw Evidence 不变。
+M4 Commit 2 已接入真实 Matting，将 Raw CAS 资产转换为 Matted RGBA，并保持本提交的 Raw Evidence immutable。详见 [M4 Commit 2 — Real Matting](M4-commit-2-real-matting.md)。
