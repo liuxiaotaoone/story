@@ -186,7 +186,7 @@ function renderNormalized(
 
 export class CanonicalCanvasPoseFrameNormalizer implements PoseFrameNormalizer {
   readonly id = 'canonical-canvas-normalize';
-  readonly version = '1.0.0';
+  readonly version = '1.0.1';
   readonly stage = 'normalized' as const;
 
   #assertBinding(input: PoseFrameProcessorInput): CanonicalCanvasNormalizationConfig {

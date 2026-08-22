@@ -1,8 +1,8 @@
-# M4 Commit 3.1 — Normalize Pixel Integrity Closure
+# M4 Commit 3.1 — Normalize Pixel & Identity Closure
 
-状态：**Contract / Evidence / Pixel Gate PASS；Overall Candidate**
+状态：**Contract / Evidence / Pixel / Identity Gate PASS；Overall Candidate**
 
-本次只修正 Real Normalize 的 bilinear clamp-to-edge 权重，不修改 Normalize Transform、Cache、Evidence、CAS 发布边界或 M3 Processor Contract。
+本次修正 Real Normalize 的 bilinear clamp-to-edge 权重，并同步更新确定性 Processor Identity；不修改 Normalize Transform、Cache、Evidence、CAS 发布边界或 M3 Processor Contract。
 
 ## 修复
 
@@ -20,6 +20,12 @@ continuous x/y
 ```
 
 因此 `x=-0.25` 会得到 `clampedX=0, tx=0`，首个目标像素保持 100% 源首像素。
+
+## Identity Closure
+
+旧 Candidate 实现使用 `canonical-canvas-normalize@1.0.0`。由于本次像素算法修正会在相同输入和配置下产生不同 bytes，新实现升级为 `canonical-canvas-normalize@1.0.1`。
+
+版本进入 `processorSpecHash`，因此同一 Matted 输入在两个版本下会形成不同的 Stage Cache Key 与 `normalizationInputHash`。回归测试同时锁定 Processor 版本、`processorSpecHash` 和 Stage Cache Key 的差异，避免旧错误输出被新实现复用。
 
 ## Pixel Regression
 

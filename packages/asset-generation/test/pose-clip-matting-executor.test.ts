@@ -190,7 +190,7 @@ async function normalizationSpec(targetForegroundHeight = 4) {
   return createPoseFrameProcessorSpec({
     schemaVersion: '1.0.0',
     stage: 'normalized',
-    processor: {name: 'canonical-canvas-normalize', version: '1.0.0'},
+    processor: {name: 'canonical-canvas-normalize', version: '1.0.1'},
     config: {
       canvasWidth: 8,
       canvasHeight: 8,

@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {
   createPoseFrameProcessorSpec,
+  poseFrameStageCacheKey,
   sha256Bytes,
 } from '@pose-clip/schemas';
 import {
@@ -22,7 +23,7 @@ async function normalize(input: {
   const spec = await createPoseFrameProcessorSpec({
     schemaVersion: '1.0.0',
     stage: 'normalized',
-    processor: {name: 'canonical-canvas-normalize', version: '1.0.0'},
+    processor: {name: 'canonical-canvas-normalize', version: '1.0.1'},
     config: {
       canvasWidth: input.canvasWidth,
       canvasHeight: input.canvasHeight,
@@ -46,7 +47,46 @@ function pixel(pixels: Uint8Array, width: number, x: number, y: number): number[
   return Array.from(pixels.slice(offset, offset + 4));
 }
 
-describe('M4 Commit 3.1 Normalize Pixel Integrity Closure', () => {
+describe('M4 Commit 3.1 Normalize Pixel & Identity Closure', () => {
+  it('changes processor identity and stage cache key for the corrected sampler', async () => {
+    const config = {
+      canvasWidth: 4,
+      canvasHeight: 4,
+      targetForegroundHeight: 4,
+      maxForegroundWidth: 4,
+      bottomPadding: 0,
+      alphaThreshold: 1,
+      resampling: 'bilinear-premultiplied',
+    } as const;
+    const previousSpec = await createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0',
+      stage: 'normalized',
+      processor: {name: 'canonical-canvas-normalize', version: '1.0.0'},
+      config,
+    });
+    const correctedSpec = await createPoseFrameProcessorSpec({
+      schemaVersion: '1.0.0',
+      stage: 'normalized',
+      processor: {name: 'canonical-canvas-normalize', version: '1.0.1'},
+      config,
+    });
+    const inputContentHash = 'a'.repeat(64);
+    const previousCacheKey = await poseFrameStageCacheKey({
+      stage: 'normalized',
+      inputContentHash,
+      processorSpecHash: previousSpec.processorSpecHash,
+    });
+    const correctedCacheKey = await poseFrameStageCacheKey({
+      stage: 'normalized',
+      inputContentHash,
+      processorSpecHash: correctedSpec.processorSpecHash,
+    });
+
+    expect(new CanonicalCanvasPoseFrameNormalizer().version).toBe('1.0.1');
+    expect(correctedSpec.processorSpecHash).not.toBe(previousSpec.processorSpecHash);
+    expect(correctedCacheKey).not.toBe(previousCacheKey);
+  });
+
   it('uses clamp-to-edge weights when horizontally upscaling RED | BLUE', async () => {
     const output = await normalize({
       width: 2,

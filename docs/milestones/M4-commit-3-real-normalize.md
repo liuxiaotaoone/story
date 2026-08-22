@@ -1,6 +1,6 @@
 # M4 Commit 3 — Real Normalize
 
-状态：**Commit 3.1 Contract / Evidence / Pixel Gate PASS；Overall Candidate**
+状态：**Commit 3.1 Contract / Evidence / Pixel / Identity Gate PASS；Overall Candidate**
 
 本提交只回答“每帧如何进入统一坐标与画布空间”，不计算 foot/center/leftFoot/rightFoot Anchor，也不修改 M3 Frozen Contract 或 M4 Matting 主链。
 
@@ -28,6 +28,8 @@ bottomPadding
 alphaThreshold
 resampling=bilinear-premultiplied
 ```
+
+修正后的确定性实现身份为 `canonical-canvas-normalize@1.0.1`。旧 Candidate 的 `1.0.0` 与新实现会形成不同的 `processorSpecHash`、Stage Cache Key 和 `normalizationInputHash`，不会复用错误边界采样产生的缓存或 Evidence。
 
 Processor 从 Alpha 大于等于 `alphaThreshold` 的像素计算 `sourceBounds`，保持宽高比选择 scale，再生成水平居中、底部带固定 padding 的 `destinationBounds`。Evidence 显式记录：
 
@@ -86,4 +88,4 @@ Executor 强制执行：
 
 ## 当前边界
 
-M4 Commit 3.1 已关闭 bilinear 边界采样错误，详见 [Normalize Pixel Integrity Closure](M4-commit-3.1-normalize-pixel-integrity-closure.md)。本提交不声明真实人物/动物素材的 scale consistency 或裁切视觉 QA 已通过；这些需要真实 GPU 资产校准。Anchor detection、Anchor Evidence 和 GroundLock 输入留给 M4 Commit 4 — Real Anchor。Persistent Cache、更多 resampler、超大 PNG 限制和视觉质量评分不进入本提交。
+M4 Commit 3.1 已关闭 bilinear 边界采样错误及其 Processor Identity 遗留，详见 [Normalize Pixel & Identity Closure](M4-commit-3.1-normalize-pixel-integrity-closure.md)。本提交不声明真实人物/动物素材的 scale consistency 或裁切视觉 QA 已通过；这些需要真实 GPU 资产校准。Anchor detection、Anchor Evidence 和 GroundLock 输入留给 M4 Commit 4 — Real Anchor。Persistent Cache、更多 resampler、超大 PNG 限制和视觉质量评分不进入本提交。
