@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "rgba-quality-baseline",
+  "version": "1.0.0",
+  "normalization": {
+    "processor": {
+      "name": "canonical-canvas-normalize",
+      "version": "1.0.1"
+    },
+    "config": {
+      "canvasWidth": 512,
+      "canvasHeight": 768,
+      "targetForegroundHeight": 640,
+      "maxForegroundWidth": 430,
+      "bottomPadding": 32,
+      "alphaThreshold": 8,
+      "resampling": "bilinear-premultiplied"
+    }
+  },
+  "rgba": {
+    "alphaThreshold": 8,
+    "opaqueThreshold": 247,
+    "green": {
+      "minimum": 64,
+      "dominance": 24
+    }
+  }
+}

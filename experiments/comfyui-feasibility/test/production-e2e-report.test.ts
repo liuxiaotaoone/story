@@ -64,6 +64,8 @@ describe('production E2E report evidence', () => {
     expect(measureRgbaQuality({width: 2, height: 2, pixels})).toEqual({
       alphaThreshold: 8,
       opaqueThreshold: 247,
+      greenMinimum: 64,
+      greenDominance: 24,
       foregroundCoverage: 3 / 4,
       meanAlpha: 638 / 1020,
       softEdgeRatio: 1 / 3,
@@ -80,5 +82,12 @@ describe('production E2E report evidence', () => {
     expect(() => measureRgbaQuality({width: 1, height: 1, pixels: new Uint8Array(4)}, 8, 8)).toThrow(
       /thresholds are invalid/u,
     );
+    expect(() => measureRgbaQuality(
+      {width: 1, height: 1, pixels: new Uint8Array(4)},
+      8,
+      247,
+      256,
+      24,
+    )).toThrow(/thresholds are invalid/u);
   });
 });

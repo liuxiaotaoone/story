@@ -64,6 +64,8 @@ pnpm --filter @pose-clip/comfyui-feasibility production:analyze
 
 该命令输出每帧 Pre-Normalize Bounds、Normalize Transform，以及 Matted/Normalized/Anchored 的 Foreground、Alpha、Soft Edge 与 Green Spill 统计。完全透明像素的 RGB 不计入 Green Spill。
 
+Analyzer 会先读取 `frozen/production-e2e-pass-manifest.json` 和 `frozen/rgba-quality-baseline-spec.json`。只有 PASS Report 的 PoseClip/Result Hash、Admission Identity、四个 Frame Execution Keys 与 16 个 Stage Content Hash 全部匹配 Frozen Manifest，且每份 CAS bytes 重新计算的 SHA-256 等于声明 Content Hash，才允许测量。默认将带 `qualityAnalysisSpecHash` 和 `analysisResultHash` 的确定性报告写入 `reports/production-quality-analysis.json`。
+
 本 Gate 的 Profile 与 Human Review 都固定为 `pending`。首次运行用于采集真实 Continuity Delta，不把宽松采集阈值或普通调用参数冒充为生产审批。
 
 当前状态为 **Real GPU Gate PASS；Production Approval PENDING**。2026-08-24 使用 `--disable-smart-memory --novram --cpu-vae --deterministic --cache-none --preview-method none` 在 Intel Arc 130T XPU 上完成同一份 Frozen Admission：四帧 Raw PNG、Matting、Normalize、Anchor、Bridge、Continuity、Assembly 与最终 `/free` 全部通过，正式报告 `status=PASS`。运行没有修改 Workflow、分辨率、Prompt、Seed、模型或生产合同。

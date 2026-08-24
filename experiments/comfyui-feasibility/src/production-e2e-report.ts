@@ -27,6 +27,8 @@ export interface RgbaQualityMeasurementInput {
 export interface RgbaQualityMeasurement {
   readonly alphaThreshold: number;
   readonly opaqueThreshold: number;
+  readonly greenMinimum: number;
+  readonly greenDominance: number;
   readonly foregroundCoverage: number;
   readonly meanAlpha: number;
   readonly softEdgeRatio: number;
@@ -79,6 +81,8 @@ export function measureRgbaQuality(
   input: RgbaQualityMeasurementInput,
   alphaThreshold = 8,
   opaqueThreshold = 247,
+  greenMinimum = 64,
+  greenDominance = 24,
 ): RgbaQualityMeasurement {
   const pixelCount = input.width * input.height;
   if (pixelCount <= 0 || input.pixels.length !== pixelCount * 4) {
@@ -90,6 +94,12 @@ export function measureRgbaQuality(
     || alphaThreshold < 1
     || opaqueThreshold > 255
     || alphaThreshold >= opaqueThreshold
+    || !Number.isInteger(greenMinimum)
+    || !Number.isInteger(greenDominance)
+    || greenMinimum < 0
+    || greenMinimum > 255
+    || greenDominance < 0
+    || greenDominance > 255
   ) throw new TypeError('RGBA quality alpha thresholds are invalid');
 
   let alphaTotal = 0;
@@ -108,7 +118,7 @@ export function measureRgbaQuality(
     visiblePixels += 1;
     const softEdge = alpha < opaqueThreshold;
     if (softEdge) softEdgePixels += 1;
-    const greenDominant = green >= 64 && green - Math.max(red, blue) >= 24;
+    const greenDominant = green >= greenMinimum && green - Math.max(red, blue) >= greenDominance;
     if (!greenDominant) continue;
     visibleGreenPixels += 1;
     if (softEdge) edgeGreenPixels += 1;
@@ -118,6 +128,8 @@ export function measureRgbaQuality(
   return {
     alphaThreshold,
     opaqueThreshold,
+    greenMinimum,
+    greenDominance,
     foregroundCoverage: visiblePixels / pixelCount,
     meanAlpha: alphaTotal / (pixelCount * 255),
     softEdgeRatio: visiblePixels === 0 ? 0 : softEdgePixels / visiblePixels,

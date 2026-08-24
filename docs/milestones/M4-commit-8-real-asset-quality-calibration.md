@@ -31,6 +31,8 @@ pnpm --filter @pose-clip/comfyui-feasibility production:analyze
 
 完全透明像素的 RGB 不进入 Green Spill 统计，避免把 PNG 隐藏色误报为可见残留。这些指标是基线观测，不是已经批准的失败阈值。
 
+M4 Commit 8.1 已进一步关闭质量 Evidence 链：Analyzer 必须先绑定 Frozen Commit 7 PASS Manifest，验证 Report 的 Production Hash、四个 Frame Execution Keys 与 16 个 Stage Content Hash，并逐个重算 CAS bytes SHA-256。质量算法由 `rgba-quality-baseline@1.0.0` Spec 固定，报告形成独立 `analysisResultHash`。完整 Gate 见 `M4-commit-8.1-quality-evidence-closure.md`。
+
 ## 首批真实数据
 
 四帧的 Normalize 变换完全相同：
