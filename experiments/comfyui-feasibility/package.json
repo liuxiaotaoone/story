@@ -9,6 +9,7 @@
     "production:e2e": "node --experimental-strip-types scripts/run-pose-clip-production-e2e.mts",
     "production:analyze": "node --experimental-strip-types scripts/analyze-production-e2e-assets.mts",
     "matting:calibrate": "node --experimental-strip-types scripts/calibrate-matting-candidate.mts",
+    "anchor:calibrate": "node --experimental-strip-types scripts/calibrate-anchor-candidate.mts",
     "production:plan": "node --experimental-strip-types scripts/run-pose-clip-production-e2e.mts --plan",
     "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
     "test": "node ../../node_modules/vitest/vitest.mjs run --passWithNoTests"

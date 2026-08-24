@@ -1,6 +1,6 @@
 # M4 Commit 8 — Real Asset Quality Calibration
 
-状态：**Baseline Established；Visual Production Approval PENDING**
+状态：**Matting + Bilateral Anchor Automated Candidate Gates PASS；Visual Production Approval PENDING**
 
 本阶段以 M4 Commit 7 已冻结的真实 GPU 产物为唯一输入，先建立可重复的像素质量观测和人工视觉基线。当前不修改 Frozen Admission、Workflow、模型、Seed、生产合同或已通过的 E2E Gate，也不把采集阈值误写成生产阈值。
 
@@ -92,3 +92,5 @@ Visual Production Approval           PENDING
 3. Matting 改善后重新计算真实 Subject Bounds、Normalize Transform、Anchors 和 Continuity Delta。
 4. 基于修复后的多批真实数据提出 Warning/Failure Threshold，再进行人工视觉审批。
 5. 只有 Profile Approval 与 Human Review 都完成后，才允许 `productionReady=true`。
+
+Commit 8.2 已完成 Border-connected Matting Candidate，Commit 8.3 已关闭 Frame 1 双足 Anchor 缺口并重新运行真实 RGBA Continuity。完整结果分别见 [Real Matting Calibration](M4-commit-8.2-real-matting-calibration.md) 与 [Bilateral Foot Anchor Calibration](M4-commit-8.3-bilateral-foot-anchor-calibration.md)。当前下一 Gate 已收敛为 Matting 1.1.0 + Anchor 1.1.0 的人工透明背景视觉审批；Continuity 生产阈值仍需更多真实批次后才能校准。

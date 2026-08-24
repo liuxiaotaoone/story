@@ -81,4 +81,12 @@ pnpm --filter @pose-clip/comfyui-feasibility production:analyze
 pnpm --filter @pose-clip/comfyui-feasibility matting:calibrate
 ```
 
-Candidate 为 `chroma-key-matting@1.1.0`，保留 1.0.0 Baseline 不变。报告写入 `reports/matting-calibration.json`，包含 Baseline/Candidate Bounds、Green Spill、Foreground、Anchors、Content Hash 与 Result Hash。当前 Automated Candidate Gate 通过；Visual Approval 和 Frame 1 双足 Anchor 校准仍为 pending。
+Candidate 为 `chroma-key-matting@1.1.0`，保留 1.0.0 Baseline 不变。报告写入 `reports/matting-calibration.json`，包含 Baseline/Candidate Bounds、Green Spill、Foreground、Anchors、Content Hash 与 Result Hash。Automated Matting Candidate Gate 已通过。
+
+M4 Commit 8.3 使用同一批 Candidate Normalized CAS 校准双侧脚点，不修改全局支撑线：
+
+```powershell
+pnpm --filter @pose-clip/comfyui-feasibility anchor:calibrate
+```
+
+Candidate 为 `alpha-geometry-anchor@1.1.0`：全局 `foot` 继续使用严格 12 px 底部带，`leftFoot/rightFoot` 分别在主体下方 25% 区域寻找各自最低行。报告写入 `reports/anchor-calibration.json`。四帧双足均存在，Frame 1 新增左脚点；四帧全局 `foot` 和 PNG Content Hash 均未变化。正式 RGBA Continuity 已离线重放，但仍明确使用未校准的 collection thresholds。Matting/Anchor Candidate 尚未进入 Production Profile，Visual Approval 仍为 pending。

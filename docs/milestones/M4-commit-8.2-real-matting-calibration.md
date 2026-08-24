@@ -115,4 +115,4 @@ calibrationResultHash
 
 ## 结论
 
-M4 Commit 8.2 已建立可重复的真实 Matting Candidate，并通过自动化质量 Gate。当前不能写成 Production Approved；下一步是人工对比审批和针对 Frame 1 的 Anchor 参数校准，之后才能重新收集可信 Continuity 数据。
+M4 Commit 8.2 已建立可重复的真实 Matting Candidate，并通过自动化质量 Gate。当前不能写成 Production Approved。Frame 1 的 Anchor 参数校准与真实 Continuity 重放已由 [M4 Commit 8.3 — Bilateral Foot Anchor Calibration](M4-commit-8.3-bilateral-foot-anchor-calibration.md) 完成；Matting/Anchor Candidate 的人工透明背景视觉审批仍然 pending。
