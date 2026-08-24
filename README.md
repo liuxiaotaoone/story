@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 7 — Real GPU Production E2E / Execution Prepared / Environment BLOCKED**。M4 Commit 6 Trusted Production Orchestrator 已 PASS 并保持 Frozen；真实 E2E 入口现已固定 Workflow、模型目录、Rabbit Reference、四帧 Request、Pending Profile 与 Frame Execution Keys，并在 GPU 前从 `COMFYUI_MODEL_ROOT` 流式重算三份真实模型文件 Hash。只有 Runtime Model bytes 与 Admission 完全一致才进入 ComfyUI，远程 Endpoint 在可信 Worker Model Manifest 建立前 fail-closed。入口直接调用完整 Orchestrator，并输出阶段时间、Cache/Retry、Artifact Hash、Alpha/Anchor、Continuity Delta、Diagnostics 与最终 Result Hash。当前环境未配置模型根目录且本机 ComfyUI 未启动，因此没有声称 GPU Gate PASS。阈值校准、解剖学左右脚语义和 Paper Engine 接线仍待完成。
+当前里程碑：**M4 Commit 7 — Real GPU Production E2E / GPU Gate PASS；Production Approval PENDING**。同一份 Frozen Admission 已在 Intel Arc 130T XPU 上以 `--novram --cpu-vae --deterministic --cache-none --preview-method none` 完成四帧真实生成，并贯通 Matting、Normalize、Anchor、Bridge、Continuity 与 Assembly；Runtime Model bytes、完整 Hash/Evidence 链和最终 `/free` 均通过。Run Report 为 `PASS`，但 Profile Approval 与 Human Review 仍为 `pending`，因此 `productionReady=false` 符合合同。首批真实 RGBA 数据暴露了绿幕残留及姿态/身份波动，下一步进入 Matting/Continuity 阈值校准与人工视觉审查；解剖学左右脚语义和 Paper Engine 接线仍待完成。
 
 ## 已冻结的实现边界
 

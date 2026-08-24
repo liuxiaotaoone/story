@@ -15,8 +15,11 @@ import {
   RequiredAnchorPoseFrameQaEvaluator,
   RgbaPoseClipContinuityFeatureExtractor,
   decodeRgbaPng8,
+  type GeneratedImageArtifact,
+  type GenerationSubmission,
   type PoseClipContinuityFeatureExtractor,
   type PoseClipContinuityFeatureExtractorInput,
+  type ResumableImageGenerationProvider,
 } from '@pose-clip/asset-generation';
 import {
   RuntimeModelDependencySchema,
@@ -32,9 +35,15 @@ import {
   createPoseFrameQaEvaluatorSpec,
   poseFrameExecutionKey,
   sha256Bytes,
+  type ActionGenerationRequest,
   type PoseClipContinuityFrameFeatures,
   type PoseClipFrameJob,
 } from '@pose-clip/schemas';
+import {
+  createE2eEnvironmentEvidence,
+  createE2eFailureEvidence,
+  type E2eFailureContext,
+} from '../src/production-e2e-report.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const workflowId = 'flux2-klein-reference-single-frame-v1';
@@ -269,6 +278,58 @@ class E2eEnvironmentError extends Error {
   }
 }
 
+class RecordingComfyUiProvider implements ResumableImageGenerationProvider {
+  readonly id: string;
+  readonly #inner: ComfyUiProvider;
+  readonly #frameIndexByInputHash: ReadonlyMap<string, number>;
+  readonly #recordContext: (context: E2eFailureContext) => void;
+
+  constructor(
+    inner: ComfyUiProvider,
+    frameIndexByInputHash: ReadonlyMap<string, number>,
+    recordContext: (context: E2eFailureContext) => void,
+  ) {
+    this.id = inner.id;
+    this.#inner = inner;
+    this.#frameIndexByInputHash = frameIndexByInputHash;
+    this.#recordContext = recordContext;
+  }
+
+  #context(request: ActionGenerationRequest, promptId?: string): E2eFailureContext {
+    const frameIndex = this.#frameIndexByInputHash.get(request.inputHash);
+    return {
+      phase: 'raw-generation',
+      provider: this.id,
+      ...(frameIndex === undefined ? {} : {frameIndex}),
+      ...(promptId === undefined ? {} : {promptId}),
+    };
+  }
+
+  async submit(request: ActionGenerationRequest): Promise<GenerationSubmission> {
+    this.#recordContext(this.#context(request));
+    const submission = await this.#inner.submit(request);
+    this.#recordContext(this.#context(request, submission.promptId));
+    return submission;
+  }
+
+  async collect(
+    request: ActionGenerationRequest,
+    submission: GenerationSubmission,
+  ): Promise<GeneratedImageArtifact[]> {
+    this.#recordContext(this.#context(request, submission.promptId));
+    const artifacts = await this.#inner.collect(request, submission);
+    this.#recordContext({phase: 'unknown'});
+    return artifacts;
+  }
+
+  async generate(request: ActionGenerationRequest): Promise<GeneratedImageArtifact[]> {
+    this.#recordContext(this.#context(request));
+    const artifacts = await this.#inner.generate(request);
+    this.#recordContext({phase: 'unknown'});
+    return artifacts;
+  }
+}
+
 interface RuntimeModelVerification {
   role: 'diffusion-model' | 'text-encoder' | 'vae';
   modelId: string;
@@ -378,9 +439,11 @@ let report: Record<string, unknown> = {
   status: 'RUNNING',
 };
 let provider: ComfyUiProvider | undefined;
+let systemStatsSnapshot: unknown;
+let failureContext: E2eFailureContext = {phase: 'unknown'};
 try {
   await verifyRuntimeModelBytes();
-  const environment = await systemStats();
+  systemStatsSnapshot = await systemStats();
   const casRoot = resolve(runRoot, 'cas');
   const cas = new LocalContentAddressedAssetStore(casRoot);
   const resolver = new LocalCasAssetByteResolver(casRoot);
@@ -399,9 +462,16 @@ try {
     },
     timeoutMs: 20 * 60_000,
   });
+  const generationProvider = new RecordingComfyUiProvider(
+    provider,
+    new Map(request.frames.map((frame) => [frame.generationRequest.inputHash, frame.spec.frameIndex])),
+    (context) => {
+      failureContext = context;
+    },
+  );
   const execution = await new PoseClipProductionOrchestrator({
     trustedProfileHash: admitted.trustedProfileHash,
-    provider,
+    provider: generationProvider,
     rawCas: cas,
     matting: {resolver, cas, processor: new ChromaKeyPoseFrameMattingProcessor()},
     normalization: {resolver, cas, processor: new CanonicalCanvasPoseFrameNormalizer()},
@@ -446,7 +516,7 @@ try {
     schemaVersion: '1.0.0',
     gate: 'M4 Commit 7 — Real GPU Production E2E',
     status: 'PASS',
-    environment: {endpoint, runtimeModels: runtimeModelVerification, systemStats: environment},
+    environment: createE2eEnvironmentEvidence(endpoint, runtimeModelVerification, systemStatsSnapshot),
     plan,
     startedAt: startedAt.toISOString(),
     completedAt: new Date().toISOString(),
@@ -469,19 +539,23 @@ try {
     },
   };
 } catch (error) {
+  const failure = createE2eFailureEvidence(error, error instanceof E2eEnvironmentError
+    ? {phase: 'environment'}
+    : failureContext);
   report = {
     schemaVersion: '1.0.0',
     gate: 'M4 Commit 7 — Real GPU Production E2E',
     status: error instanceof E2eEnvironmentError ? 'BLOCKED' : 'FAIL',
-    environment: {endpoint, runtimeModels: runtimeModelVerification},
+    environment: createE2eEnvironmentEvidence(endpoint, runtimeModelVerification, systemStatsSnapshot),
     plan,
     startedAt: startedAt.toISOString(),
     completedAt: new Date().toISOString(),
     error: {
-      name: error instanceof Error ? error.name : 'Error',
+      name: failure.name,
       ...(error instanceof E2eEnvironmentError ? {code: error.code} : {}),
-      message: error instanceof Error ? error.message : String(error),
+      message: failure.message,
     },
+    failure,
   };
   process.exitCode = 1;
 } finally {

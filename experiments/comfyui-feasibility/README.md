@@ -57,3 +57,7 @@ pnpm --filter @pose-clip/comfyui-feasibility production:e2e
 `production:plan` 只打印当前输入身份，不连接 GPU。`production:e2e` 要求 `COMFYUI_MODEL_ROOT` 指向本机 ComfyUI 的 `models` 目录；它先流式重算三份真实模型文件 Hash，与 admitted Catalog 对齐，再探测 ComfyUI `system_stats`。当前只允许 loopback Endpoint；远程 Worker 在可信 Model Manifest 建立前 fail-closed。输出报告默认位于 `reports/production-e2e.json`，可用 `M4_E2E_REPORT_PATH` 覆盖。
 
 本 Gate 的 Profile 与 Human Review 都固定为 `pending`。首次运行用于采集真实 Continuity Delta，不把宽松采集阈值或普通调用参数冒充为生产审批。
+
+当前状态为 **Real GPU Gate PASS；Production Approval PENDING**。2026-08-24 使用 `--disable-smart-memory --novram --cpu-vae --deterministic --cache-none --preview-method none` 在 Intel Arc 130T XPU 上完成同一份 Frozen Admission：四帧 Raw PNG、Matting、Normalize、Anchor、Bridge、Continuity、Assembly 与最终 `/free` 全部通过，正式报告 `status=PASS`。运行没有修改 Workflow、分辨率、Prompt、Seed、模型或生产合同。
+
+Profile Approval 与 Human Review 仍固定为 `pending`，所以 `productionReady=false` 是预期结果。真实 RGBA 帧仍有绿幕残留及帧间姿态/身份波动；当前宽松 Continuity Threshold 只用于首次数据采集，后续必须进行阈值校准和人工视觉审查，不能把 E2E PASS 冒充为视觉生产批准。

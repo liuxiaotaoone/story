@@ -1,6 +1,6 @@
 # M4 Commit 7 — Real GPU Production E2E
 
-状态：**Execution Prepared / Environment BLOCKED；Real GPU Gate NOT RUN**
+状态：**Real GPU Gate PASS；Production Approval PENDING**
 
 M4 Commit 6 的 Trusted Production Orchestrator 已通过合同与内部 E2E。Commit 7 不再增加 Fixture 或图像算法，唯一目标是以真实 ComfyUI Workflow、Checkpoint、Reference Image 和 GPU 执行完整四帧生产链，并留存可校准的 Run Report。
 
@@ -56,7 +56,7 @@ experiments/asset-feasibility/processed/rabbit/rabbit-reference.png
 
 ## Run Report
 
-成功运行会保存 `experiments/comfyui-feasibility/reports/production-e2e.json`，包括：
+每次运行都会保存 `experiments/comfyui-feasibility/reports/production-e2e.json`。PASS 报告包括：
 
 - ComfyUI System Stats、Workflow、模型、Reference、Request、Profile 与 Execution Key identity；
 - Preflight、Raw、Matting、Normalize、Anchor、Bridge、Continuity、Assembly 和总耗时；
@@ -66,13 +66,34 @@ experiments/asset-feasibility/processed/rabbit/rabbit-reference.png
 - 八项 Continuity Delta、Worst Pair、Diagnostics 与 Evaluation Hash；
 - PoseClip Hash、Production Result Hash、Profile Approval、Human Review 和 `productionReady`。
 
-## 当前环境证据
+FAIL/BLOCKED 报告同样保留已经建立的 Evidence：
 
-2026-08-22 在当前审查环境执行时：
+- Runtime Model admitted/runtime Hash 与 verified 状态；
+- 已成功读取的 ComfyUI `system_stats`，即使后续 GPU 执行失败也不会丢失；
+- 原始错误名称、错误码与消息；
+- 结构化 `failure.phase/frameIndex/provider/promptId/nodeId/reason`。不能可靠判断阶段时使用 `phase=unknown`，不会编造阶段信息。
 
-- `nvidia-smi` 不存在；历史目标设备为 Intel Arc XPU，本项仅作为环境观察；
-- 未设置 `COMFYUI_MODEL_ROOT` 时，`production:e2e` 在模型 Evidence 阶段返回 `BLOCKED`；
-- `127.0.0.1:8188` TCP 探测同样不可连接；
-- 未调用 Provider、未生成 Raw PNG、未写入任何虚假 GPU PASS 证据。
+## 当前真实运行证据
 
-因此 Commit 7 当前不能判定 PASS。解除阻塞需要设置真实 `COMFYUI_MODEL_ROOT`，并启动使用三份 admitted 模型的本机 ComfyUI/XPU 环境。远程服务还需要未来的可信 Worker Model Manifest，当前不能作为同等级 Evidence。随后直接重跑同一命令即可。
+2026-08-24 使用同一份 Frozen Admission 在本机完成真实运行：
+
+- ComfyUI `0.27.1`、PyTorch `2.13.0+xpu`；
+- Device：`xpu:0 Intel(R) Arc(TM) 130T GPU (16GB)`；
+- 启动参数：`--disable-smart-memory --novram --cpu-vae --deterministic --cache-none --preview-method none`；
+- 三份 Runtime Model 文件重新计算 SHA-256，并与 Frozen Admission 完全一致；
+- Workflow、Reference、Request、Pending Profile 与四个 Frame Execution Keys 全部通过身份校验；
+- 四帧 512×768 / 6-step Raw PNG 全部完成，每帧只提交一次并发布到 CAS；
+- Matting、Normalize、Anchor、Bridge、Continuity 与 Assembly 全部完成；
+- Continuity Collection Gate 为 `passed`、`automatedReady=true`、Diagnostics 为空；
+- 总耗时 `1,046,367 ms`，其中 Raw Generation `1,042,341 ms`；
+- `poseClipHash=ffcd4ab58415adc29a7e62f6bf1562af8b567bd151216e495bc0b4463258b727`；
+- `resultHash=720c00cac3c16f073e925562b348e60ab5cac9600666b35dba5748b2d660f7c1`；
+- 最终 `/free` 成功，`resourceRelease.status=PASS`，队列归零且设备显存完全释放。
+
+因此 M4 Commit 7 的 Real GPU Production E2E Gate 可以判定 **PASS**。这只证明 Frozen 输入、真实 GPU 执行、完整生产链与 Evidence/Resource Lifecycle 闭环，不构成视觉资产生产审批。Profile Approval 与 Human Review 仍为 `pending`，所以 `productionReady=false` 是预期结果。
+
+首批真实 RGBA 帧暴露了绿幕纹理残留、边缘 Green Spill 以及帧间姿态/身份波动。当前 Continuity Threshold 是首次数据采集用的宽松值，下一阶段需要基于这批 Evidence 校准 Matting 与 Continuity，并进行人工视觉审查。
+
+## GPU 调优历史
+
+2026-08-22 的早期运行已完成 Runtime Model Evidence 和真实 GPU Submission，但在连续帧 Sampler 阶段出现 `UR_RESULT_ERROR_OUT_OF_DEVICE_MEMORY`。随后 `--cache-none` 配置仍在第二帧触发 `UR_RESULT_ERROR_OUT_OF_RESOURCES`。最终使用 `--novram` 解决逐帧设备内存累积，且没有修改 Workflow、分辨率、Prompt、Seed、模型或 Frozen Admission，因此 PASS 与原 v1 Identity 完全可比。
