@@ -72,7 +72,8 @@ export interface FrozenProductionE2eManifest {
 export type QualityAnalysisIntegrityErrorCode =
   | 'QUALITY_ANALYSIS_INVALID_SPEC'
   | 'QUALITY_ANALYSIS_FROZEN_RUN_MISMATCH'
-  | 'QUALITY_ANALYSIS_CAS_HASH_MISMATCH';
+  | 'QUALITY_ANALYSIS_CAS_HASH_MISMATCH'
+  | 'QUALITY_ANALYSIS_RESULT_HASH_MISMATCH';
 
 export class QualityAnalysisIntegrityError extends Error {
   readonly code: QualityAnalysisIntegrityErrorCode;
@@ -231,4 +232,16 @@ export async function bindQualityAnalysisResult<T extends object>(
     ...result,
     analysisResultHash: await canonicalHash('pose-clip-quality-analysis-result-v1', result),
   };
+}
+
+export async function assertQualityAnalysisResultHash<T extends object>(
+  result: T & {readonly analysisResultHash: string},
+): Promise<void> {
+  const {analysisResultHash, ...payload} = result;
+  const actual = await canonicalHash('pose-clip-quality-analysis-result-v1', payload);
+  if (actual !== analysisResultHash) throw new QualityAnalysisIntegrityError(
+    'QUALITY_ANALYSIS_RESULT_HASH_MISMATCH',
+    'Quality analysis resultHash does not match its semantic payload',
+    {expected: analysisResultHash, actual},
+  );
 }

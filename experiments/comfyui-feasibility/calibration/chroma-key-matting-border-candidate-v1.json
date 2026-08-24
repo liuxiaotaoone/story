@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": "matted",
+  "processor": {
+    "name": "chroma-key-matting",
+    "version": "1.1.0"
+  },
+  "config": {
+    "keyColor": [0, 255, 0],
+    "transparentThreshold": 0.04,
+    "opaqueThreshold": 0.22,
+    "spillSuppression": 1,
+    "borderCleanup": {
+      "alphaThreshold": 8,
+      "borderInset": 2,
+      "connectivity": 8,
+      "edgeSpillRadius": 2,
+      "greenMinimum": 128,
+      "greenDominance": 24,
+      "retainNearSubjectPx": 48,
+      "minimumComponentPixels": 4
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 7 — Real GPU Production E2E / GPU Gate PASS；M4 Commit 8.1 Quality Evidence Closure PASS；Production Approval PENDING**。同一份 Frozen Admission 已在 Intel Arc 130T XPU 上以 `--novram --cpu-vae --deterministic --cache-none --preview-method none` 完成四帧真实生成，并贯通 Matting、Normalize、Anchor、Bridge、Continuity 与 Assembly；Runtime Model bytes、完整 Hash/Evidence 链和最终 `/free` 均通过。质量分析现已强制绑定 Commit 7 PASS Manifest、重验 16 份 CAS bytes，并通过版本化 Spec 与 Result Hash 固定算法和测量结果。首轮逐像素分析确认绿幕残留使 Normalize 前景边界扩张到完整画布，因此当前 Scale/Anchor 零漂移不能作为视觉稳定性证明；下一步先校准 Matting，再用修复后的真实数据校准 Continuity 阈值并完成人工视觉审查。Profile Approval 与 Human Review 仍为 `pending`，所以 `productionReady=false` 符合合同；解剖学左右脚语义和 Paper Engine 接线仍待完成。
+当前里程碑：**M4 Commit 7 Real GPU E2E PASS；M4 Commit 8.1 Quality Evidence PASS；M4 Commit 8.2 Matting Candidate Automated Gate PASS；Production Approval PENDING**。同一份 Frozen Admission 已在 Intel Arc 130T XPU 上完成四帧真实生产，质量链已绑定 Frozen Manifest 并重验全部 CAS bytes。离线 `chroma-key-matting@1.1.0` Candidate 通过 Border-connected Cleanup 将四帧 Source Bounds 恢复到角色范围，并把 Visible/Edge/Opaque Green 大幅降低，同时保留主体细节；Commit 7 Baseline 未被覆盖。Frame 1 在真实轮廓下暴露了双足 Anchor Band 待校准，Visual Approval 仍为 `pending`，所以 Candidate 尚未进入 Production Profile，也未开始 Continuity 阈值冻结。Paper Engine 接线仍待完成。
 
 ## 已冻结的实现边界
 

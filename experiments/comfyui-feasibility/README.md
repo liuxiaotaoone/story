@@ -73,3 +73,12 @@ Analyzer 会先读取 `frozen/production-e2e-pass-manifest.json` 和 `frozen/rgb
 Profile Approval 与 Human Review 仍固定为 `pending`，所以 `productionReady=false` 是预期结果。真实 RGBA 帧仍有绿幕残留及帧间姿态/身份波动；当前宽松 Continuity Threshold 只用于首次数据采集，后续必须进行阈值校准和人工视觉审查，不能把 E2E PASS 冒充为视觉生产批准。
 
 Commit 7 PASS 证据已固化到 `frozen/production-e2e-pass-manifest.json`。首轮质量基线还发现，Matting 残留令四帧 Normalize Source Bounds 都扩张为完整画布；因此应先校准现有 Chroma Key/Foreground 选择，再使用修复后的真实数据制定 Continuity 生产阈值。
+
+M4 Commit 8.2 使用 Frozen Raw CAS 离线校准 Border-connected Candidate，不重新运行 GPU：
+
+```powershell
+pnpm --filter @pose-clip/comfyui-feasibility production:analyze
+pnpm --filter @pose-clip/comfyui-feasibility matting:calibrate
+```
+
+Candidate 为 `chroma-key-matting@1.1.0`，保留 1.0.0 Baseline 不变。报告写入 `reports/matting-calibration.json`，包含 Baseline/Candidate Bounds、Green Spill、Foreground、Anchors、Content Hash 与 Result Hash。当前 Automated Candidate Gate 通过；Visual Approval 和 Frame 1 双足 Anchor 校准仍为 pending。

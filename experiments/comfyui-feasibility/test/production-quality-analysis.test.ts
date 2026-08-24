@@ -3,6 +3,7 @@ import {sha256Bytes} from '@pose-clip/schemas';
 import {
   QualityAnalysisIntegrityError,
   assertFrozenQualityAnalysisSource,
+  assertQualityAnalysisResultHash,
   bindQualityAnalysisResult,
   qualityAnalysisSpecHash,
   verifyQualityAnalysisCasBytes,
@@ -142,5 +143,9 @@ describe('production quality analysis evidence', () => {
     const changed = await bindQualityAnalysisResult({sourcePoseClipHash: 'a'.repeat(64), frames: [{frameIndex: 1}]});
     expect(repeated.analysisResultHash).toBe(first.analysisResultHash);
     expect(changed.analysisResultHash).not.toBe(first.analysisResultHash);
+    await expect(assertQualityAnalysisResultHash(first)).resolves.toBeUndefined();
+    await expect(assertQualityAnalysisResultHash({...first, analysisResultHash: '0'.repeat(64)})).rejects.toMatchObject({
+      code: 'QUALITY_ANALYSIS_RESULT_HASH_MISMATCH',
+    });
   });
 });
