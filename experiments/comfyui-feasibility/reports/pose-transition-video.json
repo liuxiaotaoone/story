@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "1.0s + 100ms Pose Transition MP4",
+  "status": "PASS",
+  "reviewOnly": true,
+  "source": {
+    "transitionPlanResultHash": "152d49a69463d8fc68fd24709c059135db1717fb49b9f5181ae80a09bedfed03",
+    "transitionRenderPlanHash": "bd9a4e2a8a59568eecce14ec2a290809b94ea92602d78c6d51d571bb1fa0cb59",
+    "tempoPreferenceApprovalHash": "b0675e04065bef4e1f8a1d7f5d9f09dcc5038a4f83201e0c3c225c886347144e",
+    "hardCut1sVideoHash": "c2606263a7480b6ccea7cf1609593eaab5112f737a69de363ebd623d3f8126d7",
+    "hardCut1sRenderPlanHash": "c1fa98c1189cb9cf12db76e7abd326eae5aef988be98fd36db8ca2832e976cc8",
+    "frameContentHashes": [
+      {
+        "frameIndex": 0,
+        "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332"
+      },
+      {
+        "frameIndex": 1,
+        "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f"
+      },
+      {
+        "frameIndex": 2,
+        "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d"
+      },
+      {
+        "frameIndex": 3,
+        "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2"
+      }
+    ]
+  },
+  "controls": {
+    "cycleFrames": 30,
+    "cycleSeconds": 1,
+    "comparisonCycles": 3,
+    "transitionType": "crossfade",
+    "transitionFrames": 3,
+    "transitionMilliseconds": 100,
+    "anchorPolicy": "foot",
+    "newGeneratedFrames": false,
+    "sourceAssetBytesChanged": false
+  },
+  "render": {
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "frames": 90,
+    "durationSeconds": 3,
+    "frameSequenceHash": "50b04e7448f4760060ebf36667b2ee7c7fe065bd10a7957f9a28cb2482f5061b",
+    "renderer": "ANGLE (Intel, Intel(R) Arc(TM) 130T GPU (16GB) (0x00007D51) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (Intel)",
+    "renderMs": 4656.5019
+  },
+  "video": {
+    "fileName": "rabbit-real-tempo-1.0s-transition-100ms.mp4",
+    "contentHash": "7782e2cd5aac48da7c3cce9d0aa761f444eac148d2854bc77ee5bee9a3fe8db3",
+    "bytes": 159404,
+    "codec": "libx264",
+    "pixelFormat": "yuv420p",
+    "encodeMs": 359.8720999999996
+  },
+  "humanReview": "pending",
+  "reviewQuestions": [
+    "Does the 100ms crossfade reduce hard-cut shock compared with the selected 1.0s baseline?",
+    "Does structural mismatch create unacceptable double-rabbit ghosting?",
+    "Does foot-anchor transition placement remain visually grounded?"
+  ]
+}

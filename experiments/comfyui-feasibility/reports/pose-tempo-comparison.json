@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "PoseClip Playback Tempo Isolation Experiment",
+  "status": "PASS",
+  "source": {
+    "candidateProfileHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694",
+    "productionResultHash": "ce543eb3a97cafc802d306640854ff4cf0b1200bfeb850cb93dcf4a3160ec5a6",
+    "poseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+    "sharedFrameAssets": [
+      {
+        "frameIndex": 0,
+        "assetId": "rabbit.idle-left.real.1",
+        "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332"
+      },
+      {
+        "frameIndex": 1,
+        "assetId": "rabbit.idle-left.real.2",
+        "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f"
+      },
+      {
+        "frameIndex": 2,
+        "assetId": "rabbit.idle-left.real.3",
+        "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d"
+      },
+      {
+        "frameIndex": 3,
+        "assetId": "rabbit.idle-left.real.4",
+        "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2"
+      }
+    ]
+  },
+  "controls": {
+    "samePngBytes": true,
+    "sameMattingNormalizeAnchor": true,
+    "sameGroundLockAndCamera": true,
+    "crossfade": false,
+    "transitionFrames": false,
+    "changedVariable": "PoseClip frame duration only"
+  },
+  "renderer": {
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "renderer": "ANGLE (Intel, Intel(R) Arc(TM) 130T GPU (16GB) (0x00007D51) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (Intel)"
+  },
+  "variants": [
+    {
+      "label": "0.8s",
+      "reviewOnly": true,
+      "isolation": "playback-tempo-only-no-crossfade",
+      "poseDurations": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "cycleFrames": 24,
+      "cycleSeconds": 0.8,
+      "comparisonCycles": 3,
+      "frameCount": 72,
+      "durationSeconds": 2.4,
+      "sourcePoseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+      "reviewPoseClipHash": "4b9042b56f7609de65aece018d840d7ffc045855e645ecb6d52f7410a91d4cbb",
+      "renderPlanHash": "931d565e28ea142fda77739ed7cb860044ed4248bf879e3037faa6cd6635d905",
+      "frameSequenceHash": "80a835827335cbe95d3529095d52d6329e869d80a6bcc9638ffe0ec48eaad073",
+      "video": {
+        "fileName": "rabbit-real-tempo-0.8s.mp4",
+        "contentHash": "f2f39409761b92844ab339bc17c9d9259f10a036e26e155239167c25c74cc985",
+        "bytes": 114638,
+        "codec": "libx264",
+        "pixelFormat": "yuv420p"
+      },
+      "timingsMs": {
+        "render": 3383.7389999999996,
+        "encode": 406.08529999999973
+      }
+    },
+    {
+      "label": "1.0s",
+      "reviewOnly": true,
+      "isolation": "playback-tempo-only-no-crossfade",
+      "poseDurations": [
+        7,
+        8,
+        7,
+        8
+      ],
+      "cycleFrames": 30,
+      "cycleSeconds": 1,
+      "comparisonCycles": 3,
+      "frameCount": 90,
+      "durationSeconds": 3,
+      "sourcePoseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+      "reviewPoseClipHash": "099bcf69c593c3936a11b17e999ca9c79d314fbcdb30685d2b9236bad3a42694",
+      "renderPlanHash": "c1fa98c1189cb9cf12db76e7abd326eae5aef988be98fd36db8ca2832e976cc8",
+      "frameSequenceHash": "6f85bfe09e4dfa5a08e260c5ceceb25c3a81b9eceec07a10f073ec039d2f5edd",
+      "video": {
+        "fileName": "rabbit-real-tempo-1.0s.mp4",
+        "contentHash": "c2606263a7480b6ccea7cf1609593eaab5112f737a69de363ebd623d3f8126d7",
+        "bytes": 124467,
+        "codec": "libx264",
+        "pixelFormat": "yuv420p"
+      },
+      "timingsMs": {
+        "render": 3987.3015000000005,
+        "encode": 363.73399999999856
+      }
+    },
+    {
+      "label": "1.2s",
+      "reviewOnly": true,
+      "isolation": "playback-tempo-only-no-crossfade",
+      "poseDurations": [
+        9,
+        9,
+        9,
+        9
+      ],
+      "cycleFrames": 36,
+      "cycleSeconds": 1.2,
+      "comparisonCycles": 3,
+      "frameCount": 108,
+      "durationSeconds": 3.6,
+      "sourcePoseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+      "reviewPoseClipHash": "11af58f4654fadcc9040a7cc2bb01e6d84fb9b1672fef8820b634a6a7314577e",
+      "renderPlanHash": "78abb138bed8e4a9cc66b7283d505adea76c7f17ad93de3468dfd92d876e5fef",
+      "frameSequenceHash": "5572f4ebb9c61c570463e735d2922800cd0741f9134854b34916036271891f62",
+      "video": {
+        "fileName": "rabbit-real-tempo-1.2s.mp4",
+        "contentHash": "5bc2b72f8d5f4985c5c8804ac02e2261654a5b17efbf3b0b27c1aaa2dadf914d",
+        "bytes": 128714,
+        "codec": "libx264",
+        "pixelFormat": "yuv420p"
+      },
+      "timingsMs": {
+        "render": 4700.487000000001,
+        "encode": 384.59300000000076
+      }
+    }
+  ],
+  "humanPreference": "pending"
+}

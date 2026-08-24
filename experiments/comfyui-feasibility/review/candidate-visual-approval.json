@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "M4 Commit 8.3 — Matting and Bilateral Anchor Human Visual Review",
+  "decision": "approved",
+  "reviewAuthority": "human-review-in-thread",
+  "reviewDate": "2026-08-24",
+  "source": {
+    "mattingCalibrationResultHash": "c8ca1b24bf3075790e5c0d1ffc09d171d0cf80ddb0822a580159a9e85a8b1bb5",
+    "anchorCalibrationResultHash": "6e0c66465a3c2517ecb8fe9404b3179af9965f828f729b23b2101213debfdbc3",
+    "overlayReviewResultHash": "e28a88de99165f5b017d8817bd416c9547a81d2b57a5e201b265833376e89e22",
+    "candidateMattingSpecHash": "3aff6579a10a1b922e592f9990ac71656ee043e6f1c6c91fb66acffeb91df64f",
+    "candidateAnchorSpecHash": "2eafcb0e7ac5fcef84296c34615d429f6fc9ace1efae3c707179b515cb6703b9"
+  },
+  "findings": {
+    "mattingCandidate": "passed",
+    "subjectBounds": "passed",
+    "bilateralFootAnchors": "passed",
+    "globalFoot": "passed",
+    "frame1Regression": "passed"
+  },
+  "anchorSemantics": {
+    "leftFoot": "screen-left support",
+    "rightFoot": "screen-right support",
+    "foot": "strict global bottom support",
+    "center": "foreground bounds geometric center"
+  },
+  "promotion": {
+    "candidateProfileAuthorized": true,
+    "productionApprovalGranted": false,
+    "continuityThresholdsCalibrated": false
+  },
+  "limitations": [
+    "Screen-side foot anchors are not anatomical left/right keypoints.",
+    "Current rabbit frames still have visible identity, pose, silhouette and body-proportion discontinuity.",
+    "Candidate Profile promotion does not grant final production approval."
+  ],
+  "approvalHash": "6dca397a916a21e2f64a93e4791a3a1b0b2a3e3c64eae1ff79fcd9fd34c81087"
+}

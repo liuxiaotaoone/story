@@ -1,0 +1,325 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "M4 Commit 8.3 — Bilateral Foot Anchor Calibration",
+  "status": "CANDIDATE_MEASURED",
+  "source": {
+    "frozenPoseClipHash": "ffcd4ab58415adc29a7e62f6bf1562af8b567bd151216e495bc0b4463258b727",
+    "frozenProductionResultHash": "720c00cac3c16f073e925562b348e60ab5cac9600666b35dba5748b2d660f7c1",
+    "mattingCalibrationResultHash": "c8ca1b24bf3075790e5c0d1ffc09d171d0cf80ddb0822a580159a9e85a8b1bb5"
+  },
+  "specs": {
+    "candidateMattingSpecHash": "3aff6579a10a1b922e592f9990ac71656ee043e6f1c6c91fb66acffeb91df64f",
+    "normalizationProcessorSpecHash": "596403b5aebbac19a6a1b7257e6fc2aed22ffb4fc2b9d82697efd14b64d56d3a",
+    "baselineAnchorSpecHash": "25557b6585cdff269e2cd3392cf367574122a827f215a9aaec2280c240960bcc",
+    "candidateAnchorSpecHash": "2eafcb0e7ac5fcef84296c34615d429f6fc9ace1efae3c707179b515cb6703b9",
+    "continuityFeatureSpecHash": "b79e9efbb3d28f2a7681ac27d47f6cc5f8b5b92d3062b8197d0e5837edbd51d2",
+    "continuityQaSpecHash": "cac52ca1858ca030db15d91f801486d91c741b7637b9fc981d0c55b6b06fc2af"
+  },
+  "automatedChecks": {
+    "allNormalizedCasVerified": true,
+    "allAnchoredBytesImmutable": true,
+    "allGlobalFootAnchorsUnchanged": true,
+    "allBilateralFootAnchorsPresent": true,
+    "allAnchorsWithinNormalizedCanvas": true,
+    "allContinuityFrameQaPassed": true
+  },
+  "automatedChecksPassed": true,
+  "downstreamContinuityDiagnostics": {
+    "thresholdPolicy": "collection-only-not-calibrated",
+    "status": "passed",
+    "automatedReady": true,
+    "metrics": {
+      "identityConsistency": {
+        "status": "passed",
+        "maxDelta": 0.045635377083447434,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 0,
+          "toFrame": 1
+        }
+      },
+      "scaleConsistency": {
+        "status": "passed",
+        "maxDelta": 0.13236155941619057,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 2,
+          "toFrame": 3
+        }
+      },
+      "canvasConsistency": {
+        "status": "passed",
+        "maxDelta": 0,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 0,
+          "toFrame": 1
+        }
+      },
+      "bodyProportion": {
+        "status": "passed",
+        "maxDelta": 0.1292922326462819,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 2,
+          "toFrame": 3
+        }
+      },
+      "footContact": {
+        "status": "passed",
+        "maxDelta": 0.16603604858032606,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstFrame": 2
+      },
+      "anchorMovement": {
+        "status": "passed",
+        "maxDelta": 0.0419921875,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 1,
+          "toFrame": 2
+        }
+      },
+      "silhouetteContinuity": {
+        "status": "passed",
+        "maxDelta": 0.19297993333857524,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 2,
+          "toFrame": 3
+        }
+      },
+      "loopClosure": {
+        "status": "passed",
+        "maxDelta": 0.13313868277364796,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 3,
+          "toFrame": 0
+        }
+      }
+    },
+    "diagnostics": [],
+    "evaluationHash": "4982f33efa722d82114a644eda58dd422abb171e9567747a024a4d69c971f72e"
+  },
+  "visualApproval": "pending",
+  "frames": [
+    {
+      "frameIndex": 0,
+      "frozenFrameExecutionKey": "0630f9ea92ff4fc0a049df4830970c52a44982d2bc891a3b1faa62431a92e06b",
+      "sourceNormalizedContentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+      "candidateAnchoredContentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+      "baselineAnchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "leftFoot": {
+          "x": 0.3447265625,
+          "y": 0.9557291666666666
+        },
+        "rightFoot": {
+          "x": 0.626953125,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.626953125,
+          "y": 0.9583333333333334
+        }
+      },
+      "candidateAnchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "leftFoot": {
+          "x": 0.3447265625,
+          "y": 0.9557291666666666
+        },
+        "rightFoot": {
+          "x": 0.626953125,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.626953125,
+          "y": 0.9583333333333334
+        }
+      },
+      "checks": {
+        "normalizedCasVerified": true,
+        "anchoredBytesImmutable": true,
+        "globalFootUnchanged": true,
+        "bilateralFootAnchorsPresent": true,
+        "anchorsWithinNormalizedCanvas": true
+      }
+    },
+    {
+      "frameIndex": 1,
+      "frozenFrameExecutionKey": "9b9f71d29973feed4f1e7d9e82cd230b2a69ff469638874892575ff5b3a0dcbb",
+      "sourceNormalizedContentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+      "candidateAnchoredContentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+      "baselineAnchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "rightFoot": {
+          "x": 0.609375,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.609375,
+          "y": 0.9583333333333334
+        }
+      },
+      "candidateAnchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "leftFoot": {
+          "x": 0.322265625,
+          "y": 0.9283854166666666
+        },
+        "rightFoot": {
+          "x": 0.609375,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.609375,
+          "y": 0.9583333333333334
+        }
+      },
+      "checks": {
+        "normalizedCasVerified": true,
+        "anchoredBytesImmutable": true,
+        "globalFootUnchanged": true,
+        "bilateralFootAnchorsPresent": true,
+        "anchorsWithinNormalizedCanvas": true
+      }
+    },
+    {
+      "frameIndex": 2,
+      "frozenFrameExecutionKey": "f594a29c768b12147af733c1aa44d85290e2b65f8159dc12c2a395182adbef18",
+      "sourceNormalizedContentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+      "candidateAnchoredContentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+      "baselineAnchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "leftFoot": {
+          "x": 0.3193359375,
+          "y": 0.953125
+        },
+        "rightFoot": {
+          "x": 0.6513671875,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.6513671875,
+          "y": 0.9583333333333334
+        }
+      },
+      "candidateAnchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "leftFoot": {
+          "x": 0.3193359375,
+          "y": 0.953125
+        },
+        "rightFoot": {
+          "x": 0.6513671875,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.6513671875,
+          "y": 0.9583333333333334
+        }
+      },
+      "checks": {
+        "normalizedCasVerified": true,
+        "anchoredBytesImmutable": true,
+        "globalFootUnchanged": true,
+        "bilateralFootAnchorsPresent": true,
+        "anchorsWithinNormalizedCanvas": true
+      }
+    },
+    {
+      "frameIndex": 3,
+      "frozenFrameExecutionKey": "859b590b02d9a651256ab61f2c3d197af9e690add2abce24fe0895acb0821eb7",
+      "sourceNormalizedContentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+      "candidateAnchoredContentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+      "baselineAnchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.564453125
+        },
+        "leftFoot": {
+          "x": 0.3701171875,
+          "y": 0.9505208333333334
+        },
+        "rightFoot": {
+          "x": 0.63671875,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.63671875,
+          "y": 0.9583333333333334
+        }
+      },
+      "candidateAnchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.564453125
+        },
+        "leftFoot": {
+          "x": 0.3701171875,
+          "y": 0.9505208333333334
+        },
+        "rightFoot": {
+          "x": 0.63671875,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.63671875,
+          "y": 0.9583333333333334
+        }
+      },
+      "checks": {
+        "normalizedCasVerified": true,
+        "anchoredBytesImmutable": true,
+        "globalFootUnchanged": true,
+        "bilateralFootAnchorsPresent": true,
+        "anchorsWithinNormalizedCanvas": true
+      }
+    }
+  ],
+  "calibrationResultHash": "6e0c66465a3c2517ecb8fe9404b3179af9965f828f729b23b2101213debfdbc3"
+}

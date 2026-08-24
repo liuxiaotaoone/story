@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "1.0s Candidate 2-Frame Pose Transition Plan",
+  "status": "PASS",
+  "reviewOnly": true,
+  "source": {
+    "transition100msHumanReviewApprovalHash": "58b303988c968ebafbe935ba44c035d60c67a8c38dca06cfae2753582ed8907f",
+    "transition100msVideoHash": "7782e2cd5aac48da7c3cce9d0aa761f444eac148d2854bc77ee5bee9a3fe8db3",
+    "transition100msPlanResultHash": "152d49a69463d8fc68fd24709c059135db1717fb49b9f5181ae80a09bedfed03",
+    "transition100msRenderPlanHash": "bd9a4e2a8a59568eecce14ec2a290809b94ea92602d78c6d51d571bb1fa0cb59",
+    "productionPoseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+    "frameContentHashes": [
+      {
+        "frameIndex": 0,
+        "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332"
+      },
+      {
+        "frameIndex": 1,
+        "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f"
+      },
+      {
+        "frameIndex": 2,
+        "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d"
+      },
+      {
+        "frameIndex": 3,
+        "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2"
+      }
+    ]
+  },
+  "transition": {
+    "type": "crossfade",
+    "frames": 2,
+    "milliseconds": 66.66666666666667,
+    "primaryBlendFramesPerTransition": 1,
+    "anchorPolicy": "foot",
+    "cycleFrames": 30,
+    "cycleSeconds": 1,
+    "comparisonCycles": 3,
+    "schedule": {
+      "pose0": {
+        "holdFrames": [
+          0,
+          4
+        ],
+        "transitionFrames": [
+          5,
+          6
+        ]
+      },
+      "pose1": {
+        "holdFrames": [
+          7,
+          12
+        ],
+        "transitionFrames": [
+          13,
+          14
+        ]
+      },
+      "pose2": {
+        "holdFrames": [
+          15,
+          19
+        ],
+        "transitionFrames": [
+          20,
+          21
+        ]
+      },
+      "pose3": {
+        "holdFrames": [
+          22,
+          27
+        ],
+        "transitionFrames": [
+          28,
+          29
+        ]
+      }
+    }
+  },
+  "renderPlanHash": "74fae4cfb4986a0f10bf76529f8ca12e6f231e977acb8a3961e32b0336778082",
+  "closure": {
+    "furtherTransitionDurationTuningPlanned": false,
+    "nextPrimaryWorkstream": "comfyui-generation-consistency"
+  },
+  "limitations": [
+    "One 50/50 blend frame remains visible at each transition.",
+    "This experiment cannot repair structural Generation inconsistency.",
+    "Matting, Normalize, Anchor, GroundLock and source asset bytes are unchanged."
+  ],
+  "transitionPlanResultHash": "fa5808e9ed702716cb2942c5db67864348c52f54b52f35208ae20d245f5ccf21"
+}

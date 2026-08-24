@@ -1,0 +1,353 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "rabbit-real-candidate-video",
+    "title": "First Real Rabbit PoseClip",
+    "fps": 30,
+    "resolution": {
+      "width": 1280,
+      "height": 720
+    },
+    "sampleRate": 48000,
+    "seed": 483921,
+    "styleGuideId": "paper-style",
+    "capabilityCatalogVersion": "1.0.0"
+  },
+  "assets": {
+    "schemaVersion": "1.0.0",
+    "assets": [
+      {
+        "id": "rabbit.idle-left.real.1",
+        "uri": "/candidate/assets/frame-0.png",
+        "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "9b644b7819a71c6e4e1bf6efb998066501709b8fca003e57eec859f39dbbe3c4",
+          "producer": {
+            "name": "alpha-geometry-anchor",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-24T09:22:20.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 512,
+        "height": 768,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit.idle-left.real.2",
+        "uri": "/candidate/assets/frame-1.png",
+        "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "2567286b6ded1d738c7e0e5cd0978b935abd3c52a370630266c048abdf356dc8",
+          "producer": {
+            "name": "alpha-geometry-anchor",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-24T09:22:20.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 512,
+        "height": 768,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit.idle-left.real.3",
+        "uri": "/candidate/assets/frame-2.png",
+        "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "05da819809c929c3617fa1e3028cc55a9711de8e04a41e05dbf071aebdf343fc",
+          "producer": {
+            "name": "alpha-geometry-anchor",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-24T09:22:20.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 512,
+        "height": 768,
+        "alphaMode": "straight"
+      },
+      {
+        "id": "rabbit.idle-left.real.4",
+        "uri": "/candidate/assets/frame-3.png",
+        "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+        "source": "generated",
+        "provenance": {
+          "inputHash": "31d158419c8c185484374d2dbad2f61d401e0a57580f1f4c1031dd24034b1b88",
+          "producer": {
+            "name": "alpha-geometry-anchor",
+            "version": "1.1.0"
+          },
+          "createdAt": "2026-08-24T09:22:20.000Z"
+        },
+        "qaStatus": "passed",
+        "kind": "animal-frame",
+        "width": 512,
+        "height": 768,
+        "alphaMode": "straight"
+      }
+    ]
+  },
+  "environments": [
+    {
+      "id": "candidate-stage",
+      "name": "Candidate Review Stage",
+      "referenceResolution": {
+        "width": 1280,
+        "height": 720
+      },
+      "layers": [],
+      "ground": {
+        "farLeft": {
+          "x": 0.08,
+          "y": 0.72
+        },
+        "farRight": {
+          "x": 0.92,
+          "y": 0.72
+        },
+        "nearLeft": {
+          "x": 0.02,
+          "y": 0.9
+        },
+        "nearRight": {
+          "x": 0.98,
+          "y": 0.9
+        },
+        "farScale": 0.275,
+        "nearScale": 0.275,
+        "depthEasing": "linear",
+        "walkableZones": []
+      },
+      "occlusionZones": []
+    }
+  ],
+  "entities": [
+    {
+      "id": "rabbit-real-def",
+      "entityType": "rabbit",
+      "displayName": "Real Rabbit Candidate",
+      "poseClipIds": [
+        "rabbit.idle-left.real"
+      ],
+      "defaultPoseClipId": "rabbit.idle-left.real",
+      "attachmentSlots": []
+    }
+  ],
+  "instances": [
+    {
+      "id": "rabbit-real",
+      "definitionId": "rabbit-real-def",
+      "sceneId": "scene-real-rabbit",
+      "activeRange": {
+        "startFrame": 0,
+        "endFrame": 120
+      },
+      "initialOwner": {
+        "kind": "world",
+        "environmentId": "candidate-stage"
+      }
+    }
+  ],
+  "poseClips": [
+    {
+      "id": "rabbit.idle-left.real",
+      "entityType": "rabbit",
+      "action": "idle",
+      "loop": true,
+      "direction": "left",
+      "frames": [
+        {
+          "assetId": "rabbit.idle-left.real.1",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.626953125,
+              "y": 0.9583333333333334
+            },
+            "leftFoot": {
+              "x": 0.3447265625,
+              "y": 0.9557291666666666
+            },
+            "rightFoot": {
+              "x": 0.626953125,
+              "y": 0.9583333333333334
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5416666666666666
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        },
+        {
+          "assetId": "rabbit.idle-left.real.2",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.609375,
+              "y": 0.9583333333333334
+            },
+            "leftFoot": {
+              "x": 0.322265625,
+              "y": 0.9283854166666666
+            },
+            "rightFoot": {
+              "x": 0.609375,
+              "y": 0.9583333333333334
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5416666666666666
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        },
+        {
+          "assetId": "rabbit.idle-left.real.3",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.6513671875,
+              "y": 0.9583333333333334
+            },
+            "leftFoot": {
+              "x": 0.3193359375,
+              "y": 0.953125
+            },
+            "rightFoot": {
+              "x": 0.6513671875,
+              "y": 0.9583333333333334
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.5416666666666666
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        },
+        {
+          "assetId": "rabbit.idle-left.real.4",
+          "durationFrames": 3,
+          "anchors": {
+            "foot": {
+              "x": 0.63671875,
+              "y": 0.9583333333333334
+            },
+            "leftFoot": {
+              "x": 0.3701171875,
+              "y": 0.9505208333333334
+            },
+            "rightFoot": {
+              "x": 0.63671875,
+              "y": 0.9583333333333334
+            },
+            "center": {
+              "x": 0.5,
+              "y": 0.564453125
+            }
+          },
+          "contact": {
+            "type": "both"
+          },
+          "referenceFoot": "midpoint"
+        }
+      ],
+      "rootMotion": {
+        "mode": "timeline"
+      },
+      "groundLock": {
+        "mode": "contact-only",
+        "maxCorrectionPx": 24
+      }
+    }
+  ],
+  "timeline": {
+    "schemaVersion": "1.0.0",
+    "fps": 30,
+    "durationFrames": 120,
+    "shots": [
+      {
+        "id": "shot-real-rabbit",
+        "sceneId": "scene-real-rabbit",
+        "environmentId": "candidate-stage",
+        "range": {
+          "startFrame": 0,
+          "endFrame": 120
+        },
+        "focusEntityId": "rabbit-real"
+      }
+    ],
+    "entityTracks": [
+      {
+        "entityId": "rabbit-real",
+        "groundPosition": [
+          {
+            "frame": 0,
+            "value": {
+              "u": 0.5,
+              "v": 0.5
+            },
+            "easing": "hold"
+          }
+        ]
+      }
+    ],
+    "cameraTracks": [
+      {
+        "shotId": "shot-real-rabbit",
+        "position": [
+          {
+            "frame": 0,
+            "value": {
+              "x": 640,
+              "y": 465
+            },
+            "easing": "hold"
+          }
+        ],
+        "zoom": [
+          {
+            "frame": 0,
+            "value": 2.2,
+            "easing": "hold"
+          }
+        ]
+      }
+    ],
+    "poseEvents": [],
+    "poseTransitions": [],
+    "ownershipEvents": [],
+    "visibilityEvents": [],
+    "effectEvents": [],
+    "narration": [],
+    "subtitles": [],
+    "sfx": [],
+    "transitions": [],
+    "markers": []
+  },
+  "provenance": {
+    "compilerVersion": "1.0.0",
+    "sourceDirectorPlanHash": "ce543eb3a97cafc802d306640854ff4cf0b1200bfeb850cb93dcf4a3160ec5a6",
+    "effectiveDirectorPlanHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694",
+    "directorOverrideIds": [],
+    "capabilityCatalogVersion": "1.0.0",
+    "compiledAt": "2026-08-24T09:22:20.000Z",
+    "warnings": []
+  }
+}

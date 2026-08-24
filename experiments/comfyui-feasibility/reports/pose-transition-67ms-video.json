@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "1.0s + 67ms Pose Transition MP4",
+  "status": "PASS",
+  "reviewOnly": true,
+  "source": {
+    "transitionPlanResultHash": "fa5808e9ed702716cb2942c5db67864348c52f54b52f35208ae20d245f5ccf21",
+    "transitionRenderPlanHash": "74fae4cfb4986a0f10bf76529f8ca12e6f231e977acb8a3961e32b0336778082",
+    "transition100msHumanReviewApprovalHash": "58b303988c968ebafbe935ba44c035d60c67a8c38dca06cfae2753582ed8907f",
+    "hardCut1sVideoHash": "c2606263a7480b6ccea7cf1609593eaab5112f737a69de363ebd623d3f8126d7",
+    "hardCut1sRenderPlanHash": "c1fa98c1189cb9cf12db76e7abd326eae5aef988be98fd36db8ca2832e976cc8",
+    "frameContentHashes": [
+      {
+        "frameIndex": 0,
+        "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332"
+      },
+      {
+        "frameIndex": 1,
+        "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f"
+      },
+      {
+        "frameIndex": 2,
+        "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d"
+      },
+      {
+        "frameIndex": 3,
+        "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2"
+      }
+    ]
+  },
+  "controls": {
+    "cycleFrames": 30,
+    "cycleSeconds": 1,
+    "comparisonCycles": 3,
+    "transitionType": "crossfade",
+    "transitionFrames": 2,
+    "transitionMilliseconds": 66.66666666666667,
+    "anchorPolicy": "foot",
+    "newGeneratedFrames": false,
+    "sourceAssetBytesChanged": false
+  },
+  "render": {
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "frames": 90,
+    "durationSeconds": 3,
+    "frameSequenceHash": "c677d348e17ca7e5671c0921ba8248781a05c3cd5ffccf3649c49c16488905f0",
+    "renderer": "ANGLE (Intel, Intel(R) Arc(TM) 130T GPU (16GB) (0x00007D51) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (Intel)",
+    "renderMs": 4643.4452
+  },
+  "video": {
+    "fileName": "rabbit-real-tempo-1.0s-transition-67ms.mp4",
+    "contentHash": "ece7f97074345338a672ac3f329d7788a65257743a2f1aad0260ec3166144f4e",
+    "bytes": 159832,
+    "codec": "libx264",
+    "pixelFormat": "yuv420p",
+    "encodeMs": 403.0132000000003
+  },
+  "humanReview": "pending",
+  "reviewQuestions": [
+    "Does one primary 50/50 blend frame soften the hard cut without sustained double-rabbit ghosting?",
+    "Is 67ms preferable to both the 1.0s hard-cut and rejected 100ms variants?",
+    "Does foot-anchor transition placement remain visually grounded?"
+  ]
+}

@@ -1,6 +1,7 @@
 import './styles.css';
 import {evaluateFrame, prepareRenderPlan} from '@pose-clip/paper-engine';
 import {createPaperPixiApplication, exportCanonicalPngDataUrl, PaperPixiRenderer} from '@pose-clip/paper-pixi';
+import {RenderPlanSchema} from '@pose-clip/schemas';
 import {createRendererFeasibilityPlan} from './render-plan.js';
 
 interface PixelComparison {
@@ -30,6 +31,7 @@ interface RendererEnvironment {
 
 interface RendererFeasibilityApi {
   ready: boolean;
+  durationFrames: number;
   applyFrame(frame: number): void;
   applySequence(frames: number[]): void;
   exportFrameDataUrl(frame: number): Promise<string>;
@@ -45,9 +47,30 @@ declare global {
   interface Window { rendererFeasibility: RendererFeasibilityApi; }
 }
 
-const plan = await createRendererFeasibilityPlan();
+const search = new URLSearchParams(location.search);
+const candidateMode = search.get('candidate') === '1';
+const requestedTempo = search.get('tempo');
+const tempo = requestedTempo !== null && ['0.8', '1.0', '1.2'].includes(requestedTempo)
+  ? requestedTempo
+  : null;
+const transitionMode = search.get('transition');
+const candidatePlanUri = transitionMode === '67'
+  ? '/candidate/render-plan-transition-1.0s-67ms.json'
+  : transitionMode === '100' || transitionMode === '1'
+    ? '/candidate/render-plan-transition-1.0s-100ms.json'
+  : tempo === null
+    ? '/candidate/render-plan.json'
+    : `/candidate/render-plan-tempo-${tempo}s.json`;
+const plan = candidateMode
+  ? RenderPlanSchema.parse(await fetch(candidatePlanUri).then(async response => {
+      if (!response.ok) throw new Error(`Candidate RenderPlan unavailable: HTTP ${response.status}`);
+      return response.json();
+    }))
+  : await createRendererFeasibilityPlan();
 const prepared = prepareRenderPlan(plan);
-const application = await createPaperPixiApplication();
+const application = await createPaperPixiApplication(candidateMode
+  ? {background: 0xf4ead6, backgroundAlpha: 1}
+  : {});
 const renderer = new PaperPixiRenderer(application);
 await renderer.preload(plan);
 document.querySelector('#canvas-host')!.appendChild(application.canvas);
@@ -138,6 +161,7 @@ function rendererEnvironment(): RendererEnvironment {
 
 window.rendererFeasibility = {
   ready: true,
+  durationFrames: prepared.plan.timeline.durationFrames,
   applyFrame,
   applySequence(frames) { for (const frame of frames) applyFrame(frame); },
   async exportFrameDataUrl(frame) { applyFrame(frame); return exportCanonicalPngDataUrl(application); },
@@ -150,6 +174,7 @@ window.rendererFeasibility = {
 };
 
 const slider = document.querySelector<HTMLInputElement>('#frame')!;
+slider.max = String(prepared.plan.timeline.durationFrames - 1);
 slider.addEventListener('input', () => applyFrame(Number(slider.value)));
 document.querySelector<HTMLButtonElement>('#export')!.addEventListener('click', async () => {
   const anchor = document.createElement('a');
@@ -157,5 +182,5 @@ document.querySelector<HTMLButtonElement>('#export')!.addEventListener('click', 
   anchor.href = await window.rendererFeasibility.exportFrameDataUrl(Number(slider.value));
   anchor.click();
 });
-document.querySelector('#status')!.textContent = `WebGL ready · ${application.canvas.width}×${application.canvas.height}`;
-if (new URLSearchParams(location.search).get('automation') !== '1') applyFrame(0);
+document.querySelector('#status')!.textContent = `${candidateMode ? `Real Candidate${transitionMode === '67' ? ' · 1.0s + 67ms transition' : transitionMode === '100' || transitionMode === '1' ? ' · 1.0s + 100ms transition' : tempo === null ? '' : ` · ${tempo}s cycle`}` : 'WebGL'} ready · ${application.canvas.width}×${application.canvas.height}`;
+if (search.get('automation') !== '1') applyFrame(0);

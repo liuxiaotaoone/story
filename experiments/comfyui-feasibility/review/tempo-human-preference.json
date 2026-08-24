@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0.0",
+  "decision": "approved",
+  "scope": "candidate-playback-tempo",
+  "source": {
+    "tempoComparisonReportByteHash": "bd9ce0f1b4441aa5325c4f48df33a1c288955081cc68e990fd219e6a1e49cb45",
+    "candidateProfileHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694",
+    "productionResultHash": "ce543eb3a97cafc802d306640854ff4cf0b1200bfeb850cb93dcf4a3160ec5a6",
+    "sourcePoseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55"
+  },
+  "selection": {
+    "label": "1.0s",
+    "role": "candidate-default",
+    "cycleFrames": 30,
+    "cycleSeconds": 1,
+    "poseDurations": [7, 8, 7, 8],
+    "reason": "Best balance between motion pace and exposure of current generation discontinuity."
+  },
+  "retainedProfiles": [
+    {"label": "0.8s", "role": "fast-motion-reference"},
+    {"label": "1.2s", "role": "slow-idle-reference"}
+  ],
+  "promotion": {
+    "candidatePlaybackDefaultAuthorized": true,
+    "productionPoseClipRewritten": false,
+    "transitionBaselineAuthorized": true,
+    "furtherTempoMicroTuningRequired": false
+  },
+  "nextExperiment": {
+    "cycleSeconds": 1,
+    "transitionType": "crossfade",
+    "transitionFrames": 3,
+    "transitionMilliseconds": 100,
+    "anchorPolicy": "foot"
+  },
+  "limitations": [
+    "This approval selects review playback tempo only; it does not approve Production Profile promotion.",
+    "Crossfade may reduce hard-cut shock but cannot repair generation identity or silhouette inconsistency.",
+    "The production Candidate PoseClip and its source hash remain unchanged."
+  ],
+  "approvalHash": "b0675e04065bef4e1f8a1d7f5d9f09dcc5038a4f83201e0c3c225c886347144e"
+}

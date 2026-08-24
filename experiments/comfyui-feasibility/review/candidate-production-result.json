@@ -1,0 +1,1043 @@
+{
+  "schemaVersion": "1.0.0",
+  "productionRequestHash": "17d34c90abb3589b7e6f6cc4431363542cd5915624a2cf8b9d6c9c6dcbe2e030",
+  "frameResults": [
+    {
+      "schemaVersion": "1.0.0",
+      "frameExecutionKey": "5679370c0b4d4fd9294bf079850f25177f5a136f2a5f362c9836dd7962dc3a00",
+      "frameJobHash": "9ef3b327e0d1c418396060b95ac5676fd4ca2ffefe5351ecb2a72e23fa352d2d",
+      "frameIndex": 0,
+      "frameSpecHash": "d18a476894540c8f2e5ef2c80c09cabb82a7ac5385dfd57ae1b41c7b9b3ce64a",
+      "generationInputHash": "5affb6f87d976080b655d4d21500e27b65fb319a8c9572b04420986a82e77dbd",
+      "artifacts": [
+        {
+          "stage": "raw",
+          "inputHash": "5affb6f87d976080b655d4d21500e27b65fb319a8c9572b04420986a82e77dbd",
+          "producer": {
+            "name": "frozen-admitted-raw-replay",
+            "version": "1.0.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.1",
+            "uri": "asset://sha256/bf4d57e77bbd8fe087fe7a56f03b5b7dbbc204b32d010efcbcaa162243fd3af3",
+            "contentHash": "bf4d57e77bbd8fe087fe7a56f03b5b7dbbc204b32d010efcbcaa162243fd3af3",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "5affb6f87d976080b655d4d21500e27b65fb319a8c9572b04420986a82e77dbd",
+              "producer": {
+                "name": "frozen-admitted-raw-replay",
+                "version": "1.0.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "opaque"
+          },
+          "outputHash": "0078e6c685099c9862bfeeb0edf1c1a313b3540349ce3873a664ce98ca404a38"
+        },
+        {
+          "stage": "matted",
+          "inputHash": "0078e6c685099c9862bfeeb0edf1c1a313b3540349ce3873a664ce98ca404a38",
+          "producer": {
+            "name": "chroma-key-matting",
+            "version": "1.1.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.1.matted",
+            "uri": "asset://sha256/9e757fd480930bd4435a65c43ec10365f4b75206c3dab6f0655a035f1fcb15b6",
+            "contentHash": "9e757fd480930bd4435a65c43ec10365f4b75206c3dab6f0655a035f1fcb15b6",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "bf0e268bafcdd57c38c6023822d6d86f3ef1c5d4eb447d2ec1c559fb73faf4f0",
+              "producer": {
+                "name": "chroma-key-matting",
+                "version": "1.1.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "9ca9a45ba48cf6032307aaac98e92d9f801d95a261e86684882934ab49979699"
+        },
+        {
+          "stage": "normalized",
+          "inputHash": "9ca9a45ba48cf6032307aaac98e92d9f801d95a261e86684882934ab49979699",
+          "producer": {
+            "name": "canonical-canvas-normalize",
+            "version": "1.0.1"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.1.normalized",
+            "uri": "asset://sha256/86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+            "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "11536f43668cef3f97266da7ab9b9bddfd2abd42c2b378426c829d0223ffc329",
+              "producer": {
+                "name": "canonical-canvas-normalize",
+                "version": "1.0.1"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "3549815e655037e5bbd8c4d18d27e37cf0b55040430ba304fea1c5cfca3191ed"
+        },
+        {
+          "stage": "anchored",
+          "inputHash": "3549815e655037e5bbd8c4d18d27e37cf0b55040430ba304fea1c5cfca3191ed",
+          "producer": {
+            "name": "alpha-geometry-anchor",
+            "version": "1.1.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.1",
+            "uri": "asset://sha256/86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+            "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "9b644b7819a71c6e4e1bf6efb998066501709b8fca003e57eec859f39dbbe3c4",
+              "producer": {
+                "name": "alpha-geometry-anchor",
+                "version": "1.1.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "496064d4d74eba7edb3adc2c9663e50362b25c7ca41af80dff24ef158e4cd975"
+        }
+      ],
+      "poseFrame": {
+        "assetId": "rabbit.idle-left.real.1",
+        "durationFrames": 3,
+        "anchors": {
+          "foot": {
+            "x": 0.626953125,
+            "y": 0.9583333333333334
+          },
+          "leftFoot": {
+            "x": 0.3447265625,
+            "y": 0.9557291666666666
+          },
+          "rightFoot": {
+            "x": 0.626953125,
+            "y": 0.9583333333333334
+          },
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          }
+        },
+        "contact": {
+          "type": "both"
+        },
+        "referenceFoot": "midpoint"
+      },
+      "qa": {
+        "structural": "passed",
+        "matting": "passed",
+        "normalization": "passed",
+        "anchors": "passed",
+        "productionReady": true,
+        "diagnostics": []
+      },
+      "resultHash": "7b1b2dcc04546df4a2c3ca18b006d0678f2df0f7b9eb7164d8d074f1e29cf6fc"
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "frameExecutionKey": "ecddbab1f8e7f7a762bb9af0e65d6e32e15fa6322b394f4f17fbb44716566caa",
+      "frameJobHash": "810efe3257f76fc6778e2903471604c0f367aae931ca6f30b1fb634053f027d9",
+      "frameIndex": 1,
+      "frameSpecHash": "6ca5155185b5ab52486029f519d8e9dbe521a3a525d1566c81137946b78682a5",
+      "generationInputHash": "63ea713cf484ec2937256b19da008599853b7d82369888d34c3e0a42df2b9acd",
+      "artifacts": [
+        {
+          "stage": "raw",
+          "inputHash": "63ea713cf484ec2937256b19da008599853b7d82369888d34c3e0a42df2b9acd",
+          "producer": {
+            "name": "frozen-admitted-raw-replay",
+            "version": "1.0.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.2",
+            "uri": "asset://sha256/ec3cd1d53ba791596e258c7e3b31b421a7df01f2c8f200d6c9fa0692ab4258e3",
+            "contentHash": "ec3cd1d53ba791596e258c7e3b31b421a7df01f2c8f200d6c9fa0692ab4258e3",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "63ea713cf484ec2937256b19da008599853b7d82369888d34c3e0a42df2b9acd",
+              "producer": {
+                "name": "frozen-admitted-raw-replay",
+                "version": "1.0.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "opaque"
+          },
+          "outputHash": "aff58f79a7bd1db02dc0870b1141108cfcbedf4d22d04ddc6f7f072d89e61d76"
+        },
+        {
+          "stage": "matted",
+          "inputHash": "aff58f79a7bd1db02dc0870b1141108cfcbedf4d22d04ddc6f7f072d89e61d76",
+          "producer": {
+            "name": "chroma-key-matting",
+            "version": "1.1.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.2.matted",
+            "uri": "asset://sha256/ffafcc99e2f5886734ebd18828403311252abfd969acbfdbfa6f34c1da638510",
+            "contentHash": "ffafcc99e2f5886734ebd18828403311252abfd969acbfdbfa6f34c1da638510",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "e7d03b17ea1336a03a3a9581cee67e50a472ca57d6ca8cb7f4680e45a462d58d",
+              "producer": {
+                "name": "chroma-key-matting",
+                "version": "1.1.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "d504f2a59bc14f790ecd151dc40ac47658d31cc29deb0dd53a288f83bf33d8cb"
+        },
+        {
+          "stage": "normalized",
+          "inputHash": "d504f2a59bc14f790ecd151dc40ac47658d31cc29deb0dd53a288f83bf33d8cb",
+          "producer": {
+            "name": "canonical-canvas-normalize",
+            "version": "1.0.1"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.2.normalized",
+            "uri": "asset://sha256/e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+            "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "6f18ffc85672bd074b5bedad71090c804b1a0bfd70879f9bbeb475a4dfe323a9",
+              "producer": {
+                "name": "canonical-canvas-normalize",
+                "version": "1.0.1"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "2fc1f2e5074d38274e3e99e6f10d9ff4d688fa5c008a0cb3289c38e34d131f5d"
+        },
+        {
+          "stage": "anchored",
+          "inputHash": "2fc1f2e5074d38274e3e99e6f10d9ff4d688fa5c008a0cb3289c38e34d131f5d",
+          "producer": {
+            "name": "alpha-geometry-anchor",
+            "version": "1.1.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.2",
+            "uri": "asset://sha256/e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+            "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "2567286b6ded1d738c7e0e5cd0978b935abd3c52a370630266c048abdf356dc8",
+              "producer": {
+                "name": "alpha-geometry-anchor",
+                "version": "1.1.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "b1e2c242bc59539d92bff6d20dbbcf7023d32611a1111d380e831ce96b3651c5"
+        }
+      ],
+      "poseFrame": {
+        "assetId": "rabbit.idle-left.real.2",
+        "durationFrames": 3,
+        "anchors": {
+          "foot": {
+            "x": 0.609375,
+            "y": 0.9583333333333334
+          },
+          "leftFoot": {
+            "x": 0.322265625,
+            "y": 0.9283854166666666
+          },
+          "rightFoot": {
+            "x": 0.609375,
+            "y": 0.9583333333333334
+          },
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          }
+        },
+        "contact": {
+          "type": "both"
+        },
+        "referenceFoot": "midpoint"
+      },
+      "qa": {
+        "structural": "passed",
+        "matting": "passed",
+        "normalization": "passed",
+        "anchors": "passed",
+        "productionReady": true,
+        "diagnostics": []
+      },
+      "resultHash": "a785f395a770c3262eb1c06dd54887f71e79705a0b34ba8044f47b304a51810a"
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "frameExecutionKey": "16e712f45a44e4cf565629652d887a7a1d10090e9e5219a8cb40dc45cd9e48ed",
+      "frameJobHash": "1226aaa9b0af53d5fdc040994e024163fa290438de15f02e63464c941b94028a",
+      "frameIndex": 2,
+      "frameSpecHash": "36700d562b7088b2cc376754eef8c7f94cad1eb9f780a965ce106d78ff0d7886",
+      "generationInputHash": "063eca451af9458ccbbb36137d26d9085415067c1a79b120fd85cf3c24e66087",
+      "artifacts": [
+        {
+          "stage": "raw",
+          "inputHash": "063eca451af9458ccbbb36137d26d9085415067c1a79b120fd85cf3c24e66087",
+          "producer": {
+            "name": "frozen-admitted-raw-replay",
+            "version": "1.0.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.3",
+            "uri": "asset://sha256/9128b09efcc4fe3a31d59546596feb849589a50692c41ce98b0375eadf855aed",
+            "contentHash": "9128b09efcc4fe3a31d59546596feb849589a50692c41ce98b0375eadf855aed",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "063eca451af9458ccbbb36137d26d9085415067c1a79b120fd85cf3c24e66087",
+              "producer": {
+                "name": "frozen-admitted-raw-replay",
+                "version": "1.0.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "opaque"
+          },
+          "outputHash": "005b1bcdf11b24046f9d8820af2d48a1896f958cb0bd4abbca39a03f019aa7f3"
+        },
+        {
+          "stage": "matted",
+          "inputHash": "005b1bcdf11b24046f9d8820af2d48a1896f958cb0bd4abbca39a03f019aa7f3",
+          "producer": {
+            "name": "chroma-key-matting",
+            "version": "1.1.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.3.matted",
+            "uri": "asset://sha256/543013292586f228404763656f9e6e20b381420c4ee704b632a67edeb0ebc61d",
+            "contentHash": "543013292586f228404763656f9e6e20b381420c4ee704b632a67edeb0ebc61d",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "e4df1ce8fd32dbb7298b58aa290160405f7bcb23e2c4c505a0a01033125abd90",
+              "producer": {
+                "name": "chroma-key-matting",
+                "version": "1.1.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "35f06752e428648869d51cc299d2f057494aca36de6716de9c3d447a6ce194d8"
+        },
+        {
+          "stage": "normalized",
+          "inputHash": "35f06752e428648869d51cc299d2f057494aca36de6716de9c3d447a6ce194d8",
+          "producer": {
+            "name": "canonical-canvas-normalize",
+            "version": "1.0.1"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.3.normalized",
+            "uri": "asset://sha256/f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+            "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "28245059d9adb0888b6f8a77b23886dd0a8b9c0229e2323c82fedd593b285f80",
+              "producer": {
+                "name": "canonical-canvas-normalize",
+                "version": "1.0.1"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "75c56f6f276f01bf37ee428cc483c2115918152f4bcaa3e87f2686e1608c1097"
+        },
+        {
+          "stage": "anchored",
+          "inputHash": "75c56f6f276f01bf37ee428cc483c2115918152f4bcaa3e87f2686e1608c1097",
+          "producer": {
+            "name": "alpha-geometry-anchor",
+            "version": "1.1.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.3",
+            "uri": "asset://sha256/f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+            "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "05da819809c929c3617fa1e3028cc55a9711de8e04a41e05dbf071aebdf343fc",
+              "producer": {
+                "name": "alpha-geometry-anchor",
+                "version": "1.1.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "60781305de7b890a71e06f2c9a2d77660f5f70dd1f42d39814794baf76f7af51"
+        }
+      ],
+      "poseFrame": {
+        "assetId": "rabbit.idle-left.real.3",
+        "durationFrames": 3,
+        "anchors": {
+          "foot": {
+            "x": 0.6513671875,
+            "y": 0.9583333333333334
+          },
+          "leftFoot": {
+            "x": 0.3193359375,
+            "y": 0.953125
+          },
+          "rightFoot": {
+            "x": 0.6513671875,
+            "y": 0.9583333333333334
+          },
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          }
+        },
+        "contact": {
+          "type": "both"
+        },
+        "referenceFoot": "midpoint"
+      },
+      "qa": {
+        "structural": "passed",
+        "matting": "passed",
+        "normalization": "passed",
+        "anchors": "passed",
+        "productionReady": true,
+        "diagnostics": []
+      },
+      "resultHash": "aaa0cda29e025e19298a37d5782b0c8ee1a9e7ddae5b37086051bf218dceda1f"
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "frameExecutionKey": "ed33ef0ec051f51a1e0295ad7697027afd0bdec8d549b7f91f0ff138e527785d",
+      "frameJobHash": "b9089daa3a298329d3f3015d798cc62e7e4f7cd9d34504c54f973d2b48d8d15e",
+      "frameIndex": 3,
+      "frameSpecHash": "3dc53f2e2cbe34e1eaa4d67b29822e4f17c228e937867752ab46d5c03e240984",
+      "generationInputHash": "4802dffe9c31ae60cfd18fb366af9f7732e8bd4c5651df3d181e1e69c943ad31",
+      "artifacts": [
+        {
+          "stage": "raw",
+          "inputHash": "4802dffe9c31ae60cfd18fb366af9f7732e8bd4c5651df3d181e1e69c943ad31",
+          "producer": {
+            "name": "frozen-admitted-raw-replay",
+            "version": "1.0.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.4",
+            "uri": "asset://sha256/034154c28878f9ea455b10e130d66238d135383c428c4fa9619ab5e6d2c5ce48",
+            "contentHash": "034154c28878f9ea455b10e130d66238d135383c428c4fa9619ab5e6d2c5ce48",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "4802dffe9c31ae60cfd18fb366af9f7732e8bd4c5651df3d181e1e69c943ad31",
+              "producer": {
+                "name": "frozen-admitted-raw-replay",
+                "version": "1.0.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "opaque"
+          },
+          "outputHash": "6fa1b8aee03bc16b91b8e714e8b4f393dafafdae2bfe98ad00dcc97d11f0337b"
+        },
+        {
+          "stage": "matted",
+          "inputHash": "6fa1b8aee03bc16b91b8e714e8b4f393dafafdae2bfe98ad00dcc97d11f0337b",
+          "producer": {
+            "name": "chroma-key-matting",
+            "version": "1.1.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.4.matted",
+            "uri": "asset://sha256/53bc4230ac3b928139b1bb28ae0052fbf127bfdd9e0e880c8b0b157dfba376d7",
+            "contentHash": "53bc4230ac3b928139b1bb28ae0052fbf127bfdd9e0e880c8b0b157dfba376d7",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "0038bc1b4d734e84badbe99e7f93fe3b2e06a33c94a964df3cc91dc17a5cc9fe",
+              "producer": {
+                "name": "chroma-key-matting",
+                "version": "1.1.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "cf9f75aa0767b5acbf28056279d20c9f3ce23250911bc8dfcc466eb26a13ceab"
+        },
+        {
+          "stage": "normalized",
+          "inputHash": "cf9f75aa0767b5acbf28056279d20c9f3ce23250911bc8dfcc466eb26a13ceab",
+          "producer": {
+            "name": "canonical-canvas-normalize",
+            "version": "1.0.1"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.4.normalized",
+            "uri": "asset://sha256/ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+            "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "6292b3b6c6bf6774bad34a3ab2708cc190d72cd65f3eb2d5ee6b4d4622cc2742",
+              "producer": {
+                "name": "canonical-canvas-normalize",
+                "version": "1.0.1"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "0e0ea2cd33d3c152d9951cf3631fac93bf08e30bc6b5b8414ce3367365eb5695"
+        },
+        {
+          "stage": "anchored",
+          "inputHash": "0e0ea2cd33d3c152d9951cf3631fac93bf08e30bc6b5b8414ce3367365eb5695",
+          "producer": {
+            "name": "alpha-geometry-anchor",
+            "version": "1.1.0"
+          },
+          "asset": {
+            "id": "rabbit.idle-left.real.4",
+            "uri": "asset://sha256/ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+            "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+            "source": "generated",
+            "provenance": {
+              "inputHash": "31d158419c8c185484374d2dbad2f61d401e0a57580f1f4c1031dd24034b1b88",
+              "producer": {
+                "name": "alpha-geometry-anchor",
+                "version": "1.1.0"
+              },
+              "createdAt": "2026-08-24T09:22:20.000Z"
+            },
+            "qaStatus": "pending",
+            "kind": "animal-frame",
+            "width": 512,
+            "height": 768,
+            "alphaMode": "straight"
+          },
+          "outputHash": "ae165d39eb456f41b87bae984e7b980d1ba40e7e20a68a271fe6ae7ce27ed974"
+        }
+      ],
+      "poseFrame": {
+        "assetId": "rabbit.idle-left.real.4",
+        "durationFrames": 3,
+        "anchors": {
+          "foot": {
+            "x": 0.63671875,
+            "y": 0.9583333333333334
+          },
+          "leftFoot": {
+            "x": 0.3701171875,
+            "y": 0.9505208333333334
+          },
+          "rightFoot": {
+            "x": 0.63671875,
+            "y": 0.9583333333333334
+          },
+          "center": {
+            "x": 0.5,
+            "y": 0.564453125
+          }
+        },
+        "contact": {
+          "type": "both"
+        },
+        "referenceFoot": "midpoint"
+      },
+      "qa": {
+        "structural": "passed",
+        "matting": "passed",
+        "normalization": "passed",
+        "anchors": "passed",
+        "productionReady": true,
+        "diagnostics": []
+      },
+      "resultHash": "bb82745dde4b6663d55b72b26c3f3cdda784b8dd8250b87eaa18495c1ca1bfad"
+    }
+  ],
+  "productionProfile": {
+    "schemaVersion": "1.0.0",
+    "profileId": "rabbit-idle-real-gpu-candidate-vnext",
+    "approval": "pending",
+    "processorSpecs": {
+      "matted": {
+        "schemaVersion": "1.0.0",
+        "stage": "matted",
+        "processor": {
+          "name": "chroma-key-matting",
+          "version": "1.1.0"
+        },
+        "config": {
+          "keyColor": [
+            0,
+            255,
+            0
+          ],
+          "transparentThreshold": 0.04,
+          "opaqueThreshold": 0.22,
+          "spillSuppression": 1,
+          "borderCleanup": {
+            "alphaThreshold": 8,
+            "borderInset": 2,
+            "connectivity": 8,
+            "edgeSpillRadius": 2,
+            "greenMinimum": 128,
+            "greenDominance": 24,
+            "retainNearSubjectPx": 48,
+            "minimumComponentPixels": 4
+          }
+        },
+        "processorSpecHash": "3aff6579a10a1b922e592f9990ac71656ee043e6f1c6c91fb66acffeb91df64f"
+      },
+      "normalized": {
+        "schemaVersion": "1.0.0",
+        "stage": "normalized",
+        "processor": {
+          "name": "canonical-canvas-normalize",
+          "version": "1.0.1"
+        },
+        "config": {
+          "canvasWidth": 512,
+          "canvasHeight": 768,
+          "targetForegroundHeight": 640,
+          "maxForegroundWidth": 430,
+          "bottomPadding": 32,
+          "alphaThreshold": 8,
+          "resampling": "bilinear-premultiplied"
+        },
+        "processorSpecHash": "596403b5aebbac19a6a1b7257e6fc2aed22ffb4fc2b9d82697efd14b64d56d3a"
+      },
+      "anchored": {
+        "schemaVersion": "1.0.0",
+        "stage": "anchored",
+        "processor": {
+          "name": "alpha-geometry-anchor",
+          "version": "1.1.0"
+        },
+        "config": {
+          "alphaThreshold": 8,
+          "footBandHeight": 12,
+          "bilateralFootSearchRatio": 0.25
+        },
+        "processorSpecHash": "2eafcb0e7ac5fcef84296c34615d429f6fc9ace1efae3c707179b515cb6703b9"
+      }
+    },
+    "frameQaSpec": {
+      "schemaVersion": "1.0.0",
+      "evaluator": {
+        "name": "required-anchor-frame-qa",
+        "version": "1.0.0"
+      },
+      "config": {},
+      "qaEvaluatorSpecHash": "6da358b73731a4ab8a812d10f27fad57deaa64e0f3e39bd5a1400a47e8989fe2"
+    },
+    "continuityQaSpec": {
+      "schemaVersion": "1.0.0",
+      "evaluator": {
+        "name": "deterministic-pose-clip-continuity",
+        "version": "1.0.0"
+      },
+      "featureExtractor": {
+        "schemaVersion": "1.0.0",
+        "extractor": {
+          "name": "rgba-continuity-features",
+          "version": "1.0.0"
+        },
+        "config": {
+          "alphaThreshold": 8,
+          "colorBins": 8,
+          "silhouetteGridSize": 8
+        },
+        "extractorSpecHash": "b79e9efbb3d28f2a7681ac27d47f6cc5f8b5b92d3062b8197d0e5837edbd51d2"
+      },
+      "thresholds": {
+        "identityConsistency": {
+          "warning": 1,
+          "failure": 2
+        },
+        "scaleConsistency": {
+          "warning": 1,
+          "failure": 2
+        },
+        "canvasConsistency": {
+          "warning": 1,
+          "failure": 2
+        },
+        "bodyProportion": {
+          "warning": 1,
+          "failure": 2
+        },
+        "footContact": {
+          "warning": 1,
+          "failure": 2
+        },
+        "anchorMovement": {
+          "warning": 1,
+          "failure": 2
+        },
+        "silhouetteContinuity": {
+          "warning": 1,
+          "failure": 2
+        },
+        "loopClosure": {
+          "warning": 1,
+          "failure": 2
+        }
+      },
+      "continuityQaSpecHash": "cac52ca1858ca030db15d91f801486d91c741b7637b9fc981d0c55b6b06fc2af"
+    },
+    "executor": {
+      "name": "pose-frame-production-executor",
+      "version": "0.1.2"
+    },
+    "modelHashes": [
+      {
+        "modelId": "flux-2-klein-4b-fp8.safetensors",
+        "contentHash": "97ed34fe0567e436200f2faee3939b88f2b5d99f8af2a4dc16532c4245c0ccb6"
+      },
+      {
+        "modelId": "qwen_3_4b_fp4_flux2.safetensors",
+        "contentHash": "3eab03a77adb0ee5304a4e677d5c10ac22f9049c1d7c894adca4f8bb39206ca8"
+      },
+      {
+        "modelId": "flux2-vae.safetensors",
+        "contentHash": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"
+      }
+    ],
+    "frameExecutionKeys": [
+      "5679370c0b4d4fd9294bf079850f25177f5a136f2a5f362c9836dd7962dc3a00",
+      "ecddbab1f8e7f7a762bb9af0e65d6e32e15fa6322b394f4f17fbb44716566caa",
+      "16e712f45a44e4cf565629652d887a7a1d10090e9e5219a8cb40dc45cd9e48ed",
+      "ed33ef0ec051f51a1e0295ad7697027afd0bdec8d549b7f91f0ff138e527785d"
+    ],
+    "profileHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694"
+  },
+  "poseClip": {
+    "id": "rabbit.idle-left.real",
+    "entityType": "rabbit",
+    "action": "idle",
+    "loop": true,
+    "direction": "left",
+    "frames": [
+      {
+        "assetId": "rabbit.idle-left.real.1",
+        "durationFrames": 3,
+        "anchors": {
+          "foot": {
+            "x": 0.626953125,
+            "y": 0.9583333333333334
+          },
+          "leftFoot": {
+            "x": 0.3447265625,
+            "y": 0.9557291666666666
+          },
+          "rightFoot": {
+            "x": 0.626953125,
+            "y": 0.9583333333333334
+          },
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          }
+        },
+        "contact": {
+          "type": "both"
+        },
+        "referenceFoot": "midpoint"
+      },
+      {
+        "assetId": "rabbit.idle-left.real.2",
+        "durationFrames": 3,
+        "anchors": {
+          "foot": {
+            "x": 0.609375,
+            "y": 0.9583333333333334
+          },
+          "leftFoot": {
+            "x": 0.322265625,
+            "y": 0.9283854166666666
+          },
+          "rightFoot": {
+            "x": 0.609375,
+            "y": 0.9583333333333334
+          },
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          }
+        },
+        "contact": {
+          "type": "both"
+        },
+        "referenceFoot": "midpoint"
+      },
+      {
+        "assetId": "rabbit.idle-left.real.3",
+        "durationFrames": 3,
+        "anchors": {
+          "foot": {
+            "x": 0.6513671875,
+            "y": 0.9583333333333334
+          },
+          "leftFoot": {
+            "x": 0.3193359375,
+            "y": 0.953125
+          },
+          "rightFoot": {
+            "x": 0.6513671875,
+            "y": 0.9583333333333334
+          },
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          }
+        },
+        "contact": {
+          "type": "both"
+        },
+        "referenceFoot": "midpoint"
+      },
+      {
+        "assetId": "rabbit.idle-left.real.4",
+        "durationFrames": 3,
+        "anchors": {
+          "foot": {
+            "x": 0.63671875,
+            "y": 0.9583333333333334
+          },
+          "leftFoot": {
+            "x": 0.3701171875,
+            "y": 0.9505208333333334
+          },
+          "rightFoot": {
+            "x": 0.63671875,
+            "y": 0.9583333333333334
+          },
+          "center": {
+            "x": 0.5,
+            "y": 0.564453125
+          }
+        },
+        "contact": {
+          "type": "both"
+        },
+        "referenceFoot": "midpoint"
+      }
+    ],
+    "rootMotion": {
+      "mode": "timeline"
+    },
+    "groundLock": {
+      "mode": "contact-only",
+      "maxCorrectionPx": 24
+    }
+  },
+  "poseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+  "producer": {
+    "name": "pose-clip-production-assembler",
+    "version": "1.0.0"
+  },
+  "continuityEvaluation": {
+    "schemaVersion": "1.0.0",
+    "continuityQaSpecHash": "cac52ca1858ca030db15d91f801486d91c741b7637b9fc981d0c55b6b06fc2af",
+    "frameResultHashes": [
+      "7b1b2dcc04546df4a2c3ca18b006d0678f2df0f7b9eb7164d8d074f1e29cf6fc",
+      "a785f395a770c3262eb1c06dd54887f71e79705a0b34ba8044f47b304a51810a",
+      "aaa0cda29e025e19298a37d5782b0c8ee1a9e7ddae5b37086051bf218dceda1f",
+      "bb82745dde4b6663d55b72b26c3f3cdda784b8dd8250b87eaa18495c1ca1bfad"
+    ],
+    "loop": true,
+    "metrics": {
+      "identityConsistency": {
+        "status": "passed",
+        "maxDelta": 0.045635377083447434,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 0,
+          "toFrame": 1
+        }
+      },
+      "scaleConsistency": {
+        "status": "passed",
+        "maxDelta": 0.13236155941619057,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 2,
+          "toFrame": 3
+        }
+      },
+      "canvasConsistency": {
+        "status": "passed",
+        "maxDelta": 0,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 0,
+          "toFrame": 1
+        }
+      },
+      "bodyProportion": {
+        "status": "passed",
+        "maxDelta": 0.1292922326462819,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 2,
+          "toFrame": 3
+        }
+      },
+      "footContact": {
+        "status": "passed",
+        "maxDelta": 0.16603604858032606,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstFrame": 2
+      },
+      "anchorMovement": {
+        "status": "passed",
+        "maxDelta": 0.0419921875,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 1,
+          "toFrame": 2
+        }
+      },
+      "silhouetteContinuity": {
+        "status": "passed",
+        "maxDelta": 0.19297993333857524,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 2,
+          "toFrame": 3
+        }
+      },
+      "loopClosure": {
+        "status": "passed",
+        "maxDelta": 0.13313868277364796,
+        "thresholds": {
+          "warning": 1,
+          "failure": 2
+        },
+        "worstPair": {
+          "fromFrame": 3,
+          "toFrame": 0
+        }
+      }
+    },
+    "continuity": "passed",
+    "automatedReady": true,
+    "diagnostics": [],
+    "evaluationHash": "b9c1688b1b8166af53ad0c169c3058139f8a4335019bb084b0fb05f3ea674093"
+  },
+  "qa": {
+    "structural": "passed",
+    "continuity": "passed",
+    "anchors": "passed",
+    "identityConsistency": "passed",
+    "scaleConsistency": "passed",
+    "canvasConsistency": "passed",
+    "bodyProportion": "passed",
+    "footContact": "passed",
+    "anchorMovement": "passed",
+    "silhouetteContinuity": "passed",
+    "loopClosure": "passed",
+    "humanReview": "approved",
+    "productionReady": false,
+    "diagnostics": []
+  },
+  "resultHash": "ce543eb3a97cafc802d306640854ff4cf0b1200bfeb850cb93dcf4a3160ec5a6"
+}

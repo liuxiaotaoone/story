@@ -9,7 +9,11 @@
     "check": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
     "test": "node ../../node_modules/vitest/vitest.mjs run",
     "feasibility": "node scripts/run-feasibility.mjs --mode=swiftshader",
-    "feasibility:gpu": "node scripts/run-feasibility.mjs --mode=gpu"
+    "feasibility:gpu": "node scripts/run-feasibility.mjs --mode=gpu",
+    "candidate:mp4": "node scripts/run-candidate-mp4.mjs",
+    "candidate:tempo-comparison": "node scripts/run-tempo-comparison.mjs",
+    "candidate:transition-mp4": "node scripts/run-transition-mp4.mjs --variant=100ms",
+    "candidate:transition-67ms": "node scripts/run-transition-mp4.mjs --variant=67ms"
   },
   "dependencies": {
     "@pose-clip/paper-engine": "workspace:*",

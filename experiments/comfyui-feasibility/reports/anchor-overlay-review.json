@@ -1,0 +1,208 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "M4 Commit 8.3 — Anchor Overlay Human Review",
+  "status": "AWAITING_HUMAN_REVIEW",
+  "source": {
+    "frozenPoseClipHash": "ffcd4ab58415adc29a7e62f6bf1562af8b567bd151216e495bc0b4463258b727",
+    "frozenProductionResultHash": "720c00cac3c16f073e925562b348e60ab5cac9600666b35dba5748b2d660f7c1",
+    "mattingCalibrationResultHash": "c8ca1b24bf3075790e5c0d1ffc09d171d0cf80ddb0822a580159a9e85a8b1bb5",
+    "anchorCalibrationResultHash": "6e0c66465a3c2517ecb8fe9404b3179af9965f828f729b23b2101213debfdbc3",
+    "candidateAnchorSpecHash": "2eafcb0e7ac5fcef84296c34615d429f6fc9ace1efae3c707179b515cb6703b9"
+  },
+  "legend": {
+    "B": {
+      "meaning": "subjectBounds",
+      "rgba": [
+        255,
+        64,
+        64,
+        255
+      ]
+    },
+    "C": {
+      "meaning": "center",
+      "rgba": [
+        0,
+        230,
+        255,
+        255
+      ]
+    },
+    "F": {
+      "meaning": "global foot",
+      "rgba": [
+        255,
+        220,
+        0,
+        255
+      ]
+    },
+    "L": {
+      "meaning": "screen-left foot",
+      "rgba": [
+        255,
+        64,
+        220,
+        255
+      ]
+    },
+    "R": {
+      "meaning": "screen-right foot",
+      "rgba": [
+        64,
+        128,
+        255,
+        255
+      ]
+    }
+  },
+  "alphaThreshold": 8,
+  "frames": [
+    {
+      "frameIndex": 0,
+      "frozenFrameExecutionKey": "0630f9ea92ff4fc0a049df4830970c52a44982d2bc891a3b1faa62431a92e06b",
+      "sourceContentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+      "sourceBounds": {
+        "x": 55,
+        "y": 96,
+        "width": 402,
+        "height": 640
+      },
+      "anchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "leftFoot": {
+          "x": 0.3447265625,
+          "y": 0.9557291666666666
+        },
+        "rightFoot": {
+          "x": 0.626953125,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.626953125,
+          "y": 0.9583333333333334
+        }
+      },
+      "overlay": {
+        "fileName": "frame-0-anchor-overlay.png",
+        "contentHash": "e93c78a3102a9ba9b19fd9f2aa4236a060ff73b22f10eac0cc61b53c7a111449",
+        "width": 512,
+        "height": 824
+      },
+      "visualReview": "pending"
+    },
+    {
+      "frameIndex": 1,
+      "frozenFrameExecutionKey": "9b9f71d29973feed4f1e7d9e82cd230b2a69ff469638874892575ff5b3a0dcbb",
+      "sourceContentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+      "sourceBounds": {
+        "x": 82,
+        "y": 96,
+        "width": 348,
+        "height": 640
+      },
+      "anchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "leftFoot": {
+          "x": 0.322265625,
+          "y": 0.9283854166666666
+        },
+        "rightFoot": {
+          "x": 0.609375,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.609375,
+          "y": 0.9583333333333334
+        }
+      },
+      "overlay": {
+        "fileName": "frame-1-anchor-overlay.png",
+        "contentHash": "ffe22e9b47417982c638bd843a8fd8af84dcd6e70774123b7073c45c6f812721",
+        "width": 512,
+        "height": 824
+      },
+      "visualReview": "pending"
+    },
+    {
+      "frameIndex": 2,
+      "frozenFrameExecutionKey": "f594a29c768b12147af733c1aa44d85290e2b65f8159dc12c2a395182adbef18",
+      "sourceContentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+      "sourceBounds": {
+        "x": 103,
+        "y": 96,
+        "width": 306,
+        "height": 640
+      },
+      "anchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.5416666666666666
+        },
+        "leftFoot": {
+          "x": 0.3193359375,
+          "y": 0.953125
+        },
+        "rightFoot": {
+          "x": 0.6513671875,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.6513671875,
+          "y": 0.9583333333333334
+        }
+      },
+      "overlay": {
+        "fileName": "frame-2-anchor-overlay.png",
+        "contentHash": "a1716a131787377e21e7db97a4c64ddd83d1047eedf5a87141b4a01800cfa730",
+        "width": 512,
+        "height": 824
+      },
+      "visualReview": "pending"
+    },
+    {
+      "frameIndex": 3,
+      "frozenFrameExecutionKey": "859b590b02d9a651256ab61f2c3d197af9e690add2abce24fe0895acb0821eb7",
+      "sourceContentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+      "sourceBounds": {
+        "x": 41,
+        "y": 131,
+        "width": 430,
+        "height": 605
+      },
+      "anchors": {
+        "center": {
+          "x": 0.5,
+          "y": 0.564453125
+        },
+        "leftFoot": {
+          "x": 0.3701171875,
+          "y": 0.9505208333333334
+        },
+        "rightFoot": {
+          "x": 0.63671875,
+          "y": 0.9583333333333334
+        },
+        "foot": {
+          "x": 0.63671875,
+          "y": 0.9583333333333334
+        }
+      },
+      "overlay": {
+        "fileName": "frame-3-anchor-overlay.png",
+        "contentHash": "ee1271f794b12f94562ff1d105ddc1e968f38323467ed6fb99a7ab84948ddfc8",
+        "width": 512,
+        "height": 824
+      },
+      "visualReview": "pending"
+    }
+  ],
+  "visualApproval": "pending",
+  "overlayReviewResultHash": "e28a88de99165f5b017d8817bd416c9547a81d2b57a5e201b265833376e89e22"
+}

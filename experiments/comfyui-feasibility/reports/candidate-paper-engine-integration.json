@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "Candidate PoseClip → Paper Engine Admission",
+  "status": "PASS",
+  "sourceProductionResultHash": "ce543eb3a97cafc802d306640854ff4cf0b1200bfeb850cb93dcf4a3160ec5a6",
+  "candidateProfileHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694",
+  "poseClipId": "rabbit.idle-left.real",
+  "poseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+  "renderPlanHash": "823d954e99c1349c337764fa0581543ad7109fa688cf69dd4d239a65e48f5ba7",
+  "durationFrames": 120,
+  "fps": 30,
+  "groundLockPolicy": {
+    "contact": "both",
+    "referenceFoot": "midpoint",
+    "footFields": "screen-side-support-not-anatomical",
+    "reviewStageScale": 0.275,
+    "reviewCameraZoom": 2.2,
+    "frozenMaxVisualCorrectionPx": 24
+  },
+  "frames": [
+    {
+      "frameIndex": 0,
+      "assetId": "rabbit.idle-left.real.1",
+      "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+      "uri": "/candidate/assets/frame-0.png"
+    },
+    {
+      "frameIndex": 1,
+      "assetId": "rabbit.idle-left.real.2",
+      "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+      "uri": "/candidate/assets/frame-1.png"
+    },
+    {
+      "frameIndex": 2,
+      "assetId": "rabbit.idle-left.real.3",
+      "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+      "uri": "/candidate/assets/frame-2.png"
+    },
+    {
+      "frameIndex": 3,
+      "assetId": "rabbit.idle-left.real.4",
+      "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+      "uri": "/candidate/assets/frame-3.png"
+    }
+  ],
+  "tempoExperiment": {
+    "isolation": "same-assets-same-anchors-same-ground-lock-same-camera-no-crossfade",
+    "sourcePoseClipUnchanged": true,
+    "variants": [
+      {
+        "label": "0.8s",
+        "fileName": "render-plan-tempo-0.8s.json",
+        "reviewOnly": true,
+        "transitionMode": "none-hard-cut-control",
+        "poseDurations": [
+          6,
+          6,
+          6,
+          6
+        ],
+        "cycleFrames": 24,
+        "cycleSeconds": 0.8,
+        "comparisonCycles": 3,
+        "durationFrames": 72,
+        "durationSeconds": 2.4,
+        "poseClipHash": "4b9042b56f7609de65aece018d840d7ffc045855e645ecb6d52f7410a91d4cbb",
+        "renderPlanHash": "931d565e28ea142fda77739ed7cb860044ed4248bf879e3037faa6cd6635d905"
+      },
+      {
+        "label": "1.0s",
+        "fileName": "render-plan-tempo-1.0s.json",
+        "reviewOnly": true,
+        "transitionMode": "none-hard-cut-control",
+        "poseDurations": [
+          7,
+          8,
+          7,
+          8
+        ],
+        "cycleFrames": 30,
+        "cycleSeconds": 1,
+        "comparisonCycles": 3,
+        "durationFrames": 90,
+        "durationSeconds": 3,
+        "poseClipHash": "099bcf69c593c3936a11b17e999ca9c79d314fbcdb30685d2b9236bad3a42694",
+        "renderPlanHash": "c1fa98c1189cb9cf12db76e7abd326eae5aef988be98fd36db8ca2832e976cc8"
+      },
+      {
+        "label": "1.2s",
+        "fileName": "render-plan-tempo-1.2s.json",
+        "reviewOnly": true,
+        "transitionMode": "none-hard-cut-control",
+        "poseDurations": [
+          9,
+          9,
+          9,
+          9
+        ],
+        "cycleFrames": 36,
+        "cycleSeconds": 1.2,
+        "comparisonCycles": 3,
+        "durationFrames": 108,
+        "durationSeconds": 3.6,
+        "poseClipHash": "11af58f4654fadcc9040a7cc2bb01e6d84fb9b1672fef8820b634a6a7314577e",
+        "renderPlanHash": "78abb138bed8e4a9cc66b7283d505adea76c7f17ad93de3468dfd92d876e5fef"
+      }
+    ]
+  }
+}

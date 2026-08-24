@@ -2,7 +2,7 @@
 
 基于 Whole-body PoseClip、受限动作语法、确定性 Timeline Compiler 和 AI 资产生产线的 2.5D 漫剧生成系统。
 
-当前里程碑：**M4 Commit 7 Real GPU E2E PASS；M4 Commit 8.1 Quality Evidence PASS；M4 Commit 8.2 Matting Candidate Gate PASS；M4 Commit 8.3 Bilateral Foot Anchor Candidate Gate PASS；Production Approval PENDING**。同一份 Frozen Admission 已在 Intel Arc 130T XPU 上完成四帧真实生产，质量链已绑定 Frozen Manifest 并重验全部 CAS bytes。离线 `chroma-key-matting@1.1.0` 已把四帧 Source Bounds 恢复到角色范围；`alpha-geometry-anchor@1.1.0` 进一步关闭 Frame 1 左脚缺失，同时保持四帧全局 `foot` 与 Anchored pixels 不变。真实 RGBA Continuity 已重放，但仍使用未校准的 collection thresholds；Visual Approval 仍为 `pending`，Candidate 尚未进入 Production Profile。Paper Engine 接线仍待完成。
+当前里程碑：**M4 Commit 9 First Real PoseClip MP4 Candidate Integration PASS；Candidate Animation Profile FROZEN；Production Approval PENDING**。同一份 Frozen Admission 已在 Intel Arc 130T XPU 上完成四帧真实生产；`chroma-key-matting@1.1.0` 与 `alpha-geometry-anchor@1.1.0` 已获 Human Visual Candidate PASS。Paper Engine Candidate 动画参数已冻结为 30fps、1.0s/30 帧周期、2 帧 Crossfade、Foot Anchor Policy；100ms 方案因双影被拒绝。Tempo/Transition 探索现已关闭，Production Approval 与 Continuity 阈值仍为 pending；下一阶段唯一主线为 ComfyUI Generation Consistency。
 
 ## 已冻结的实现边界
 

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "rabbit-idle-real-gpu-candidate-vnext",
+  "approval": "pending",
+  "processorSpecs": {
+    "matted": {
+      "schemaVersion": "1.0.0",
+      "stage": "matted",
+      "processor": {
+        "name": "chroma-key-matting",
+        "version": "1.1.0"
+      },
+      "config": {
+        "keyColor": [
+          0,
+          255,
+          0
+        ],
+        "transparentThreshold": 0.04,
+        "opaqueThreshold": 0.22,
+        "spillSuppression": 1,
+        "borderCleanup": {
+          "alphaThreshold": 8,
+          "borderInset": 2,
+          "connectivity": 8,
+          "edgeSpillRadius": 2,
+          "greenMinimum": 128,
+          "greenDominance": 24,
+          "retainNearSubjectPx": 48,
+          "minimumComponentPixels": 4
+        }
+      },
+      "processorSpecHash": "3aff6579a10a1b922e592f9990ac71656ee043e6f1c6c91fb66acffeb91df64f"
+    },
+    "normalized": {
+      "schemaVersion": "1.0.0",
+      "stage": "normalized",
+      "processor": {
+        "name": "canonical-canvas-normalize",
+        "version": "1.0.1"
+      },
+      "config": {
+        "canvasWidth": 512,
+        "canvasHeight": 768,
+        "targetForegroundHeight": 640,
+        "maxForegroundWidth": 430,
+        "bottomPadding": 32,
+        "alphaThreshold": 8,
+        "resampling": "bilinear-premultiplied"
+      },
+      "processorSpecHash": "596403b5aebbac19a6a1b7257e6fc2aed22ffb4fc2b9d82697efd14b64d56d3a"
+    },
+    "anchored": {
+      "schemaVersion": "1.0.0",
+      "stage": "anchored",
+      "processor": {
+        "name": "alpha-geometry-anchor",
+        "version": "1.1.0"
+      },
+      "config": {
+        "alphaThreshold": 8,
+        "footBandHeight": 12,
+        "bilateralFootSearchRatio": 0.25
+      },
+      "processorSpecHash": "2eafcb0e7ac5fcef84296c34615d429f6fc9ace1efae3c707179b515cb6703b9"
+    }
+  },
+  "frameQaSpec": {
+    "schemaVersion": "1.0.0",
+    "evaluator": {
+      "name": "required-anchor-frame-qa",
+      "version": "1.0.0"
+    },
+    "config": {},
+    "qaEvaluatorSpecHash": "6da358b73731a4ab8a812d10f27fad57deaa64e0f3e39bd5a1400a47e8989fe2"
+  },
+  "continuityQaSpec": {
+    "schemaVersion": "1.0.0",
+    "evaluator": {
+      "name": "deterministic-pose-clip-continuity",
+      "version": "1.0.0"
+    },
+    "featureExtractor": {
+      "schemaVersion": "1.0.0",
+      "extractor": {
+        "name": "rgba-continuity-features",
+        "version": "1.0.0"
+      },
+      "config": {
+        "alphaThreshold": 8,
+        "colorBins": 8,
+        "silhouetteGridSize": 8
+      },
+      "extractorSpecHash": "b79e9efbb3d28f2a7681ac27d47f6cc5f8b5b92d3062b8197d0e5837edbd51d2"
+    },
+    "thresholds": {
+      "identityConsistency": {
+        "warning": 1,
+        "failure": 2
+      },
+      "scaleConsistency": {
+        "warning": 1,
+        "failure": 2
+      },
+      "canvasConsistency": {
+        "warning": 1,
+        "failure": 2
+      },
+      "bodyProportion": {
+        "warning": 1,
+        "failure": 2
+      },
+      "footContact": {
+        "warning": 1,
+        "failure": 2
+      },
+      "anchorMovement": {
+        "warning": 1,
+        "failure": 2
+      },
+      "silhouetteContinuity": {
+        "warning": 1,
+        "failure": 2
+      },
+      "loopClosure": {
+        "warning": 1,
+        "failure": 2
+      }
+    },
+    "continuityQaSpecHash": "cac52ca1858ca030db15d91f801486d91c741b7637b9fc981d0c55b6b06fc2af"
+  },
+  "executor": {
+    "name": "pose-frame-production-executor",
+    "version": "0.1.2"
+  },
+  "modelHashes": [
+    {
+      "modelId": "flux-2-klein-4b-fp8.safetensors",
+      "contentHash": "97ed34fe0567e436200f2faee3939b88f2b5d99f8af2a4dc16532c4245c0ccb6"
+    },
+    {
+      "modelId": "qwen_3_4b_fp4_flux2.safetensors",
+      "contentHash": "3eab03a77adb0ee5304a4e677d5c10ac22f9049c1d7c894adca4f8bb39206ca8"
+    },
+    {
+      "modelId": "flux2-vae.safetensors",
+      "contentHash": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"
+    }
+  ],
+  "frameExecutionKeys": [
+    "5679370c0b4d4fd9294bf079850f25177f5a136f2a5f362c9836dd7962dc3a00",
+    "ecddbab1f8e7f7a762bb9af0e65d6e32e15fa6322b394f4f17fbb44716566caa",
+    "16e712f45a44e4cf565629652d887a7a1d10090e9e5219a8cb40dc45cd9e48ed",
+    "ed33ef0ec051f51a1e0295ad7697027afd0bdec8d549b7f91f0ff138e527785d"
+  ],
+  "profileHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694"
+}

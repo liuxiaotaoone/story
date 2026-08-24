@@ -90,3 +90,50 @@ pnpm --filter @pose-clip/comfyui-feasibility anchor:calibrate
 ```
 
 Candidate 为 `alpha-geometry-anchor@1.1.0`：全局 `foot` 继续使用严格 12 px 底部带，`leftFoot/rightFoot` 分别在主体下方 25% 区域寻找各自最低行。报告写入 `reports/anchor-calibration.json`。四帧双足均存在，Frame 1 新增左脚点；四帧全局 `foot` 和 PNG Content Hash 均未变化。正式 RGBA Continuity 已离线重放，但仍明确使用未校准的 collection thresholds。Matting/Anchor Candidate 尚未进入 Production Profile，Visual Approval 仍为 pending。
+
+人工 Anchor 审核图可重复生成：
+
+```powershell
+pnpm --filter @pose-clip/comfyui-feasibility anchor:overlay
+```
+
+四张图位于 `review/anchor-overlays/`，红框表示 Subject Bounds，青色 `C`、黄色 `F`、紫色 `L`、蓝色 `R` 分别表示 Center、Global Foot、Screen-left Foot 和 Screen-right Foot。`reports/anchor-overlay-review.json` 绑定四张 Overlay Hash 与上游 Matting/Anchor Calibration Result Hash。自动生成始终保持 `visualApproval=pending`，人工决定不得由脚本代填。
+
+人工审批现已写入独立 `review/candidate-visual-approval.json`。Matting 1.1.0 与 Anchor 1.1.0 获得 Visual Candidate PASS，但 Production Approval 与 Continuity 阈值仍保持未批准。可在不连接 ComfyUI、不重新运行 GPU 的情况下重放 Candidate Production，并生成 Paper Engine RenderPlan：
+
+```powershell
+pnpm --filter @pose-clip/comfyui-feasibility production:replay
+pnpm --filter @pose-clip/comfyui-feasibility production:render-plan
+pnpm --filter @pose-clip/renderer-feasibility candidate:mp4
+```
+
+Candidate Profile Hash 为 `5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694`。首条真实视频位于 `review/first-real-mp4/rabbit-real-candidate-4s.mp4`：1280×720、30fps、120 帧、4 秒，SHA-256 为 `8589382e51cd836d68df599e632ac0eb1635a850e50d827bada3554ded81aeb6`。该视频用于 GroundLock、Pose Continuity 与 Loop Closure 审查，不代表最终视觉生产批准。
+
+播放节奏可用同一组 Candidate bytes 做单变量对照：
+
+```powershell
+pnpm --filter @pose-clip/comfyui-feasibility production:render-plan
+pnpm --filter @pose-clip/renderer-feasibility candidate:tempo-comparison
+```
+
+该实验输出 0.8s、1.0s、1.2s 三种完整循环，各包含三个循环且不使用 Crossfade。文件位于 `review/tempo-comparison/`，证据位于 `reports/pose-tempo-comparison.json`。这些 RenderPlan 是 review-only Playback Override，不替换 Candidate Production PoseClip。
+
+Human Review 已选择 1.0s 为当前 Rabbit Candidate 默认节奏，证据为 `review/tempo-human-preference.json`。基于该选择可生成 3 帧/100ms、Foot Anchor 对齐的 Crossfade 对照：
+
+```powershell
+pnpm --filter @pose-clip/comfyui-feasibility production:transition-plan
+pnpm --filter @pose-clip/renderer-feasibility candidate:transition-mp4
+```
+
+视频位于 `review/pose-transition/rabbit-real-tempo-1.0s-transition-100ms.mp4`，证据位于 `reports/pose-transition-plan.json` 与 `reports/pose-transition-video.json`。该视频仅用于和 1.0s Hard Cut 做 Human Review；Crossfade 不会修复源图片的身份或轮廓不一致。
+
+100ms Human Review 确认峰值相邻帧变化约下降 35%，但双兔鬼影不可接受，因此不批准为默认值。最后一版 2-frame/66.7ms 对照可通过以下命令生成：
+
+```powershell
+pnpm --filter @pose-clip/comfyui-feasibility production:transition-67ms-plan
+pnpm --filter @pose-clip/renderer-feasibility candidate:transition-67ms
+```
+
+视频为 `review/pose-transition/rabbit-real-tempo-1.0s-transition-67ms.mp4`，只保留一个主要 50/50 混合帧。Transition 参数探索在此收口，后续主线为 ComfyUI Generation Consistency。
+
+67ms 版本已获 Human Candidate Approval，并冻结为 `frozen/rabbit-candidate-animation-profile.json`：30fps、30 帧周期、2 帧 Crossfade、`anchorPolicy=foot`。Profile Hash 为 `27827562aa8232234e2b2e8ff48827c08bd2dee0ae6d3c0603eb63d78d5ec543`。该 Profile 不代表 Production Approval；它只关闭当前 Rabbit Candidate 的 Tempo/Transition 参数探索。

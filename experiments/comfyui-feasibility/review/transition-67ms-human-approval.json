@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.0.0",
+  "decision": "approved-as-candidate-default",
+  "scope": "rabbit-candidate-pose-transition",
+  "source": {
+    "tempoPreferenceApprovalHash": "b0675e04065bef4e1f8a1d7f5d9f09dcc5038a4f83201e0c3c225c886347144e",
+    "transition100msHumanReviewApprovalHash": "58b303988c968ebafbe935ba44c035d60c67a8c38dca06cfae2753582ed8907f",
+    "transition67msPlanResultHash": "fa5808e9ed702716cb2942c5db67864348c52f54b52f35208ae20d245f5ccf21",
+    "transition67msVideoReportByteHash": "cedfb53cd81700bc538029774c818d0b5481f0a96a7a8ade6a4620275915d5c0",
+    "transition67msVideoHash": "ece7f97074345338a672ac3f329d7788a65257743a2f1aad0260ec3166144f4e"
+  },
+  "selection": {
+    "fps": 30,
+    "cycleFrames": 30,
+    "cycleSeconds": 1,
+    "transitionMode": "crossfade",
+    "transitionFrames": 2,
+    "transitionDurationFormula": "transitionFrames / fps",
+    "transitionDurationMilliseconds": 66.66666666666667,
+    "anchorPolicy": "foot",
+    "role": "candidate-default"
+  },
+  "observations": {
+    "primaryVisibleBlendFramesPerTransition": 1,
+    "ghosting": "brief-and-acceptable-for-current-candidate",
+    "groundLockStable": true,
+    "mattingStable": true,
+    "normalizeStable": true,
+    "anchorStable": true,
+    "remainingDiscontinuityCause": "generation-identity-and-pose-geometry"
+  },
+  "comparison": [
+    {"variant": "0.8s-hard-cut", "grade": "too-fast"},
+    {"variant": "1.0s-hard-cut", "grade": "clear-baseline"},
+    {"variant": "1.2s-hard-cut", "grade": "slideshow-like"},
+    {"variant": "1.0s-100ms-crossfade", "grade": "excessive-ghosting"},
+    {"variant": "1.0s-67ms-crossfade", "grade": "current-best"}
+  ],
+  "promotion": {
+    "paperEngineCandidateTransitionApproved": true,
+    "freezeTransitionParameters": true,
+    "furtherTransitionTuningAuthorized": false,
+    "productionProfileApproved": false,
+    "generationConsistencyBecomesPrimary": true
+  },
+  "nextWorkstream": {
+    "id": "comfyui-generation-consistency",
+    "targets": [
+      "ear-length-and-shape",
+      "head-to-body-ratio",
+      "eyes-and-face",
+      "body-width",
+      "color-patch-layout",
+      "limb-proportions",
+      "tail",
+      "watercolor-style"
+    ]
+  },
+  "limitations": [
+    "This is a Candidate animation default, not Production Profile approval.",
+    "The remaining single blend frame cannot repair structural differences between source poses.",
+    "Matting, Normalize, Anchor, GroundLock and source asset bytes remain unchanged."
+  ],
+  "approvalHash": "020220fb0ec6b6c9c689d9864a793cba372c972c9a678742e7e887292de238c5"
+}

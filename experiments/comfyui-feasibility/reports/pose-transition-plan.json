@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "1.0s Candidate Pose Transition Plan",
+  "status": "PASS",
+  "reviewOnly": true,
+  "source": {
+    "tempoPreferenceApprovalHash": "b0675e04065bef4e1f8a1d7f5d9f09dcc5038a4f83201e0c3c225c886347144e",
+    "candidateProfileHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694",
+    "productionResultHash": "ce543eb3a97cafc802d306640854ff4cf0b1200bfeb850cb93dcf4a3160ec5a6",
+    "productionPoseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+    "hardCutRenderPlanHash": "c1fa98c1189cb9cf12db76e7abd326eae5aef988be98fd36db8ca2832e976cc8",
+    "hardCutReviewPoseClipHash": "099bcf69c593c3936a11b17e999ca9c79d314fbcdb30685d2b9236bad3a42694",
+    "frameContentHashes": [
+      {
+        "frameIndex": 0,
+        "contentHash": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332"
+      },
+      {
+        "frameIndex": 1,
+        "contentHash": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f"
+      },
+      {
+        "frameIndex": 2,
+        "contentHash": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d"
+      },
+      {
+        "frameIndex": 3,
+        "contentHash": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2"
+      }
+    ]
+  },
+  "transition": {
+    "type": "crossfade",
+    "frames": 3,
+    "milliseconds": 100,
+    "anchorPolicy": "foot",
+    "cycleFrames": 30,
+    "cycleSeconds": 1,
+    "comparisonCycles": 3,
+    "schedule": {
+      "pose0": {
+        "holdFrames": [
+          0,
+          3
+        ],
+        "transitionFrames": [
+          4,
+          6
+        ]
+      },
+      "pose1": {
+        "holdFrames": [
+          7,
+          11
+        ],
+        "transitionFrames": [
+          12,
+          14
+        ]
+      },
+      "pose2": {
+        "holdFrames": [
+          15,
+          18
+        ],
+        "transitionFrames": [
+          19,
+          21
+        ]
+      },
+      "pose3": {
+        "holdFrames": [
+          22,
+          26
+        ],
+        "transitionFrames": [
+          27,
+          29
+        ]
+      }
+    }
+  },
+  "poseClips": [
+    {
+      "frameIndex": 0,
+      "poseClipId": "rabbit.idle-left.real.pose-0",
+      "poseClipHash": "43f5131f701986ee1e24d301a68fe6b4e75282d19e92c783b0c476e8717ab063",
+      "assetId": "rabbit.idle-left.real.1"
+    },
+    {
+      "frameIndex": 1,
+      "poseClipId": "rabbit.idle-left.real.pose-1",
+      "poseClipHash": "2cd720b0d56ec3b3928ebe0a57f082480131e69b0248b5031a7fd4cb5144a2a6",
+      "assetId": "rabbit.idle-left.real.2"
+    },
+    {
+      "frameIndex": 2,
+      "poseClipId": "rabbit.idle-left.real.pose-2",
+      "poseClipHash": "d04cbb170ebdbcec2379647338cc162824ed69f4cc3492f295e636a59ddc90cd",
+      "assetId": "rabbit.idle-left.real.3"
+    },
+    {
+      "frameIndex": 3,
+      "poseClipId": "rabbit.idle-left.real.pose-3",
+      "poseClipHash": "9c44bea8373af04e7f5ca5fbf2fb315a82b177e13fd45e9898f4d24c997aa281",
+      "assetId": "rabbit.idle-left.real.4"
+    }
+  ],
+  "renderPlanHash": "bd9a4e2a8a59568eecce14ec2a290809b94ea92602d78c6d51d571bb1fa0cb59",
+  "limitations": [
+    "Crossfade reduces hard-cut shock but may expose double-image ghosting across structurally inconsistent poses.",
+    "No AI interpolation or new image generation is performed.",
+    "The Production Candidate PoseClip and Candidate Profile remain unchanged."
+  ],
+  "transitionPlanResultHash": "152d49a69463d8fc68fd24709c059135db1717fb49b9f5181ae80a09bedfed03"
+}

@@ -1,0 +1,503 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "M4 Commit 8.2 — Real Matting Calibration",
+  "status": "CANDIDATE_MEASURED",
+  "source": {
+    "frozenPoseClipHash": "ffcd4ab58415adc29a7e62f6bf1562af8b567bd151216e495bc0b4463258b727",
+    "frozenProductionResultHash": "720c00cac3c16f073e925562b348e60ab5cac9600666b35dba5748b2d660f7c1",
+    "baselineAnalysisResultHash": "d5176a4df656b8ac66c490f68d939169ecdf32adad1fdbbcbdb83e7fbde7efe2"
+  },
+  "specs": {
+    "qualityAnalysisSpecHash": "4f89721292d374b07af9f900cb14a7304500b6b3fef2613b78a6534be14b1dd2",
+    "candidateMattingSpecHash": "3aff6579a10a1b922e592f9990ac71656ee043e6f1c6c91fb66acffeb91df64f",
+    "normalizationProcessorSpecHash": "596403b5aebbac19a6a1b7257e6fc2aed22ffb4fc2b9d82697efd14b64d56d3a",
+    "anchoringProcessorSpecHash": "25557b6585cdff269e2cd3392cf367574122a827f215a9aaec2280c240960bcc"
+  },
+  "automatedChecks": {
+    "allSourceBoundsDetachedFromFullCanvas": true,
+    "allCoreAnchorsPresent": true,
+    "allVisibleGreenSpillReduced": true,
+    "allEdgeGreenSpillReduced": true,
+    "allOpaqueGreenResidualReduced": true,
+    "allForegroundRetained": true
+  },
+  "automatedChecksPassed": true,
+  "downstreamDiagnostics": {
+    "allBilateralFootAnchorsPresent": false,
+    "framesMissingBilateralFootAnchors": [
+      1
+    ]
+  },
+  "visualApproval": "pending",
+  "frames": [
+    {
+      "frameIndex": 0,
+      "frozenFrameExecutionKey": "0630f9ea92ff4fc0a049df4830970c52a44982d2bc891a3b1faa62431a92e06b",
+      "sourceRawContentHash": "bf4d57e77bbd8fe087fe7a56f03b5b7dbbc204b32d010efcbcaa162243fd3af3",
+      "baseline": {
+        "mattedContentHash": "04409760136f25538b59f1ee893ca8c5944c46f2216a807bf897cd8dc3dc188c",
+        "normalizedContentHash": "3019a0c30861ccc8b564d7b75c71e34507b05ca3289ab4ee48f697e07099451a",
+        "anchoredContentHash": "3019a0c30861ccc8b564d7b75c71e34507b05ca3289ab4ee48f697e07099451a",
+        "sourceBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 512,
+          "height": 768
+        },
+        "anchoredQuality": {
+          "alphaThreshold": 8,
+          "opaqueThreshold": 247,
+          "greenMinimum": 64,
+          "greenDominance": 24,
+          "foregroundCoverage": 0.27348581949869794,
+          "meanAlpha": 0.21812625461154514,
+          "softEdgeRatio": 0.24531565292591526,
+          "visibleGreenSpillRatio": 0.10502236397957951,
+          "edgeGreenSpillRatio": 0.3563170463591221,
+          "opaqueGreenResidualRatio": 0.01761221510335785
+        }
+      },
+      "candidate": {
+        "artifacts": {
+          "matted": "9e757fd480930bd4435a65c43ec10365f4b75206c3dab6f0655a035f1fcb15b6",
+          "normalized": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332",
+          "anchored": "86199315d7c6251cca5217b3bdaaa3b3ab732e58029b96c6bdb55d66488ed332"
+        },
+        "normalizationTransform": {
+          "sourceBounds": {
+            "x": 81,
+            "y": 81,
+            "width": 374,
+            "height": 596
+          },
+          "destinationBounds": {
+            "x": 55,
+            "y": 96,
+            "width": 402,
+            "height": 640
+          },
+          "canvas": {
+            "width": 512,
+            "height": 768
+          },
+          "scale": 1.0738255033557047
+        },
+        "anchors": {
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          },
+          "leftFoot": {
+            "x": 0.3447265625,
+            "y": 0.9557291666666666
+          },
+          "rightFoot": {
+            "x": 0.626953125,
+            "y": 0.9583333333333334
+          },
+          "foot": {
+            "x": 0.626953125,
+            "y": 0.9583333333333334
+          }
+        },
+        "stageQuality": {
+          "matted": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.2946726481119792,
+            "meanAlpha": 0.2946726481119792,
+            "softEdgeRatio": 0,
+            "visibleGreenSpillRatio": 0.0008889272460516096,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0.0008889272460516096
+          },
+          "normalized": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.34376271565755206,
+            "meanAlpha": 0.3401050941616881,
+            "softEdgeRatio": 0.02200143519785756,
+            "visibleGreenSpillRatio": 0.00043647769894875456,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0.00043647769894875456
+          },
+          "anchored": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.34376271565755206,
+            "meanAlpha": 0.3401050941616881,
+            "softEdgeRatio": 0.02200143519785756,
+            "visibleGreenSpillRatio": 0.00043647769894875456,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0.00043647769894875456
+          }
+        }
+      },
+      "delta": {
+        "foregroundCoverage": 0.07027689615885413,
+        "meanAlpha": 0.12197883955014296,
+        "softEdgeRatio": -0.2233142177280577,
+        "visibleGreenSpillRatio": -0.10458588628063076,
+        "edgeGreenSpillRatio": -0.3563170463591221,
+        "opaqueGreenResidualRatio": -0.017175737404409096
+      }
+    },
+    {
+      "frameIndex": 1,
+      "frozenFrameExecutionKey": "9b9f71d29973feed4f1e7d9e82cd230b2a69ff469638874892575ff5b3a0dcbb",
+      "sourceRawContentHash": "ec3cd1d53ba791596e258c7e3b31b421a7df01f2c8f200d6c9fa0692ab4258e3",
+      "baseline": {
+        "mattedContentHash": "5cb2478e3d805790794ac994d4cff8b8be5e3783404124014e550791b0923146",
+        "normalizedContentHash": "9c5b5531193744c32f7152b4c6159b9818d0d003c44f1aa430ae4dede1fe6b94",
+        "anchoredContentHash": "9c5b5531193744c32f7152b4c6159b9818d0d003c44f1aa430ae4dede1fe6b94",
+        "sourceBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 512,
+          "height": 768
+        },
+        "anchoredQuality": {
+          "alphaThreshold": 8,
+          "opaqueThreshold": 247,
+          "greenMinimum": 64,
+          "greenDominance": 24,
+          "foregroundCoverage": 0.31240081787109375,
+          "meanAlpha": 0.23302589366638582,
+          "softEdgeRatio": 0.3273337078011413,
+          "visibleGreenSpillRatio": 0.17366351625271692,
+          "edgeGreenSpillRatio": 0.4858492912210893,
+          "opaqueGreenResidualRatio": 0.014628666324761277
+        }
+      },
+      "candidate": {
+        "artifacts": {
+          "matted": "ffafcc99e2f5886734ebd18828403311252abfd969acbfdbfa6f34c1da638510",
+          "normalized": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f",
+          "anchored": "e3d8e25338607d3110b2cd3a7fa1e3f2ce18286d8fa4f4f3c5eb66a59a1ac27f"
+        },
+        "normalizationTransform": {
+          "sourceBounds": {
+            "x": 98,
+            "y": 63,
+            "width": 349,
+            "height": 642
+          },
+          "destinationBounds": {
+            "x": 82,
+            "y": 96,
+            "width": 348,
+            "height": 640
+          },
+          "canvas": {
+            "width": 512,
+            "height": 768
+          },
+          "scale": 0.9968847352024922
+        },
+        "anchors": {
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          },
+          "rightFoot": {
+            "x": 0.609375,
+            "y": 0.9583333333333334
+          },
+          "foot": {
+            "x": 0.609375,
+            "y": 0.9583333333333334
+          }
+        },
+        "stageQuality": {
+          "matted": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.3002065022786458,
+            "meanAlpha": 0.3002065022786458,
+            "softEdgeRatio": 0,
+            "visibleGreenSpillRatio": 0.000025413821730511834,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0.000025413821730511834
+          },
+          "normalized": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.30265553792317706,
+            "meanAlpha": 0.2984096352570976,
+            "softEdgeRatio": 0.02225041803561075,
+            "visibleGreenSpillRatio": 0,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0
+          },
+          "anchored": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.30265553792317706,
+            "meanAlpha": 0.2984096352570976,
+            "softEdgeRatio": 0.02225041803561075,
+            "visibleGreenSpillRatio": 0,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0
+          }
+        }
+      },
+      "delta": {
+        "foregroundCoverage": -0.009745279947916685,
+        "meanAlpha": 0.06538374159071181,
+        "softEdgeRatio": -0.30508328976553056,
+        "visibleGreenSpillRatio": -0.17366351625271692,
+        "edgeGreenSpillRatio": -0.4858492912210893,
+        "opaqueGreenResidualRatio": -0.014628666324761277
+      }
+    },
+    {
+      "frameIndex": 2,
+      "frozenFrameExecutionKey": "f594a29c768b12147af733c1aa44d85290e2b65f8159dc12c2a395182adbef18",
+      "sourceRawContentHash": "9128b09efcc4fe3a31d59546596feb849589a50692c41ce98b0375eadf855aed",
+      "baseline": {
+        "mattedContentHash": "ef15439db56e9391f6ceed899851846d81ac42e65dc5f0ce95f5f227c241cf5d",
+        "normalizedContentHash": "faf0bc8f80f3937cd85995845c49537c92b8e525493d2a3308b0fe231c694e41",
+        "anchoredContentHash": "faf0bc8f80f3937cd85995845c49537c92b8e525493d2a3308b0fe231c694e41",
+        "sourceBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 512,
+          "height": 768
+        },
+        "anchoredQuality": {
+          "alphaThreshold": 8,
+          "opaqueThreshold": 247,
+          "greenMinimum": 64,
+          "greenDominance": 24,
+          "foregroundCoverage": 0.296051025390625,
+          "meanAlpha": 0.23712599012586805,
+          "softEdgeRatio": 0.28302065079201455,
+          "visibleGreenSpillRatio": 0.19150946637803662,
+          "edgeGreenSpillRatio": 0.599569004765229,
+          "opaqueGreenResidualRatio": 0.02181905645466103
+        }
+      },
+      "candidate": {
+        "artifacts": {
+          "matted": "543013292586f228404763656f9e6e20b381420c4ee704b632a67edeb0ebc61d",
+          "normalized": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d",
+          "anchored": "f913c628fe404327b5760421eb5c4b1c2cb25742f03aacb53398b62fe1763e6d"
+        },
+        "normalizationTransform": {
+          "sourceBounds": {
+            "x": 111,
+            "y": 51,
+            "width": 319,
+            "height": 667
+          },
+          "destinationBounds": {
+            "x": 103,
+            "y": 96,
+            "width": 306,
+            "height": 640
+          },
+          "canvas": {
+            "width": 512,
+            "height": 768
+          },
+          "scale": 0.95952023988006
+        },
+        "anchors": {
+          "center": {
+            "x": 0.5,
+            "y": 0.5416666666666666
+          },
+          "leftFoot": {
+            "x": 0.3193359375,
+            "y": 0.953125
+          },
+          "rightFoot": {
+            "x": 0.6513671875,
+            "y": 0.9583333333333334
+          },
+          "foot": {
+            "x": 0.6513671875,
+            "y": 0.9583333333333334
+          }
+        },
+        "stageQuality": {
+          "matted": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.29841868082682294,
+            "meanAlpha": 0.29841868082682294,
+            "softEdgeRatio": 0,
+            "visibleGreenSpillRatio": 0.000093742276914686,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0.000093742276914686
+          },
+          "normalized": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.277557373046875,
+            "meanAlpha": 0.2746703104256025,
+            "softEdgeRatio": 0.021000549752611324,
+            "visibleGreenSpillRatio": 0,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0
+          },
+          "anchored": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.277557373046875,
+            "meanAlpha": 0.2746703104256025,
+            "softEdgeRatio": 0.021000549752611324,
+            "visibleGreenSpillRatio": 0,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0
+          }
+        }
+      },
+      "delta": {
+        "foregroundCoverage": -0.01849365234375,
+        "meanAlpha": 0.03754432029973448,
+        "softEdgeRatio": -0.2620201010394032,
+        "visibleGreenSpillRatio": -0.19150946637803662,
+        "edgeGreenSpillRatio": -0.599569004765229,
+        "opaqueGreenResidualRatio": -0.02181905645466103
+      }
+    },
+    {
+      "frameIndex": 3,
+      "frozenFrameExecutionKey": "859b590b02d9a651256ab61f2c3d197af9e690add2abce24fe0895acb0821eb7",
+      "sourceRawContentHash": "034154c28878f9ea455b10e130d66238d135383c428c4fa9619ab5e6d2c5ce48",
+      "baseline": {
+        "mattedContentHash": "ce57666d3d4c513d8f1f1035d681e8d860c9d9d7c29010db8effaac7d037af3e",
+        "normalizedContentHash": "82654ea8238d015969223c00f4b89acb3cee7c8322afe2127724e26cc949fdef",
+        "anchoredContentHash": "82654ea8238d015969223c00f4b89acb3cee7c8322afe2127724e26cc949fdef",
+        "sourceBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 512,
+          "height": 768
+        },
+        "anchoredQuality": {
+          "alphaThreshold": 8,
+          "opaqueThreshold": 247,
+          "greenMinimum": 64,
+          "greenDominance": 24,
+          "foregroundCoverage": 0.3510589599609375,
+          "meanAlpha": 0.23363276462928922,
+          "softEdgeRatio": 0.4079555497602179,
+          "visibleGreenSpillRatio": 0.15622057055099173,
+          "edgeGreenSpillRatio": 0.3210157151735772,
+          "opaqueGreenResidualRatio": 0.025260427985685514
+        }
+      },
+      "candidate": {
+        "artifacts": {
+          "matted": "53bc4230ac3b928139b1bb28ae0052fbf127bfdd9e0e880c8b0b157dfba376d7",
+          "normalized": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2",
+          "anchored": "ee9d1d482d0960e11bf704571f9ea145f39a094f105a6780aa3900c07f91f2e2"
+        },
+        "normalizationTransform": {
+          "sourceBounds": {
+            "x": 32,
+            "y": 80,
+            "width": 426,
+            "height": 599
+          },
+          "destinationBounds": {
+            "x": 41,
+            "y": 131,
+            "width": 430,
+            "height": 605
+          },
+          "canvas": {
+            "width": 512,
+            "height": 768
+          },
+          "scale": 1.0093896713615023
+        },
+        "anchors": {
+          "center": {
+            "x": 0.5,
+            "y": 0.564453125
+          },
+          "leftFoot": {
+            "x": 0.3701171875,
+            "y": 0.9505208333333334
+          },
+          "rightFoot": {
+            "x": 0.63671875,
+            "y": 0.9583333333333334
+          },
+          "foot": {
+            "x": 0.63671875,
+            "y": 0.9583333333333334
+          }
+        },
+        "stageQuality": {
+          "matted": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.2926991780598958,
+            "meanAlpha": 0.2926991780598958,
+            "softEdgeRatio": 0,
+            "visibleGreenSpillRatio": 0.0017377100457017741,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0.0017377100457017741
+          },
+          "normalized": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.30169423421223956,
+            "meanAlpha": 0.29840346193001943,
+            "softEdgeRatio": 0.023602599657762305,
+            "visibleGreenSpillRatio": 0.0009778219858215813,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0.0009778219858215813
+          },
+          "anchored": {
+            "alphaThreshold": 8,
+            "opaqueThreshold": 247,
+            "greenMinimum": 64,
+            "greenDominance": 24,
+            "foregroundCoverage": 0.30169423421223956,
+            "meanAlpha": 0.29840346193001943,
+            "softEdgeRatio": 0.023602599657762305,
+            "visibleGreenSpillRatio": 0.0009778219858215813,
+            "edgeGreenSpillRatio": 0,
+            "opaqueGreenResidualRatio": 0.0009778219858215813
+          }
+        }
+      },
+      "delta": {
+        "foregroundCoverage": -0.049364725748697935,
+        "meanAlpha": 0.0647706973007302,
+        "softEdgeRatio": -0.3843529501024556,
+        "visibleGreenSpillRatio": -0.15524274856517015,
+        "edgeGreenSpillRatio": -0.3210157151735772,
+        "opaqueGreenResidualRatio": -0.024282605999863933
+      }
+    }
+  ],
+  "calibrationResultHash": "c8ca1b24bf3075790e5c0d1ffc09d171d0cf80ddb0822a580159a9e85a8b1bb5"
+}

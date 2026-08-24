@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "rabbit-real-animation-candidate-v1",
+  "status": "frozen-candidate",
+  "source": {
+    "productionCandidateProfileHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694",
+    "productionResultHash": "ce543eb3a97cafc802d306640854ff4cf0b1200bfeb850cb93dcf4a3160ec5a6",
+    "productionPoseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+    "tempoHumanApprovalHash": "b0675e04065bef4e1f8a1d7f5d9f09dcc5038a4f83201e0c3c225c886347144e",
+    "transitionCandidateApprovalHash": "020220fb0ec6b6c9c689d9864a793cba372c972c9a678742e7e887292de238c5",
+    "transitionRenderPlanHash": "74fae4cfb4986a0f10bf76529f8ca12e6f231e977acb8a3961e32b0336778082",
+    "transitionVideoHash": "ece7f97074345338a672ac3f329d7788a65257743a2f1aad0260ec3166144f4e"
+  },
+  "runtime": {
+    "paperEngine": {"name": "paper-engine", "version": "0.1.0"},
+    "renderer": {"name": "paper-pixi", "version": "0.1.1"},
+    "fps": 30,
+    "resolution": {"width": 1280, "height": 720}
+  },
+  "playback": {
+    "cycleFrames": 30,
+    "cycleDurationSeconds": 1,
+    "poseCount": 4,
+    "holdFramesByPose": [5, 6, 5, 6],
+    "transitionMode": "crossfade",
+    "transitionFrames": 2,
+    "transitionDurationFormula": "transitionFrames / fps",
+    "transitionDurationSeconds": 0.06666666666666667,
+    "anchorPolicy": "foot",
+    "primaryVisibleBlendFramesPerTransition": 1,
+    "loop": true
+  },
+  "frozenScope": [
+    "candidate-cycle-duration",
+    "candidate-transition-mode",
+    "candidate-transition-frame-count",
+    "candidate-transition-anchor-policy"
+  ],
+  "notFrozen": [
+    "production-profile-approval",
+    "continuity-production-thresholds",
+    "generation-identity-quality",
+    "pose-geometry-quality",
+    "action-specific-tempo-profiles"
+  ],
+  "closure": {
+    "tempoTuningClosed": true,
+    "transitionTuningClosed": true,
+    "mattingAnchorGroundLockReopened": false,
+    "nextPrimaryWorkstream": "comfyui-generation-consistency"
+  },
+  "profileHash": "27827562aa8232234e2b2e8ff48827c08bd2dee0ae6d3c0603eb63d78d5ec543"
+}

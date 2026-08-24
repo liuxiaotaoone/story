@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0.0",
+  "gate": "First Real Candidate PoseClip MP4",
+  "status": "PASS",
+  "source": {
+    "candidateProfileHash": "5719c0677b1ae7baad7562164fac5929986c1215c5c8a157661721ce7de2c694",
+    "productionResultHash": "ce543eb3a97cafc802d306640854ff4cf0b1200bfeb850cb93dcf4a3160ec5a6",
+    "poseClipHash": "7c760d4d28b6019ae97ea783841c96bd1ee60b61b8bd81340b399b9efe894b55",
+    "renderPlanHash": "823d954e99c1349c337764fa0581543ad7109fa688cf69dd4d239a65e48f5ba7"
+  },
+  "render": {
+    "engine": "Paper Engine → Paper Pixi → canonical PNG sequence",
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "frames": 120,
+    "durationSeconds": 4,
+    "frameSequenceHash": "c1c043638da18ffc99e6861b91fb1650945f01546c9df0306d42d2688b19818e",
+    "representativeFrames": [
+      0,
+      3,
+      6,
+      9
+    ],
+    "renderer": "ANGLE (Intel, Intel(R) Arc(TM) 130T GPU (16GB) (0x00007D51) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (Intel)",
+    "renderMs": 5928.71
+  },
+  "video": {
+    "codec": "libx264",
+    "pixelFormat": "yuv420p",
+    "contentHash": "8589382e51cd836d68df599e632ac0eb1635a850e50d827bada3554ded81aeb6",
+    "bytes": 282837,
+    "encodeMs": 478.84440000000086,
+    "fileName": "rabbit-real-candidate-4s.mp4",
+    "reviewFileName": "review/first-real-mp4/rabbit-real-candidate-4s.mp4"
+  },
+  "reviewScope": [
+    "GroundLock stability using contact=both and referenceFoot=midpoint",
+    "Visible pose/identity/silhouette discontinuity at real playback speed",
+    "Loop closure from frame 3 to frame 0"
+  ]
+}
