@@ -62,7 +62,8 @@ experiments/asset-feasibility/processed/rabbit/rabbit-reference.png
 - Preflight、Raw、Matting、Normalize、Anchor、Bridge、Continuity、Assembly 和总耗时；
 - 每帧 Raw 生成耗时、Cache、Retry、各阶段 Input/Cache Key；
 - 每阶段 Artifact Hash、PNG Content Hash 和尺寸；
-- Subject Bounds、Foot/Left/Right/Center Anchors、Alpha Coverage；
+- Pre-Normalize Source Bounds、Normalize Transform、Subject Bounds、Foot/Left/Right/Center Anchors；
+- Matted、Normalized、Anchored 的 Foreground Coverage、Mean Alpha、Soft Edge 与 Green Spill 统计；
 - 八项 Continuity Delta、Worst Pair、Diagnostics 与 Evaluation Hash；
 - PoseClip Hash、Production Result Hash、Profile Approval、Human Review 和 `productionReady`。
 
@@ -92,7 +93,11 @@ FAIL/BLOCKED 报告同样保留已经建立的 Evidence：
 
 因此 M4 Commit 7 的 Real GPU Production E2E Gate 可以判定 **PASS**。这只证明 Frozen 输入、真实 GPU 执行、完整生产链与 Evidence/Resource Lifecycle 闭环，不构成视觉资产生产审批。Profile Approval 与 Human Review 仍为 `pending`，所以 `productionReady=false` 是预期结果。
 
+本次 PASS 的关键身份、逐帧 CAS Content Hash、耗时、Continuity Evaluation Hash、最终 Production Hash 和资源释放状态已固化到 `experiments/comfyui-feasibility/frozen/production-e2e-pass-manifest.json`。Manifest 与 Frozen Admission 的身份绑定由测试持续校验。
+
 首批真实 RGBA 帧暴露了绿幕纹理残留、边缘 Green Spill 以及帧间姿态/身份波动。当前 Continuity Threshold 是首次数据采集用的宽松值，下一阶段需要基于这批 Evidence 校准 Matting 与 Continuity，并进行人工视觉审查。
+
+首轮像素统计和视觉结论见 `M4-commit-8-real-asset-quality-calibration.md`。其中发现 Matting 残留使四帧 Pre-Normalize Source Bounds 都覆盖完整画布，所以当前 Scale/Anchor 零漂移不能作为角色稳定性的视觉证明。
 
 ## GPU 调优历史
 

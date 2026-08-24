@@ -42,6 +42,7 @@ import {
 import {
   createE2eEnvironmentEvidence,
   createE2eFailureEvidence,
+  measureRgbaQuality,
   type E2eFailureContext,
 } from '../src/production-e2e-report.ts';
 
@@ -482,15 +483,14 @@ try {
   }).execute({request, productionProfile: profile, humanReview: 'pending'});
   const frames = [];
   for (const [frameIndex, frameResult] of execution.frameResults.entries()) {
-    const finalAsset = frameResult.artifacts[3]!.asset;
-    const decoded = decodeRgbaPng8((await resolver.resolve(finalAsset)).bytes);
-    let visiblePixels = 0;
-    let alphaTotal = 0;
-    for (let offset = 3; offset < decoded.pixels.length; offset += 4) {
-      const alpha = decoded.pixels[offset]!;
-      if (alpha >= 8) visiblePixels += 1;
-      alphaTotal += alpha;
-    }
+    const decodedStages = await Promise.all(frameResult.artifacts.slice(1).map(async ({asset}) => (
+      decodeRgbaPng8((await resolver.resolve(asset)).bytes)
+    )));
+    const stageQuality = {
+      matted: measureRgbaQuality(decodedStages[0]!),
+      normalized: measureRgbaQuality(decodedStages[1]!),
+      anchored: measureRgbaQuality(decodedStages[2]!),
+    };
     frames.push({
       frameIndex,
       generation: execution.raw.frames[frameIndex],
@@ -506,8 +506,10 @@ try {
       })),
       subjectBounds: recordingExtractor.features[frameIndex]!.subjectBounds,
       anchors: frameResult.poseFrame.anchors,
-      alphaCoverage: visiblePixels / (decoded.width * decoded.height),
-      meanAlpha: alphaTotal / (decoded.width * decoded.height * 255),
+      normalizationTransform: execution.normalization.result.frameResults[frameIndex]!.transform,
+      stageQuality,
+      alphaCoverage: stageQuality.anchored.foregroundCoverage,
+      meanAlpha: stageQuality.anchored.meanAlpha,
       frameExecutionKey: frameResult.frameExecutionKey,
       frameResultHash: frameResult.resultHash,
     });

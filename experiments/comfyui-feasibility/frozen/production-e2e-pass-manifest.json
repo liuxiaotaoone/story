@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "PASS",
+  "scope": "M4 Commit 7 - Real GPU Production E2E",
+  "environment": {
+    "comfyUiVersion": "0.27.1",
+    "pytorchVersion": "2.13.0+xpu",
+    "device": "Intel Arc 130T 16GB",
+    "startupFlags": [
+      "--disable-smart-memory",
+      "--novram",
+      "--cpu-vae",
+      "--deterministic",
+      "--cache-none",
+      "--preview-method none"
+    ]
+  },
+  "runtimeModels": [
+    {
+      "role": "diffusion-model",
+      "modelId": "flux-2-klein-4b-fp8.safetensors",
+      "contentHash": "97ed34fe0567e436200f2faee3939b88f2b5d99f8af2a4dc16532c4245c0ccb6"
+    },
+    {
+      "role": "text-encoder",
+      "modelId": "qwen_3_4b_fp4_flux2.safetensors",
+      "contentHash": "3eab03a77adb0ee5304a4e677d5c10ac22f9049c1d7c894adca4f8bb39206ca8"
+    },
+    {
+      "role": "vae",
+      "modelId": "flux2-vae.safetensors",
+      "contentHash": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"
+    }
+  ],
+  "admission": {
+    "workflowId": "flux2-klein-reference-single-frame-v1",
+    "workflowHash": "e95bb3acd6928270e574985804eb2ac17fc206c14ae6fa56315fd2abe65a4116",
+    "modelCatalogHash": "5ff4aac7dcd02323516521674f718d76f21113495f311e5a01592fe2f27d4bf7",
+    "referenceAssetHash": "5af3024d3e5372b2a13ce5b21c5f0fd877f80ec7b7ee2972897269b2dca43fcc",
+    "productionRequestHash": "17d34c90abb3589b7e6f6cc4431363542cd5915624a2cf8b9d6c9c6dcbe2e030",
+    "trustedProfileHash": "d3aae13bb897f1a8dffd57980c7a08915f4d49557736df1c83c5c6e78025bc83"
+  },
+  "run": {
+    "startedAt": "2026-08-24T09:04:42.102Z",
+    "completedAt": "2026-08-24T09:22:20Z",
+    "totalElapsedMs": 1046367.4576999999,
+    "stageElapsedMs": {
+      "preflight": 15.331900000001042,
+      "raw": 1042341.2228000001,
+      "matting": 1397.190500000026,
+      "normalization": 1596.9836999999825,
+      "anchoring": 605.746899999911,
+      "bridge": 57.797099999850616,
+      "continuity": 292.69430000009015,
+      "assembly": 60.413799999980256
+    }
+  },
+  "frames": [
+    {
+      "frameIndex": 0,
+      "attemptCount": 1,
+      "generationInputHash": "5affb6f87d976080b655d4d21500e27b65fb319a8c9572b04420986a82e77dbd",
+      "frameExecutionKey": "0630f9ea92ff4fc0a049df4830970c52a44982d2bc891a3b1faa62431a92e06b",
+      "elapsedMs": 230004.93920000002,
+      "artifacts": {
+        "raw": "bf4d57e77bbd8fe087fe7a56f03b5b7dbbc204b32d010efcbcaa162243fd3af3",
+        "matted": "04409760136f25538b59f1ee893ca8c5944c46f2216a807bf897cd8dc3dc188c",
+        "normalized": "3019a0c30861ccc8b564d7b75c71e34507b05ca3289ab4ee48f697e07099451a",
+        "anchored": "3019a0c30861ccc8b564d7b75c71e34507b05ca3289ab4ee48f697e07099451a"
+      },
+      "frameResultHash": "10b65e2e356679b0abff4c27751325fb7256fd44f1248b4984cfbc91e1905c11"
+    },
+    {
+      "frameIndex": 1,
+      "attemptCount": 1,
+      "generationInputHash": "63ea713cf484ec2937256b19da008599853b7d82369888d34c3e0a42df2b9acd",
+      "frameExecutionKey": "9b9f71d29973feed4f1e7d9e82cd230b2a69ff469638874892575ff5b3a0dcbb",
+      "elapsedMs": 255703.42849999998,
+      "artifacts": {
+        "raw": "ec3cd1d53ba791596e258c7e3b31b421a7df01f2c8f200d6c9fa0692ab4258e3",
+        "matted": "5cb2478e3d805790794ac994d4cff8b8be5e3783404124014e550791b0923146",
+        "normalized": "9c5b5531193744c32f7152b4c6159b9818d0d003c44f1aa430ae4dede1fe6b94",
+        "anchored": "9c5b5531193744c32f7152b4c6159b9818d0d003c44f1aa430ae4dede1fe6b94"
+      },
+      "frameResultHash": "b5a6a8c04b30456426bdb3e82e2996bf5782e74c8870c01be826860d99ee07aa"
+    },
+    {
+      "frameIndex": 2,
+      "attemptCount": 1,
+      "generationInputHash": "063eca451af9458ccbbb36137d26d9085415067c1a79b120fd85cf3c24e66087",
+      "frameExecutionKey": "f594a29c768b12147af733c1aa44d85290e2b65f8159dc12c2a395182adbef18",
+      "elapsedMs": 270765.52230000007,
+      "artifacts": {
+        "raw": "9128b09efcc4fe3a31d59546596feb849589a50692c41ce98b0375eadf855aed",
+        "matted": "ef15439db56e9391f6ceed899851846d81ac42e65dc5f0ce95f5f227c241cf5d",
+        "normalized": "faf0bc8f80f3937cd85995845c49537c92b8e525493d2a3308b0fe231c694e41",
+        "anchored": "faf0bc8f80f3937cd85995845c49537c92b8e525493d2a3308b0fe231c694e41"
+      },
+      "frameResultHash": "417fa8a8df9233ed6cfe380a1a9281efa547674e8c855ddc8a7dc1b1b0db8fab"
+    },
+    {
+      "frameIndex": 3,
+      "attemptCount": 1,
+      "generationInputHash": "4802dffe9c31ae60cfd18fb366af9f7732e8bd4c5651df3d181e1e69c943ad31",
+      "frameExecutionKey": "859b590b02d9a651256ab61f2c3d197af9e690add2abce24fe0895acb0821eb7",
+      "elapsedMs": 285835.4674999999,
+      "artifacts": {
+        "raw": "034154c28878f9ea455b10e130d66238d135383c428c4fa9619ab5e6d2c5ce48",
+        "matted": "ce57666d3d4c513d8f1f1035d681e8d860c9d9d7c29010db8effaac7d037af3e",
+        "normalized": "82654ea8238d015969223c00f4b89acb3cee7c8322afe2127724e26cc949fdef",
+        "anchored": "82654ea8238d015969223c00f4b89acb3cee7c8322afe2127724e26cc949fdef"
+      },
+      "frameResultHash": "1d20a43dc98deff2ecf7289b450d10b6f2d397219a52639d3c0f24162c2882b7"
+    }
+  ],
+  "continuity": {
+    "status": "PASS",
+    "automatedReady": true,
+    "evaluationHash": "df9d6ceaf4a6aff6289c77ec62976e130f896ade1beb9c0520eb939403ff0af5",
+    "maxDeltas": {
+      "identity": 0.046660260888937474,
+      "scale": 0,
+      "canvas": 0,
+      "body": 0.029366154505630893,
+      "foot": 0,
+      "anchor": 0,
+      "silhouette": 0.15473750329628033,
+      "loop": 0.0742803214750464
+    }
+  },
+  "production": {
+    "poseClipHash": "ffcd4ab58415adc29a7e62f6bf1562af8b567bd151216e495bc0b4463258b727",
+    "resultHash": "720c00cac3c16f073e925562b348e60ab5cac9600666b35dba5748b2d660f7c1",
+    "profileApproval": "pending",
+    "humanReview": "pending",
+    "productionReady": false
+  },
+  "resourceRelease": "PASS",
+  "limitations": [
+    "This manifest freezes the engineering E2E PASS, not visual production approval.",
+    "The collection continuity thresholds are not calibrated production thresholds."
+  ]
+}

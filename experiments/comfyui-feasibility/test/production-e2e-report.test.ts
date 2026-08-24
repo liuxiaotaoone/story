@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {
   createE2eEnvironmentEvidence,
   createE2eFailureEvidence,
+  measureRgbaQuality,
 } from '../src/production-e2e-report.js';
 
 describe('production E2E report evidence', () => {
@@ -50,5 +51,34 @@ describe('production E2E report evidence', () => {
       name: 'Error',
       message: 'unexpected failure',
     });
+  });
+
+  it('measures visible, edge and opaque green residuals without counting transparent RGB', () => {
+    const pixels = Uint8Array.from([
+      0, 255, 0, 0,
+      255, 255, 255, 255,
+      0, 200, 0, 128,
+      0, 200, 0, 255,
+    ]);
+
+    expect(measureRgbaQuality({width: 2, height: 2, pixels})).toEqual({
+      alphaThreshold: 8,
+      opaqueThreshold: 247,
+      foregroundCoverage: 3 / 4,
+      meanAlpha: 638 / 1020,
+      softEdgeRatio: 1 / 3,
+      visibleGreenSpillRatio: 2 / 3,
+      edgeGreenSpillRatio: 1,
+      opaqueGreenResidualRatio: 1 / 3,
+    });
+  });
+
+  it('rejects malformed RGBA quality inputs and invalid thresholds', () => {
+    expect(() => measureRgbaQuality({width: 1, height: 1, pixels: new Uint8Array(3)})).toThrow(
+      /dimensions do not match/u,
+    );
+    expect(() => measureRgbaQuality({width: 1, height: 1, pixels: new Uint8Array(4)}, 8, 8)).toThrow(
+      /thresholds are invalid/u,
+    );
   });
 });
